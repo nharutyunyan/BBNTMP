@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 {
     Application app(argc, argv);
 
-    Window mainWindow;
+    PlayerWindow mainWindow(&app);
     Player player;
 
     try

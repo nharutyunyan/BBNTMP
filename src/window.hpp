@@ -8,12 +8,14 @@
 
 #include <QtCore/QObject>
 
-class Window : public QObject
+namespace bb { namespace cascades { class Application; }}
+
+class PlayerWindow : public QObject
 {
     Q_OBJECT
 
 public:
-    Window();
+    PlayerWindow(bb::cascades::Application* app);
 };
 
 #endif
