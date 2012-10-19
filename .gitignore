@@ -12,3 +12,5 @@
 *.a
 
 # generated files/folders
+x86/
+arm/
