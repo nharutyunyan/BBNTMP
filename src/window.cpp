@@ -4,22 +4,27 @@
  */
 
 #include <bb/cascades/Application>
-#include <bb/cascades/Color>
-#include <bb/cascades/Container>
-#include <bb/cascades/DockLayout>
-#include <bb/cascades/Page>
-#include <bb/cascades/Slider>
-#include <bb/cascades/Stacklayout>
-#include <bb/cascades/StacklayoutProperties>
+
+#include <bb/cascades/QmlDocument>
+#include <bb/cascades/AbstractPane>
 
 #include "window.hpp"
 
 using namespace bb::cascades;
 
-PlayerWindow::PlayerWindow(Application* app)
-: QObject(app)
+PlayerWindow::PlayerWindow()
 {
-	Container *appContainer = new Container();
+
+	// Create and load the QML file, using build patterns.
+	QmlDocument *qml = QmlDocument::create("asset:///main.qml");
+	qml->setContextProperty("cs", this);
+
+	AbstractPane *root = qml->createRootObject<AbstractPane>();
+
+	// Set the application scene
+	Application::instance()->setScene(root);
+
+	/*Container *appContainer = new Container();
 
 	appContainer->setLayout(new DockLayout());
 	appContainer->setBackground(Color::fromARGB(0xff262626));
@@ -58,7 +63,8 @@ PlayerWindow::PlayerWindow(Application* app)
 
 	Page *page = new Page();
 	page->setContent(appContainer);
+	page->setObjectName(QString("myPlayerWindow"));
 
-	app->setScene(page);
+	app->setScene(page);*/
 
 }

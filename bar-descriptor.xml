@@ -52,7 +52,9 @@
     <!-- <copyright></copyright> -->
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
-    <author>Example Inc.</author>
+    <author>Macadamian</author>
+    <authorId>gYAAgD_ATlYuWHjnleQVwl8aCT8</authorId>
+    <category>core.games</category>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -63,7 +65,6 @@
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <category>core.games</category>
     <configuration id="com.qnx.qcc.toolChain.1619622916" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
@@ -95,9 +96,13 @@
     <asset path="translations" dest="qm">
         <include name="*.qm"/>
     </asset>
+    <asset path="E:/syuzi/Appcel/titanium_mobile/demos/SmokeTest/Resources/movie.mp4">movie.mp4</asset>
     
     <!-- Request permission to execute native code.  Required for native applications. -->
-    <action system="true">run_native</action>
+    <permission>run_native</permission>
+    <permission>access_shared</permission>
+    <permission>play_audio</permission>
+    <permission>run_when_backgrounded</permission>
     <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
 
     <!--  The permissions requested by your application. -->

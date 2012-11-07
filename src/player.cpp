@@ -4,6 +4,15 @@
  */
 
 #include <bb/cascades/Application>
+#include <bb/cascades/QmlDocument>
+#include <bb/cascades/Container>
+#include <bb/multimedia/MediaPlayer>
+#include <bb/multimedia/MediaError>
+#include <bb/cascades/AbstractPane>
+#include <bb/cascades/Sheet>
+#include <bb/cascades/Slider>
+#include <bb/cascades/ForeignWindowControl>
+
 
 #include <fcntl.h>
 #include <bps/navigator.h>
@@ -12,6 +21,7 @@
 #include "exceptions.hpp"
 
 using namespace ::bb::cascades;
+using namespace ::bb::multimedia;
 using namespace exceptions;
 
 const char* Player::video_device_url = "screen:?winid=videosamplewindowgroup&wingrp=videosamplewindowgroup";
@@ -27,7 +37,26 @@ Player::Player()
 	, video_device_output_id (-1)
 	, audio_device_output_id (-1)
 {
-	bps_initialize();
+	//bps_initialize();
+	// Create and load the QML file, using build patterns.
+	QmlDocument *qml = QmlDocument::create("asset:///main.qml");
+	qml->setContextProperty("mycppPlayer", this);
+
+	mRoot = qml->createRootObject<AbstractPane>();
+
+	// Set the application scene
+	Application::instance()->setScene(mRoot);
+	Container* c = mRoot->findChild<Container*>("buttonContainer");
+	//mVideoSheet = root->findChild<Sheet*>("videoSheet");
+	QList<QObject *> chl = mRoot->findChildren<QObject*>("durationSlider");
+	int n = chl.size();
+	chl = mRoot->findChildren<QObject*>();
+	n = chl.size();
+	for(int i = 0; i < n; ++i)
+	{
+		QString s = chl[i]->objectName();
+	}
+	mMp = 0;
 }
 
 Player::~Player()
@@ -93,7 +122,7 @@ void Player::startPlayback(const QString& fileName)
 	// Start the playback.
 	//if (mmr_input_attach(mmr_context, media_file, "track") != 0) {
 	if (mmr_input_attach(mmr_context, fileName.toStdString().c_str(), "track") != 0) {
-		//const mmr_error_info_t* ptr = mmr_error_info(mmr_context);
+		const mmr_error_info_t* ptr = mmr_error_info(mmr_context);
 		throw exception(EXIT_FAILURE);
 	}
 	if (mmr_play(mmr_context) != 0) {
@@ -242,3 +271,66 @@ void Player::runPlayer(const QString& fileName)
 	detachFromMMR();
 	destroyScreen();
 }
+
+void Player::playbackCompleted()
+{
+	//console.log("----------------------complete playing ");
+}
+
+void Player::playVideo(const QString& videoPath) {
+/*	if (mVideoSheet == 0)
+		return; // defensive
+
+	mVideoSheet->open();*/
+	//mVideoSheet->setVisible(true);
+
+
+	delete mMp;
+	mMp = 0;
+	mMp = new bb::multimedia::MediaPlayer(this);
+
+
+//	bool res = QObject::connect(mMp, SIGNAL(playbackCompleted()), this, SLOT(playbackCompleted()));
+	//Q_ASSERT(res);
+	// Setup the output window to primary and attach to our ForeignWindow
+	mMp->setVideoOutput(bb::multimedia::VideoOutput::PrimaryDisplay);
+	ForeignWindowControl* fw = mRoot->findChild<ForeignWindowControl*>("VideoWindow");
+/*	if(!fw->isVisible())
+		fw->setVisible(true);*/
+//	QString str = fw->windowId();
+	mMp->setWindowId("VideoWindow");
+
+//	QLOG_DEBUG() << "play video here: " << QDir::homePath() << videoPath;
+
+	MediaError::Type error = mMp->setSourceUrl(QString("/accounts/1000/shared/videos/aaa.mp4"));///*QDir::homePath() +*/ videoPath);
+	//MediaError::Type error = mMp->setSourceUrl(QString("/accounts/1000/shared/videos/SOS_PETROSYAN.avi"));
+	//MediaError::Type error = mMp->setSourceUrl(QString("asset:///movie.mp4"));
+	if (error != MediaError::None) {
+		//QLOG_ERROR() << "setSource error: " << error;
+	//	mVideoSheet->close();
+		return;
+	} else {
+
+		QUrl surl = mMp->sourceUrl();
+		QString str = surl.path();
+		mSlider = mRoot->findChild<Slider*>("durationSlider");
+		mSlider->setRange(0.0, mMp->duration());
+		MediaError::Type errorp = mMp->play();
+		int ei = errorp;
+		if (errorp != MediaError::None) {
+	//		QLOG_DEBUG() << "play error: " << error;
+	//		mVideoSheet->close();
+		}
+	}
+}
+
+void Player::stopVideo()
+{
+	if(mMp != 0)
+	{
+		mMp->stop();
+		mMp = 0;
+	}
+}
+
+

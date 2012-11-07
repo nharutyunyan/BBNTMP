@@ -15,7 +15,7 @@ class PlayerWindow : public QObject
     Q_OBJECT
 
 public:
-    PlayerWindow(bb::cascades::Application* app);
+    PlayerWindow();
 };
 
 #endif
