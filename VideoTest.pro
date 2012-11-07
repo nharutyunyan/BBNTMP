@@ -7,6 +7,8 @@ INCLUDEPATH += ../src
 SOURCES += ../src/*.cpp
 HEADERS += ../src/*.hpp ../src/*.h
 LIBS += -lmmrndclient -lscreen
+LIBS += -lbbmultimedia
+
 
 lupdate_inclusion {
     SOURCES += ../assets/*.qml

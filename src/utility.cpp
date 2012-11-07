@@ -19,6 +19,7 @@ bool FileSystemUtility::getEntryListR(const QString& dir, const QStringList& fil
 	    foreach(QString item, currentFileList)
 		{
 		  result.append(dir + "/" + item);
+		  return true;
 		}
 	}
 

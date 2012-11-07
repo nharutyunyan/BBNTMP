@@ -14,6 +14,10 @@
 #include "exceptions.hpp"
 #include "utility.hpp"
 
+#include <bb/cascades/Application>
+#include <bb/cascades/QmlDocument>
+#include <bb/cascades/AbstractPane>
+
 
 using namespace bb::cascades;
 using namespace utility;
@@ -29,11 +33,22 @@ using namespace exceptions;
 }*/
 
 
+
+
 int main(int argc, char **argv)
 {
     Application app(argc, argv);
 
-    PlayerWindow mainWindow(&app);
+    QTranslator translator;
+    QString locale_string = QLocale().name();
+    QString filename = QString( "VideoTest_%1" ).arg( locale_string );
+    if (translator.load(filename, "app/native/qm")) {
+    	app.installTranslator( &translator );
+    }
+
+
+    //PlayerWindow mainWindow;
+	// Create and load the QML file, using build patterns.
     Player player;
 
     try
@@ -42,12 +57,21 @@ int main(int argc, char **argv)
 		QStringList filters;
 		filters << "*.mp4";
 		filters << "*.avi";
-		bool b = FileSystemUtility::getEntryListR("/", filters, result);
+		//result.append("//accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc/data/Workflow3-JIRA_Replied_Path.mp4");
+		//bool b = FileSystemUtility::getEntryListR("//accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc", filters, result);
+		bool b = FileSystemUtility::getEntryListR("//accounts/1000/shared", filters, result);
 		if(b)
 		{
 			//TODO for now let's play the first found video
 			QString firstVideo = result[0];
-			player.runPlayer(firstVideo);
+			//player.playVideo(firstVideo);
+		}else{
+			QmlDocument *qml = QmlDocument::create("asset:///videoSheet.qml").parent(&player);
+
+			// create root object for the UI
+			AbstractPane *root = qml->createRootObject<AbstractPane>();
+			// set created root object as a scene
+			app.setScene(root);
 		}
     }
     catch(const exception& e)
@@ -57,4 +81,5 @@ int main(int argc, char **argv)
 
     return Application::exec();
 }
+
 

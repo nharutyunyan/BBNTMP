@@ -13,6 +13,14 @@
 #include <bps/screen.h>
 #include <stdlib.h>
 
+#include <bb/multimedia/MediaPlayer>
+
+namespace bb { namespace cascades { class AbstractPane; }}
+namespace bb { namespace cascades { class Sheet; }}
+namespace bb { namespace cascades { class Slider; }}
+namespace bb { namespace cascades { class Container; }}
+namespace bb { namespace multimedia { class MediaPlayer; }}
+
 
 class Player : public QObject
 {
@@ -23,6 +31,12 @@ public:
     void runPlayer(const QString&);
     ~Player();
 
+    Q_INVOKABLE void playVideo(const QString& videoPath);
+    Q_INVOKABLE void stopVideo();
+
+public slots:
+	void playbackCompleted();
+
 private:
     void connectToMMR();
     void configureAudioVideo();
@@ -32,6 +46,8 @@ private:
     void createWindow();
     void makeWindowVisible();
     void destroyScreen();
+
+
 
     int errorCode;
 
@@ -51,6 +67,11 @@ private:
 	static const char *video_device_url;
 	static const char *audio_device_url;
 	static const char *window_group_name;
+
+	bb::cascades::Sheet* mVideoSheet;
+	bb::cascades::Slider* mSlider;
+	bb::cascades::AbstractPane *mRoot;
+	bb::multimedia::MediaPlayer* mMp;
 
 };
 
