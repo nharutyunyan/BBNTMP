@@ -31,8 +31,8 @@ public:
     void runPlayer(const QString&);
     ~Player();
 
-    Q_INVOKABLE void playVideo(const QString& videoPath);
-    Q_INVOKABLE void stopVideo();
+    Q_INVOKABLE void setVideoPath(const QString& videoPath);
+    Q_INVOKABLE QString getVideoPath(void);
 
 public slots:
 	void playbackCompleted();
@@ -71,7 +71,8 @@ private:
 	bb::cascades::Sheet* mVideoSheet;
 	bb::cascades::Slider* mSlider;
 	bb::cascades::AbstractPane *mRoot;
-	bb::multimedia::MediaPlayer* mMp;
+
+	QString m_path;
 
 };
 

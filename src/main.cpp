@@ -51,20 +51,20 @@ int main(int argc, char **argv)
 	// Create and load the QML file, using build patterns.
     Player player;
 
+
     try
     {
     	QStringList result;
 		QStringList filters;
 		filters << "*.mp4";
 		filters << "*.avi";
-		//result.append("//accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc/data/Workflow3-JIRA_Replied_Path.mp4");
-		//bool b = FileSystemUtility::getEntryListR("//accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc", filters, result);
-		bool b = FileSystemUtility::getEntryListR("//accounts/1000/shared", filters, result);
+		bool b = FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+
 		if(b)
 		{
 			//TODO for now let's play the first found video
 			QString firstVideo = result[0];
-			//player.playVideo(firstVideo);
+    		player.setVideoPath(firstVideo);
 		}else{
 			QmlDocument *qml = QmlDocument::create("asset:///videoSheet.qml").parent(&player);
 

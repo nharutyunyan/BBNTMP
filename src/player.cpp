@@ -13,9 +13,9 @@
 #include <bb/cascades/Slider>
 #include <bb/cascades/ForeignWindowControl>
 
-
 #include <fcntl.h>
 #include <bps/navigator.h>
+#include <iostream>
 
 #include "player.hpp"
 #include "exceptions.hpp"
@@ -46,17 +46,6 @@ Player::Player()
 
 	// Set the application scene
 	Application::instance()->setScene(mRoot);
-	Container* c = mRoot->findChild<Container*>("buttonContainer");
-	//mVideoSheet = root->findChild<Sheet*>("videoSheet");
-	QList<QObject *> chl = mRoot->findChildren<QObject*>("durationSlider");
-	int n = chl.size();
-	chl = mRoot->findChildren<QObject*>();
-	n = chl.size();
-	for(int i = 0; i < n; ++i)
-	{
-		QString s = chl[i]->objectName();
-	}
-	mMp = 0;
 }
 
 Player::~Player()
@@ -277,60 +266,14 @@ void Player::playbackCompleted()
 	//console.log("----------------------complete playing ");
 }
 
-void Player::playVideo(const QString& videoPath) {
-/*	if (mVideoSheet == 0)
-		return; // defensive
-
-	mVideoSheet->open();*/
-	//mVideoSheet->setVisible(true);
-
-
-	delete mMp;
-	mMp = 0;
-	mMp = new bb::multimedia::MediaPlayer(this);
-
-
-//	bool res = QObject::connect(mMp, SIGNAL(playbackCompleted()), this, SLOT(playbackCompleted()));
-	//Q_ASSERT(res);
-	// Setup the output window to primary and attach to our ForeignWindow
-	mMp->setVideoOutput(bb::multimedia::VideoOutput::PrimaryDisplay);
-	ForeignWindowControl* fw = mRoot->findChild<ForeignWindowControl*>("VideoWindow");
-/*	if(!fw->isVisible())
-		fw->setVisible(true);*/
-//	QString str = fw->windowId();
-	mMp->setWindowId("VideoWindow");
-
-//	QLOG_DEBUG() << "play video here: " << QDir::homePath() << videoPath;
-
-	MediaError::Type error = mMp->setSourceUrl(QString("/accounts/1000/shared/videos/aaa.mp4"));///*QDir::homePath() +*/ videoPath);
-	//MediaError::Type error = mMp->setSourceUrl(QString("/accounts/1000/shared/videos/SOS_PETROSYAN.avi"));
-	//MediaError::Type error = mMp->setSourceUrl(QString("asset:///movie.mp4"));
-	if (error != MediaError::None) {
-		//QLOG_ERROR() << "setSource error: " << error;
-	//	mVideoSheet->close();
-		return;
-	} else {
-
-		QUrl surl = mMp->sourceUrl();
-		QString str = surl.path();
-		mSlider = mRoot->findChild<Slider*>("durationSlider");
-		mSlider->setRange(0.0, mMp->duration());
-		MediaError::Type errorp = mMp->play();
-		int ei = errorp;
-		if (errorp != MediaError::None) {
-	//		QLOG_DEBUG() << "play error: " << error;
-	//		mVideoSheet->close();
-		}
-	}
+void Player::setVideoPath(const QString& videoPath)
+{
+	m_path = videoPath;
 }
 
-void Player::stopVideo()
+QString Player::getVideoPath(void)
 {
-	if(mMp != 0)
-	{
-		mMp->stop();
-		mMp = 0;
-	}
+	return m_path;
 }
 
 

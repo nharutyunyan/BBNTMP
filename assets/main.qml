@@ -50,7 +50,7 @@ Page {
                     id:previousButton
                     text: "Previous"
                     
-                    onClicked:{                        
+                    onClicked:{ 
                         mycppPlayer.playVideo("/accounts/1000/shared/videos/aaa.mp4")
                         videoWindow.visible = true;
                         contentContainer.visible = true;
@@ -62,7 +62,12 @@ Page {
                     text: "Play/Pause"
                     
                     onClicked:{
-                        myPlayer.setSourceUrl("/accounts/1000/shared/videos/aaa.mp4")
+                        
+//                        myPlayer.setSourceUrl("/accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc/data/movie.mp4")
+                        console.log("aaaaaaaaaaaaaaa")
+                        console.log("VIDEO PATH")
+                        console.log(mycppPlayer.getVideoPath())
+                        myPlayer.setSourceUrl(mycppPlayer.getVideoPath());
                         if (myPlayer.play() == MediaError.None) {
                           videoWindow.visible = true;
                           contentContainer.visible = true;
@@ -96,7 +101,7 @@ Page {
                     text:"video"
                 }*/
                 
-                 Slider {
+                /* Slider {
                                                         id: durationSlider
                                                         objectName: durationSlider
                                                         leftMargin: 20
@@ -114,9 +119,9 @@ Page {
                                                             // This is where the day-night opacity value is done.
                                                             //todo
                                                         }
-                                                    }
+                                                    }*/
                                                     
-             /*   ForeignWindowControl {
+                ForeignWindowControl {
                     id: videoWindow
                     objectName: "VideoWindow"
                     windowId: "VideoWindow"
@@ -138,7 +143,7 @@ Page {
                     onBoundToWindowChanged: {
                         console.log("VideoWindow bound to mediaplayer!");
                     }
-                }*/
+                }
                 
             }//videoContainer
         }//contentContainer

@@ -53,8 +53,7 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <author>Macadamian</author>
-    <authorId>gYAAgD_ATlYuWHjnleQVwl8aCT8</authorId>
-    <category>core.games</category>
+    <authorId>gYAAgPy-T5-mBK1JaUhs4VarGgQ</authorId>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -96,7 +95,6 @@
     <asset path="translations" dest="qm">
         <include name="*.qm"/>
     </asset>
-    <asset path="E:/syuzi/Appcel/titanium_mobile/demos/SmokeTest/Resources/movie.mp4">movie.mp4</asset>
     
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission>run_native</permission>
