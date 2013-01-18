@@ -46,6 +46,8 @@ Player::Player()
 
 	// Set the application scene
 	Application::instance()->setScene(mRoot);
+
+	mCurrentVideoIndex = 0;
 }
 
 Player::~Player()
@@ -266,14 +268,46 @@ void Player::playbackCompleted()
 	//console.log("----------------------complete playing ");
 }
 
-void Player::setVideoPath(const QString& videoPath)
-{
-	m_path = videoPath;
-}
-
 QString Player::getVideoPath(void)
 {
-	return m_path;
+	if(mVideoPaths.empty()) {
+		return QString("");
+	}
+	if(mCurrentVideoIndex < 0 || mCurrentVideoIndex >= mVideoPaths.size())
+	{
+		return QString("");
+	}
+	return mVideoPaths[mCurrentVideoIndex];
+}
+
+QString Player::getNextVideoPath(void)
+{
+	++mCurrentVideoIndex;
+	if(mCurrentVideoIndex >= mVideoPaths.size())
+	{
+		mCurrentVideoIndex = 0;
+	}
+	return getVideoPath();
+}
+
+QString Player::getPreviousVideoPath(void)
+{
+	--mCurrentVideoIndex;
+	if(mCurrentVideoIndex < 0)
+	{
+		mCurrentVideoIndex = mVideoPaths.size() - 1;
+	}
+	return getVideoPath();
+}
+
+void Player::setVideoPaths(QStringList videoPaths)
+{
+	mVideoPaths = videoPaths;
+}
+
+void Player::setCurrentVideoIndex(int index)
+{
+	mCurrentVideoIndex = index;
 }
 
 

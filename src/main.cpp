@@ -34,10 +34,18 @@ using namespace exceptions;
 
 
 
+void myMessageOutput(QtMsgType type, const char* msg)
+{
+    fprintf(stdout, "%s\n", msg);
+    fflush(stdout);
+}
 
 int main(int argc, char **argv)
 {
     Application app(argc, argv);
+    qInstallMsgHandler(myMessageOutput);
+    qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
+
 
     QTranslator translator;
     QString locale_string = QLocale().name();
@@ -63,8 +71,8 @@ int main(int argc, char **argv)
 		if(b)
 		{
 			//TODO for now let's play the first found video
-			QString firstVideo = result[0];
-    		player.setVideoPath(firstVideo);
+			player.setCurrentVideoIndex(0);
+    		player.setVideoPaths(result);
 		}else{
 			QmlDocument *qml = QmlDocument::create("asset:///videoSheet.qml").parent(&player);
 

@@ -31,8 +31,12 @@ public:
     void runPlayer(const QString&);
     ~Player();
 
-    Q_INVOKABLE void setVideoPath(const QString& videoPath);
     Q_INVOKABLE QString getVideoPath(void);
+    Q_INVOKABLE QString getNextVideoPath(void);
+    Q_INVOKABLE QString getPreviousVideoPath(void);
+
+    void setVideoPaths(QStringList videoPaths);
+    void setCurrentVideoIndex(int index);
 
 public slots:
 	void playbackCompleted();
@@ -48,7 +52,7 @@ private:
     void destroyScreen();
 
 
-
+    clock_t mStartTime;
     int errorCode;
 
     // Renderer variables
@@ -72,7 +76,8 @@ private:
 	bb::cascades::Slider* mSlider;
 	bb::cascades::AbstractPane *mRoot;
 
-	QString m_path;
+	int mCurrentVideoIndex;
+	QStringList mVideoPaths;
 
 };
 
