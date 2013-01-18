@@ -64,21 +64,9 @@
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <configuration id="com.qnx.qcc.toolChain.1619622916" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.311432539" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1797777666" name="Device-Debug">
-       <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.toolChain.1359624944" name="Device-Release">
-       <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="arm/o.le-v7/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
-    </configuration>
-    <configuration id="com.qnx.qcc.toolChain.675154907" name="Simulator-Debug">
-       <platformArchitecture>x86</platformArchitecture>
-       <asset path="x86/o-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
     </configuration>
     
     <!--  The icon for the application, which should be 86x86. -->
