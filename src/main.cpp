@@ -33,7 +33,7 @@ using namespace exceptions;
 }*/
 
 
-
+//test commit
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     fprintf(stdout, "%s\n", msg);
