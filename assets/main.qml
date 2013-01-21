@@ -32,7 +32,6 @@ Page {
 	        preferredHeight: appContainer.landscapeHeight 
 	        
 	        onTouch: {
-	            // If the touch event is a move event, change the color of the
 	        	if (event.touchType == TouchType.Down)
 	        	{
 	        	     appContainer.touchPositionX =  event.localX;
@@ -43,14 +42,14 @@ Page {
 	                     myPlayer.pause();
 	                	 appContainer.playerStarted = true;
 	                }
-	                if (appContainer.touchPositionX  > event.localX) {
-	                     console.log("touchPositionX  > event.localX: " + event.localX);
-	                     appContainer.changeVideoPosition = true;
-	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
-	                } else if (appContainer.touchPositionX  < event.localX) {
-	                     console.log("touchPositionX  < event.localX: " + event.localX);
+	                if (appContainer.touchPositionX  > event.localX + 10) {
+	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
 	                     appContainer.changeVideoPosition = true;
 	                     durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+	                } else if (appContainer.touchPositionX + 10  < event.localX) {
+	                     console.log("touchPositionX  < event.localX: " + (event.localX - appContainer.touchPositionX));
+	                     appContainer.changeVideoPosition = true;
+	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
 	                }
 	               if(appContainer.playerStarted == true) {
 	                     myPlayer.play();
