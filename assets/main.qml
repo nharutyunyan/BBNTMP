@@ -29,14 +29,7 @@ Page {
 	        preferredWidth:  appContainer.landscapeWidth
 	        preferredHeight: appContainer.landscapeHeight 
             
-            Container {
-                id: videoWindowContainer
-                background: Color.create("#ff999999")
-                layout: DockLayout {}
-//                layout: AbsoluteLayout {}
-	            horizontalAlignment: HorizontalAlignment.Center
-	            verticalAlignment: VerticalAlignment.Center
-	            ForeignWindowControl {
+	        ForeignWindowControl {
 	                id: videoWindow
 	                objectName: "VideoWindow"
 	                windowId: "VideoWindow"
@@ -62,7 +55,7 @@ Page {
 //		                positionX: 0
 //		                positionY: 500
 //		            }
-	                visible:  boundToWindow
+	              //  visible:  boundToWindow
 	                updatedProperties:// WindowProperty.SourceSize | 
 	                    WindowProperty.Size |
 	                    WindowProperty.Position |
@@ -75,8 +68,7 @@ Page {
 	                    console.log("VideoWindow bound to mediaplayer!");
 	                }
 	            } //videoWindow
-            } //videoWindowContainer
-           
+          
             Container
             {
                 id: controlsContainer
@@ -274,16 +266,10 @@ Page {
                        
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
-                       
-                       videoWindowContainer.preferredWidth = appContainer.landscapeWidth
-                       videoWindowContainer.preferredHeight = appContainer.landscapeHeight
                    } else {
                        console.log("\n PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP \n")
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
-                       
-                       videoWindowContainer.preferredWidth = appContainer.landscapeHeight
-                       videoWindowContainer.preferredHeight = appContainer.landscapeWidth
                    }
                }
            }
@@ -298,14 +284,10 @@ Page {
                 videoWindow.preferredWidth = appContainer.landscapeWidth
                 videoWindow.preferredHeight = appContainer.landscapeHeight
                 
-                videoWindowContainer.preferredWidth = appContainer.landscapeWidth
-                videoWindowContainer.preferredHeight = appContainer.landscapeHeight
             } else {
                 videoWindow.preferredWidth = appContainer.landscapeHeight
                 videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
                 
-                videoWindowContainer.preferredWidth = appContainer.landscapeHeight
-                videoWindowContainer.preferredHeight = appContainer.landscapeWidth
             }
         }
 	    
