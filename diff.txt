@@ -1,0 +1,282 @@
+diff --git a/.cproject b/.cproject
+index 9cfde00..031a8e1 100644
+--- a/.cproject
++++ b/.cproject
+@@ -3,8 +3,8 @@
+ 
+ <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+ 	<storageModule moduleId="org.eclipse.cdt.core.settings">
+-		<cconfiguration id="com.qnx.qcc.toolChain.311432539">
+-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.toolChain.311432539" moduleId="org.eclipse.cdt.core.settings" name="Default">
++		<cconfiguration id="com.qnx.qcc.toolChain.652960797">
++			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.toolChain.652960797" moduleId="org.eclipse.cdt.core.settings" name="Default">
+ 				<externalSettings/>
+ 				<extensions>
+ 					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
+@@ -14,26 +14,26 @@
+ 				</extensions>
+ 			</storageModule>
+ 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+-				<configuration artifactName="${ProjName}" buildProperties="" id="com.qnx.qcc.toolChain.311432539" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+-					<folderInfo id="com.qnx.qcc.toolChain.311432539.2114186402" name="/" resourcePath="">
+-						<toolChain id="com.qnx.qcc.toolChain.1860863899" name="com.qnx.qcc.toolChain" superClass="com.qnx.qcc.toolChain">
+-							<option id="com.qnx.qcc.option.os.1620208786" name="Target OS:" superClass="com.qnx.qcc.option.os"/>
+-							<option id="com.qnx.qcc.option.cpu.1343138328" name="Target CPU:" superClass="com.qnx.qcc.option.cpu" value="com.qnx.qcc.option.gen.cpu.armle-v7" valueType="enumerated"/>
+-							<option id="com.qnx.qcc.option.compiler.344950853" name="Compiler:" superClass="com.qnx.qcc.option.compiler"/>
+-							<option id="com.qnx.qcc.option.runtime.74038135" name="Runtime:" superClass="com.qnx.qcc.option.runtime"/>
+-							<targetPlatform archList="all" binaryParser="com.qnx.tools.ide.qde.core.QDEBynaryParser" id="com.qnx.qcc.targetPlatform.457138376" osList="all" superClass="com.qnx.qcc.targetPlatform"/>
+-							<builder id="com.qnx.qcc.toolChain.311432539.193983211" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+-							<tool id="com.qnx.qcc.tool.compiler.44621848" name="QCC Compiler" superClass="com.qnx.qcc.tool.compiler">
+-								<option id="com.qnx.qcc.option.compiler.optlevel.1217946170" superClass="com.qnx.qcc.option.compiler.optlevel" value="com.qnx.qcc.option.compiler.optlevel.0" valueType="enumerated"/>
+-								<inputType id="com.qnx.qcc.inputType.compiler.481299081" superClass="com.qnx.qcc.inputType.compiler"/>
++				<configuration artifactName="${ProjName}" buildProperties="" id="com.qnx.qcc.toolChain.652960797" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
++					<folderInfo id="com.qnx.qcc.toolChain.652960797.936452109" name="/" resourcePath="">
++						<toolChain id="com.qnx.qcc.toolChain.22095057" name="com.qnx.qcc.toolChain" superClass="com.qnx.qcc.toolChain">
++							<option id="com.qnx.qcc.option.os.415366802" name="Target OS:" superClass="com.qnx.qcc.option.os"/>
++							<option id="com.qnx.qcc.option.cpu.1604244020" name="Target CPU:" superClass="com.qnx.qcc.option.cpu" value="com.qnx.qcc.option.gen.cpu.armle-v7" valueType="enumerated"/>
++							<option id="com.qnx.qcc.option.compiler.2090259352" name="Compiler:" superClass="com.qnx.qcc.option.compiler"/>
++							<option id="com.qnx.qcc.option.runtime.647528199" name="Runtime:" superClass="com.qnx.qcc.option.runtime"/>
++							<targetPlatform archList="all" binaryParser="com.qnx.tools.ide.qde.core.QDEBynaryParser" id="com.qnx.qcc.targetPlatform.1409996015" osList="all" superClass="com.qnx.qcc.targetPlatform"/>
++							<builder id="com.qnx.qcc.toolChain.652960797.1377554472" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
++							<tool id="com.qnx.qcc.tool.compiler.1149710782" name="QCC Compiler" superClass="com.qnx.qcc.tool.compiler">
++								<option id="com.qnx.qcc.option.compiler.optlevel.1281754675" superClass="com.qnx.qcc.option.compiler.optlevel" value="com.qnx.qcc.option.compiler.optlevel.0" valueType="enumerated"/>
++								<inputType id="com.qnx.qcc.inputType.compiler.1190771119" superClass="com.qnx.qcc.inputType.compiler"/>
+ 							</tool>
+-							<tool id="com.qnx.qcc.tool.assembler.2138097032" name="QCC Assembler" superClass="com.qnx.qcc.tool.assembler">
+-								<inputType id="com.qnx.qcc.inputType.assembler.1653062264" superClass="com.qnx.qcc.inputType.assembler"/>
++							<tool id="com.qnx.qcc.tool.assembler.957885381" name="QCC Assembler" superClass="com.qnx.qcc.tool.assembler">
++								<inputType id="com.qnx.qcc.inputType.assembler.1429011899" superClass="com.qnx.qcc.inputType.assembler"/>
+ 							</tool>
+-							<tool id="com.qnx.qcc.tool.linker.364154529" name="QCC Linker" superClass="com.qnx.qcc.tool.linker">
+-								<option id="com.qnx.qcc.option.linker.langcpp.701425013" superClass="com.qnx.qcc.option.linker.langcpp" value="true" valueType="boolean"/>
++							<tool id="com.qnx.qcc.tool.linker.863576533" name="QCC Linker" superClass="com.qnx.qcc.tool.linker">
++								<option id="com.qnx.qcc.option.linker.langcpp.1761533656" superClass="com.qnx.qcc.option.linker.langcpp" value="true" valueType="boolean"/>
+ 							</tool>
+-							<tool id="com.qnx.qcc.tool.archiver.2082383683" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver"/>
++							<tool id="com.qnx.qcc.tool.archiver.1830124389" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver"/>
+ 						</toolChain>
+ 					</folderInfo>
+ 				</configuration>
+@@ -42,7 +42,7 @@
+ 		</cconfiguration>
+ 	</storageModule>
+ 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+-		<project id="VideoTest.null.1851847078" name="VideoTest"/>
++		<project id="VideoTest.null.1493146204" name="VideoTest"/>
+ 	</storageModule>
+ 	<storageModule moduleId="scannerConfiguration">
+ 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.qnx.tools.ide.qde.managedbuilder.core.qccScannerInfo"/>
+@@ -58,6 +58,9 @@
+ 		<scannerConfigBuildInfo instanceId="com.qnx.qcc.toolChain.675154907">
+ 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.qnx.tools.ide.qde.managedbuilder.core.qccScannerInfo"/>
+ 		</scannerConfigBuildInfo>
++		<scannerConfigBuildInfo instanceId="com.qnx.qcc.toolChain.652960797">
++			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.qnx.tools.ide.qde.managedbuilder.core.qccScannerInfo"/>
++		</scannerConfigBuildInfo>
+ 		<scannerConfigBuildInfo instanceId="com.qnx.qcc.toolChain.1797777666">
+ 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.qnx.tools.ide.qde.managedbuilder.core.qccScannerInfo"/>
+ 		</scannerConfigBuildInfo>
+diff --git a/arm/o.le-v7-g/VideoTest.bar b/arm/o.le-v7-g/VideoTest.bar
+index d8d9f84..d4578d0 100644
+Binary files a/arm/o.le-v7-g/VideoTest.bar and b/arm/o.le-v7-g/VideoTest.bar differ
+diff --git a/assets/main.qml b/assets/main.qml
+index 512fc67..04b5dc7 100644
+--- a/assets/main.qml
++++ b/assets/main.qml
+@@ -10,7 +10,15 @@ Page {
+         layout: DockLayout {
+         }
+         
+-        property bool changeVideoPosition : true 
++        //This variable is used to control video duration logic. 
++        //Indicates whether to change the video position, when the slider's value is changed.
++        property bool changeVideoPosition : true
++        
++        // This properties are used for dynamically defining video window size for different orientations
++        property int landscapeWidth : 1280
++        property int landscapeHeight : 768
++        
++         
+         Container {
+             id: contentContainer
+             horizontalAlignment: HorizontalAlignment.Center
+@@ -18,11 +26,21 @@ Page {
+             
+             layout: DockLayout {}
+             
+-                ForeignWindowControl {
+-                    id: videoWindow
+-                    objectName: "VideoWindow"
+-                    windowId: "VideoWindow"
+-                   
++	        preferredWidth:  appContainer.landscapeWidth
++	        preferredHeight: appContainer.landscapeHeight 
++            
++            Container {
++                id: videoWindowContainer
++                background: Color.create("#ff999999")
++                layout: DockLayout {}
++//                layout: AbsoluteLayout {}
++	            horizontalAlignment: HorizontalAlignment.Center
++	            verticalAlignment: VerticalAlignment.Center
++	            ForeignWindowControl {
++	                id: videoWindow
++	                objectName: "VideoWindow"
++	                windowId: "VideoWindow"
++	                
+ 				    gestureHandlers: [
+ 				        TapHandler {
+ 				            onTapped: {
+@@ -32,26 +50,33 @@ Page {
+ 	                            else if(myPlayer.mediaState == MediaState.Paused) {
+ 	                                myPlayer.play();
+ 	                            }
+-
++	
+ 				            }
+ 				        }
++				        
+ 				    ]
+-				                       
+-                    preferredWidth:  1280
+-                    preferredHeight: 768
+-                    visible:  boundToWindow
+-                    updatedProperties:// WindowProperty.SourceSize | 
+-                        WindowProperty.Size |
+-                        WindowProperty.Position |
+-                        WindowProperty.Visible                
+-                    
+-                    onVisibleChanged: {
+-                        console.log("foreignwindow visible = " + visible);
+-                    }
+-                    onBoundToWindowChanged: {
+-                        console.log("VideoWindow bound to mediaplayer!");
+-                    }
+-                }
++				    
++	                preferredWidth:  appContainer.landscapeWidth
++	                preferredHeight: appContainer.landscapeHeight 
++//		            layoutProperties: AbsoluteLayoutProperties {
++//		                positionX: 0
++//		                positionY: 500
++//		            }
++	                visible:  boundToWindow
++	                updatedProperties:// WindowProperty.SourceSize | 
++	                    WindowProperty.Size |
++	                    WindowProperty.Position |
++	                    WindowProperty.Visible                
++	                
++	                onVisibleChanged: {
++	                    console.log("foreignwindow visible = " + visible);
++	                }
++	                onBoundToWindowChanged: {
++	                    console.log("VideoWindow bound to mediaplayer!");
++	                }
++	            } //videoWindow
++            } //videoWindowContainer
++           
+             Container
+             {
+                 id: controlsContainer
+@@ -66,8 +91,8 @@ Page {
+                     objectName: durationSlider
+                     leftMargin: 20
+                     rightMargin: 20
+-                    fromValue: 0.00000000
+-                    toValue: 1.00000000
++                    fromValue: 0.0
++                    toValue: 1.0
+                     enabled: false
+                     horizontalAlignment: HorizontalAlignment.Fill
+                     verticalAlignment: VerticalAlignment.Bottom
+@@ -190,7 +215,7 @@ Page {
+ 	               
+ 	            }//buttonContainer
+                 
+-            }
++            }//controlsContainer
+             
+         }//contentContainer
+         
+@@ -220,7 +245,7 @@ Page {
+                id: trackTimer
+                singleShot: false
+                //Investigate why the onTimeout is called after 1000 msec
+-               interval: 300
++               interval: 500
+                onTimeout: {
+                    console.log("\n\n\n\nASTDYFYTSFDYATFSDYA\n")
+ //                   console.log("POS = " + myPlayer.position + "\n")
+@@ -239,9 +264,50 @@ Page {
+ 		               trackTimer.stop();
+ 		           }
+ 		       }
++           },
++           
++           OrientationHandler {
++               onOrientationAboutToChange: {
++                   if (orientation == UIOrientation.Landscape) {
++                       
++                       console.log("\n UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU \n")
++                       
++                       videoWindow.preferredWidth = appContainer.landscapeWidth
++                       videoWindow.preferredHeight = appContainer.landscapeHeight
++                       
++                       videoWindowContainer.preferredWidth = appContainer.landscapeWidth
++                       videoWindowContainer.preferredHeight = appContainer.landscapeHeight
++                   } else {
++                       console.log("\n PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP \n")
++                       videoWindow.preferredWidth = appContainer.landscapeHeight
++                       videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
++                       
++                       videoWindowContainer.preferredWidth = appContainer.landscapeHeight
++                       videoWindowContainer.preferredHeight = appContainer.landscapeWidth
++                   }
++               }
+            }
+            
+         ] // Attached objects.
+     
++	    onCreationCompleted: {
++	        OrientationSupport.supportedDisplayOrientation =
++	            SupportedDisplayOrientation.All;
++	            
++            if (OrientationSupport.orientation == UIOrientation.Landscape) {
++                videoWindow.preferredWidth = appContainer.landscapeWidth
++                videoWindow.preferredHeight = appContainer.landscapeHeight
++                
++                videoWindowContainer.preferredWidth = appContainer.landscapeWidth
++                videoWindowContainer.preferredHeight = appContainer.landscapeHeight
++            } else {
++                videoWindow.preferredWidth = appContainer.landscapeHeight
++                videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
++                
++                videoWindowContainer.preferredWidth = appContainer.landscapeHeight
++                videoWindowContainer.preferredHeight = appContainer.landscapeWidth
++            }
++        }
++	    
+     }//appContainer
+ }// Page
+\ No newline at end of file
+diff --git a/bar-descriptor.xml b/bar-descriptor.xml
+index d2868fb..d19abbc 100644
+--- a/bar-descriptor.xml
++++ b/bar-descriptor.xml
+@@ -59,14 +59,13 @@
+     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
+    
+     <initialWindow>
+-        <aspectRatio>landscape</aspectRatio>
+-        <autoOrients>false</autoOrients>
++        <autoOrients>true</autoOrients>
+         <systemChrome>none</systemChrome>
+         <transparent>false</transparent>
+     </initialWindow>
+     
+     <!--  The category where the application appears. Either core.games or core.media. -->
+-    <configuration id="com.qnx.qcc.toolChain.311432539" name="Default">
++    <configuration id="com.qnx.qcc.toolChain.652960797" name="Default">
+        <platformArchitecture>armle-v7</platformArchitecture>
+        <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
+     </configuration>

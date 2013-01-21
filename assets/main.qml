@@ -10,7 +10,15 @@ Page {
         layout: DockLayout {
         }
         
-        property bool changeVideoPosition : true 
+        //This variable is used to control video duration logic. 
+        //Indicates whether to change the video position, when the slider's value is changed.
+        property bool changeVideoPosition : true
+        
+        // This properties are used for dynamically defining video window size for different orientations
+        property int landscapeWidth : 1280
+        property int landscapeHeight : 768
+        
+         
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -18,11 +26,21 @@ Page {
             
             layout: DockLayout {}
             
-                ForeignWindowControl {
-                    id: videoWindow
-                    objectName: "VideoWindow"
-                    windowId: "VideoWindow"
-                   
+	        preferredWidth:  appContainer.landscapeWidth
+	        preferredHeight: appContainer.landscapeHeight 
+            
+            Container {
+                id: videoWindowContainer
+                background: Color.create("#ff999999")
+                layout: DockLayout {}
+//                layout: AbsoluteLayout {}
+	            horizontalAlignment: HorizontalAlignment.Center
+	            verticalAlignment: VerticalAlignment.Center
+	            ForeignWindowControl {
+	                id: videoWindow
+	                objectName: "VideoWindow"
+	                windowId: "VideoWindow"
+	                
 				    gestureHandlers: [
 				        TapHandler {
 				            onTapped: {
@@ -32,26 +50,33 @@ Page {
 	                            else if(myPlayer.mediaState == MediaState.Paused) {
 	                                myPlayer.play();
 	                            }
-
+	
 				            }
 				        }
+				        
 				    ]
-				                       
-                    preferredWidth:  1280
-                    preferredHeight: 768
-                    visible:  boundToWindow
-                    updatedProperties:// WindowProperty.SourceSize | 
-                        WindowProperty.Size |
-                        WindowProperty.Position |
-                        WindowProperty.Visible                
-                    
-                    onVisibleChanged: {
-                        console.log("foreignwindow visible = " + visible);
-                    }
-                    onBoundToWindowChanged: {
-                        console.log("VideoWindow bound to mediaplayer!");
-                    }
-                }
+				    
+	                preferredWidth:  appContainer.landscapeWidth
+	                preferredHeight: appContainer.landscapeHeight 
+//		            layoutProperties: AbsoluteLayoutProperties {
+//		                positionX: 0
+//		                positionY: 500
+//		            }
+	                visible:  boundToWindow
+	                updatedProperties:// WindowProperty.SourceSize | 
+	                    WindowProperty.Size |
+	                    WindowProperty.Position |
+	                    WindowProperty.Visible                
+	                
+	                onVisibleChanged: {
+	                    console.log("foreignwindow visible = " + visible);
+	                }
+	                onBoundToWindowChanged: {
+	                    console.log("VideoWindow bound to mediaplayer!");
+	                }
+	            } //videoWindow
+            } //videoWindowContainer
+           
             Container
             {
                 id: controlsContainer
@@ -66,8 +91,8 @@ Page {
                     objectName: durationSlider
                     leftMargin: 20
                     rightMargin: 20
-                    fromValue: 0.00000000
-                    toValue: 1.00000000
+                    fromValue: 0.0
+                    toValue: 1.0
                     enabled: false
                     horizontalAlignment: HorizontalAlignment.Fill
                     verticalAlignment: VerticalAlignment.Bottom
@@ -190,7 +215,7 @@ Page {
 	               
 	            }//buttonContainer
                 
-            }
+            }//controlsContainer
             
         }//contentContainer
         
@@ -220,7 +245,7 @@ Page {
                id: trackTimer
                singleShot: false
                //Investigate why the onTimeout is called after 1000 msec
-               interval: 300
+               interval: 500
                onTimeout: {
                    console.log("\n\n\n\nASTDYFYTSFDYATFSDYA\n")
 //                   console.log("POS = " + myPlayer.position + "\n")
@@ -239,9 +264,50 @@ Page {
 		               trackTimer.stop();
 		           }
 		       }
+           },
+           
+           OrientationHandler {
+               onOrientationAboutToChange: {
+                   if (orientation == UIOrientation.Landscape) {
+                       
+                       console.log("\n UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU \n")
+                       
+                       videoWindow.preferredWidth = appContainer.landscapeWidth
+                       videoWindow.preferredHeight = appContainer.landscapeHeight
+                       
+                       videoWindowContainer.preferredWidth = appContainer.landscapeWidth
+                       videoWindowContainer.preferredHeight = appContainer.landscapeHeight
+                   } else {
+                       console.log("\n PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP \n")
+                       videoWindow.preferredWidth = appContainer.landscapeHeight
+                       videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
+                       
+                       videoWindowContainer.preferredWidth = appContainer.landscapeHeight
+                       videoWindowContainer.preferredHeight = appContainer.landscapeWidth
+                   }
+               }
            }
            
         ] // Attached objects.
     
+	    onCreationCompleted: {
+	        OrientationSupport.supportedDisplayOrientation =
+	            SupportedDisplayOrientation.All;
+	            
+            if (OrientationSupport.orientation == UIOrientation.Landscape) {
+                videoWindow.preferredWidth = appContainer.landscapeWidth
+                videoWindow.preferredHeight = appContainer.landscapeHeight
+                
+                videoWindowContainer.preferredWidth = appContainer.landscapeWidth
+                videoWindowContainer.preferredHeight = appContainer.landscapeHeight
+            } else {
+                videoWindow.preferredWidth = appContainer.landscapeHeight
+                videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
+                
+                videoWindowContainer.preferredWidth = appContainer.landscapeHeight
+                videoWindowContainer.preferredHeight = appContainer.landscapeWidth
+            }
+        }
+	    
     }//appContainer
 }// Page

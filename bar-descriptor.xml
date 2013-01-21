@@ -59,14 +59,13 @@
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
-        <aspectRatio>landscape</aspectRatio>
-        <autoOrients>false</autoOrients>
+        <autoOrients>true</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <configuration id="com.qnx.qcc.toolChain.311432539" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.652960797" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
     </configuration>
