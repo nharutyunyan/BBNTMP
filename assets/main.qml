@@ -18,7 +18,9 @@ Page {
         property int landscapeWidth : 1280
         property int landscapeHeight : 768
         
-         
+        property int touchPositionX: 0
+        property bool playerStarted: false
+        
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -28,6 +30,34 @@ Page {
             
 	        preferredWidth:  appContainer.landscapeWidth
 	        preferredHeight: appContainer.landscapeHeight 
+	        
+	        onTouch: {
+	            // If the touch event is a move event, change the color of the
+	        	if (event.touchType == TouchType.Down)
+	        	{
+	        	     appContainer.touchPositionX =  event.localX;
+	            }
+	            else if (event.touchType == TouchType.Up)
+	            { 
+	                 if(myPlayer.mediaState == MediaState.Started) {
+	                     myPlayer.pause();
+	                	 appContainer.playerStarted = true;
+	                }
+	                if (appContainer.touchPositionX  > event.localX) {
+	                     console.log("touchPositionX  > event.localX: " + event.localX);
+	                     appContainer.changeVideoPosition = true;
+	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
+	                } else if (appContainer.touchPositionX  < event.localX) {
+	                     console.log("touchPositionX  < event.localX: " + event.localX);
+	                     appContainer.changeVideoPosition = true;
+	                     durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+	                }
+	               if(appContainer.playerStarted == true) {
+	                     myPlayer.play();
+	                     appContainer.playerStarted = false;
+	               }
+	            }
+	        }
             
 	        ForeignWindowControl {
 	                id: videoWindow
