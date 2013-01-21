@@ -30,44 +30,74 @@ Page {
 	        preferredHeight: appContainer.landscapeHeight 
             
 	        ForeignWindowControl {
-	                id: videoWindow
-	                objectName: "VideoWindow"
-	                windowId: "VideoWindow"
+                id: videoWindow
+                objectName: "VideoWindow"
+                windowId: "VideoWindow"
 	                
-				    gestureHandlers: [
-				        TapHandler {
-				            onTapped: {
-				                if(myPlayer.mediaState == MediaState.Started) {
-	                                myPlayer.pause();
-	                            }
-	                            else if(myPlayer.mediaState == MediaState.Paused) {
-	                                myPlayer.play();
-	                            }
+				gestureHandlers: [
+				    TapHandler {
+				        onTapped: {
+				            if(myPlayer.mediaState == MediaState.Started) {
+	                            myPlayer.pause();
+	                            pauseImage.setOpacity(0.5)
+	                            playImage.setOpacity(0)
+	                            pauseImageTimer.start()
+	                        }
+	                        else if(myPlayer.mediaState == MediaState.Paused) {
+	                            myPlayer.play();
+	                            playImage.setOpacity(0.5)
+	                            pauseImage.setOpacity(0)
+	                            playImageTimer.start()
+	                        }
 	
-				            }
 				        }
+				    }
 				        
-				    ]
-				    
-	                preferredWidth:  appContainer.landscapeWidth
-	                preferredHeight: appContainer.landscapeHeight 
-//		            layoutProperties: AbsoluteLayoutProperties {
-//		                positionX: 0
-//		                positionY: 500
-//		            }
-	              //  visible:  boundToWindow
-	                updatedProperties:// WindowProperty.SourceSize | 
-	                    WindowProperty.Size |
-	                    WindowProperty.Position |
-	                    WindowProperty.Visible                
+				]
+				    				    
+	            preferredWidth:  appContainer.landscapeWidth
+	            preferredHeight: appContainer.landscapeHeight 
+//		        layoutProperties: AbsoluteLayoutProperties {
+//		            positionX: 0
+//		            positionY: 500
+//		        }
+	            //  visible:  boundToWindow
+	            updatedProperties:// WindowProperty.SourceSize | 
+	                WindowProperty.Size |
+	                WindowProperty.Position |
+	                WindowProperty.Visible                
 	                
-	                onVisibleChanged: {
-	                    console.log("foreignwindow visible = " + visible);
-	                }
-	                onBoundToWindowChanged: {
-	                    console.log("VideoWindow bound to mediaplayer!");
-	                }
-	            } //videoWindow
+	            onVisibleChanged: {
+	                console.log("foreignwindow visible = " + visible);
+	            }
+	            onBoundToWindowChanged: {
+	                console.log("VideoWindow bound to mediaplayer!");
+	            }
+	        } //videoWindow
+
+            // Play image is transparent. It will become visible when the video
+            // is played using tap event. It will be visible 1 sec.
+            ImageView {
+                id: playImage
+                opacity: 0
+                imageSource: "asset:///images/play.jpg"
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center
+                touchPropagationMode: TouchPropagationMode.PassThrough
+                overlapTouchPolicy: OverlapTouchPolicy.Allow
+            }
+   
+            // Pause image is transparent. It will become visible when the video
+            // is paused using tap event. It will be visible 1 sec.
+            ImageView {
+                id: pauseImage
+                opacity: 0
+                imageSource: "asset:///images/pause.jpg"
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center
+                touchPropagationMode: TouchPropagationMode.PassThrough
+                overlapTouchPolicy: OverlapTouchPolicy.Allow
+            }
           
             Container
             {
@@ -255,6 +285,26 @@ Page {
 		               appContainer.changeVideoPosition = true;		                
 		               trackTimer.stop();
 		           }
+		       }
+           },
+           
+           QTimer {
+               id: playImageTimer
+               singleShot: true
+               interval: 1000
+               onTimeout: {
+                   playImage.setOpacity(0)
+                   playImageTimer.stop()
+		       }
+           },
+           
+           QTimer {
+               id: pauseImageTimer
+               singleShot: true
+               interval: 1000
+               onTimeout: {
+                   pauseImage.setOpacity(0)
+                   pauseImageTimer.stop()
 		       }
            },
            
