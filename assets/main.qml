@@ -38,24 +38,29 @@ Page {
 	            }
 	            else if (event.touchType == TouchType.Up)
 	            { 
-	                 if(myPlayer.mediaState == MediaState.Started) {
+	                if(myPlayer.mediaState == MediaState.Started) {
 	                     myPlayer.pause();
 	                	 appContainer.playerStarted = true;
 	                }
 	                if (appContainer.touchPositionX  > event.localX + 10) {
 	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
 	                     appContainer.changeVideoPosition = true;
-	                     durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
+	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+	                     } else {
+	                         durationSlider.setValue(1);
+	                         appContainer.playerStarted = false;
+	                     }
 	                } else if (appContainer.touchPositionX + 10  < event.localX) {
 	                     console.log("touchPositionX  < event.localX: " + (event.localX - appContainer.touchPositionX));
 	                     appContainer.changeVideoPosition = true;
 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
 	                }
-	               if(appContainer.playerStarted == true) {
+	                if(appContainer.playerStarted == true) {
 	                     myPlayer.play();
 	                     appContainer.playerStarted = false;
-	               }
-	            }
+	                }
+	             }
 	        }
             
 	        ForeignWindowControl {
@@ -151,7 +156,21 @@ Page {
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1
                     }
-
+                    onTouch: {
+                        if (event.touchType == TouchType.Down) {  
+                            if(myPlayer.mediaState == MediaState.Started) {
+                        	     myPlayer.pause();
+                        	     appContainer.playerStarted = true;
+                        	 }
+                        } else if (event.touchType == TouchType.Up) {                	             
+                            if(appContainer.playerStarted == true) {
+                                if ( appContainer.playerStarted == true) {
+                                    myPlayer.play();
+                        	       	appContainer.playerStarted = false;
+                        	    }
+                            }
+                        }
+                    }
                     onImmediateValueChanged: {
                         if(myPlayer.mediaState == MediaState.Started ||
                             myPlayer.mediaState == MediaState.Paused) {
