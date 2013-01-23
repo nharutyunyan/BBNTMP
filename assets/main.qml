@@ -19,6 +19,7 @@ Page {
         property int landscapeHeight : 768
         
         property int touchPositionX: 0
+        property int touchPositionY: 0
         property bool playerStarted: false
         
         Container {
@@ -35,32 +36,35 @@ Page {
 	        	if (event.touchType == TouchType.Down)
 	        	{
 	        	     appContainer.touchPositionX =  event.localX;
+	        	     appContainer.touchPositionY =  event.localY;
 	            }
 	            else if (event.touchType == TouchType.Up)
-	            { 
-	                if(myPlayer.mediaState == MediaState.Started) {
-	                     myPlayer.pause();
-	                	 appContainer.playerStarted = true;
-	                }
-	                if (appContainer.touchPositionX  > event.localX + 10) {
-	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
+	            {
+	                if (appContainer.touchPositionX  > event.localX + 30) {
 	                     appContainer.changeVideoPosition = true;
 	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
 	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
 	                     } else {
 	                         durationSlider.setValue(1);
-	                         appContainer.playerStarted = false;
+	                         myPlayer.pause();
 	                     }
-	                } else if (appContainer.touchPositionX + 10  < event.localX) {
-	                     console.log("touchPositionX  < event.localX: " + (event.localX - appContainer.touchPositionX));
+	                } else if (appContainer.touchPositionX + 30  < event.localX) {
 	                     appContainer.changeVideoPosition = true;
 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
-	                }
-	                if(appContainer.playerStarted == true) {
-	                     myPlayer.play();
-	                     appContainer.playerStarted = false;
-	                }
-	             }
+	                } else {
+	                       if(myPlayer.mediaState != MediaState.Started) {
+	                        	myPlayer.play();
+	                            playImage.setOpacity(0.5)
+	                            pauseImage.setOpacity(0)
+	                            playImageTimer.start()
+	                        } else {
+	                            myPlayer.pause();
+	                            pauseImage.setOpacity(0.5)
+	                            playImage.setOpacity(0)
+	                            pauseImageTimer.start()
+	                        }
+	                 }
+	            }
 	        }
             
 	        ForeignWindowControl {
@@ -69,23 +73,6 @@ Page {
                 windowId: "VideoWindow"
 	                
 				gestureHandlers: [
-				    TapHandler {
-				        onTapped: {
-				            if(myPlayer.mediaState == MediaState.Started) {
-	                            myPlayer.pause();
-	                            pauseImage.setOpacity(0.5)
-	                            playImage.setOpacity(0)
-	                            pauseImageTimer.start()
-	                        }
-	                        else if(myPlayer.mediaState == MediaState.Paused) {
-	                            myPlayer.play();
-	                            playImage.setOpacity(0.5)
-	                            pauseImage.setOpacity(0)
-	                            playImageTimer.start()
-	                        }
-	
-				        }
-				    }
 				        
 				]
 				    				    
@@ -162,7 +149,7 @@ Page {
                         	     myPlayer.pause();
                         	     appContainer.playerStarted = true;
                         	 }
-                        } else if (event.touchType == TouchType.Up) {                	             
+                        } else if (event.touchType == TouchType.Up) { 
                             if(appContainer.playerStarted == true) {
                                 if ( appContainer.playerStarted == true) {
                                     myPlayer.play();
@@ -180,8 +167,8 @@ Page {
                         }
                     }
                 } //durationSlider
-                                                   
-	            Container {
+            
+                Container {
 	                id: buttonContainer
 	                objectName: buttonContainer
 
@@ -236,12 +223,13 @@ Page {
 	                Button {
 	                    id:playButton
 	                    text: "Play/Pause"
-	                    
-	                    onClicked:{
+	                    onClicked:{	                       
 	                        if(myPlayer.mediaState == MediaState.Started) {
+	                            console.log("\n\n\n\nPAUUUSSSEEE\n\n\n\n")
 	                            myPlayer.pause();
 	                        }
 	                        else if(myPlayer.mediaState == MediaState.Paused) {
+	                            console.log("\n\n\n\nPLLLAYYYY\n\n\n\n")
 	                            myPlayer.play();
 	                        }
 	                        else {
