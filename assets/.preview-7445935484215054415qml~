@@ -22,6 +22,12 @@ Page {
         property int touchPositionY: 0
         property bool playerStarted: false
         
+        property double minScreenScale: 0.5        //THIS IS THE MINIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
+        property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
+        property double initialScreenScale: 1.0  // Starts the video with original dimensions (that is, scale factor 1.0)
+                                                 // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
+                                                 // They both start with the same value but the "initialScale" value is different for every new pinch 
+        
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -31,23 +37,33 @@ Page {
             
 	        preferredWidth:  appContainer.landscapeWidth
 	        preferredHeight: appContainer.landscapeHeight 
-	        
+	       
+	        property int startingX
+            property int startingY
+                       
 	        onTouch: {
 	        	if (event.touchType == TouchType.Down)
 	        	{
 	        	     appContainer.touchPositionX =  event.localX;
 	        	     appContainer.touchPositionY =  event.localY;
+	        	     contentContainer.startingX = videoWindow.translationX
+	        	     contentContainer.startingY = videoWindow.translationY
 	            }
 	            else if (event.touchType == TouchType.Up)
 	            {
-	                if (appContainer.touchPositionX  > event.localX + 30) {
-	                     appContainer.changeVideoPosition = true;
-	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
-	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
-	                     } else {
-	                         durationSlider.setValue(1);
-	                         myPlayer.pause();
-	                     }
+	                if (videoWindow.newScaleVal <= videoWindow.initialScale) 
+	                {
+	                    videoWindow.translationX = 0;
+        	                    videoWindow.translationY = 0;
+
+	                     if (appContainer.touchPositionX  > event.localX + 30) {
+	                         appContainer.changeVideoPosition = true;
+	                         if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
+	                             durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+	                         } else {
+	                             durationSlider.setValue(1);
+	                             myPlayer.pause();
+	                         }
 	                } else if (appContainer.touchPositionX + 30  < event.localX) {
 	                     appContainer.changeVideoPosition = true;
 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
@@ -63,15 +79,38 @@ Page {
 	                            playImage.setOpacity(0)
 	                            pauseImageTimer.start()
 	                        }
+	                    }
 	                 }
+	            } 
+	            else if (event.touchType == TouchType.Move)
+	            {
+	                if (videoWindow.newScaleVal > videoWindow.initialScale) 
+	                {	
+	                    videoWindow.translationX = event.localX - appContainer.touchPositionX + contentContainer.startingX;
+	                    videoWindow.translationY = event.localY - appContainer.touchPositionY + contentContainer.startingY;
+	                }
+	
 	            }
-	        }
+	        }// onTouch
             
 	        ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
                 windowId: "VideoWindow"
-	                
+	             
+	              layoutProperties: AbsoluteLayoutProperties {
+	                             positionX: 0
+	                             positionY: 0
+	                         }
+	            property double initialScale: appContainer.initialScreenScale   
+	            
+	           // This custom property determines how quickly the ForeignWindow grows
+               // or shrinks in response to the pinch gesture
+               property double scaleFactor: 0.3
+            
+               // Temporary variable, used in computation for pinching everytime
+               property double newScaleVal
+               
 				gestureHandlers: [
 				        
 				]
@@ -95,7 +134,61 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
-
+	        
+	         gestureHandlers: [
+                // Add a handler for pinch gestures
+                PinchHandler {
+                    // When the pinch gesture starts, save the initial scale
+                    // of the window
+                    onPinchStarted: {
+                        console.log("onPinchStart: videoWindow.scaleX = " + videoWindow.scaleX);
+                        videoWindow.initialScale = videoWindow.scaleX;
+                    }
+                             
+                    // As the pinch expands or contracts, change the scale of
+                    // the image
+                    onPinchUpdated: {
+                        console.log("onPinchUpdate");
+                        
+                        videoWindow.newScaleVal = videoWindow.initialScale + ((event.pinchRatio - 1) * videoWindow.scaleFactor);
+                        console.log ("onPinchUpdate: videoWindow.initialScale = " + videoWindow.initialScale + ": event.pinchRatio-1= " + event.pinchRatio-1 + " : newScaleVal = " + videoWindow.newScaleVal);
+                      
+                        if ( videoWindow.newScaleVal < appContainer.maxScreenScale &&  videoWindow.newScaleVal > appContainer.minScreenScale ) {
+                            videoWindow.scaleX = videoWindow.newScaleVal;
+                            videoWindow.scaleY = videoWindow.newScaleVal;
+                            // align this with the zoomSlider as well
+                           // zoomSlider.value = videoWindow.newScaleVal;
+                        }
+                    }// onPinchUpdate
+                }// PinchHandler
+            ]// attachedObjects
+            
+            // Used for controlling zoom level of the window
+          /* Slider {
+                id: zoomSlider
+                property double requestedValue
+                layoutProperties: DockLayoutProperties {
+                    verticalAlignment: VerticalAlignment.Top
+                    horizontalAlignment: HorizontalAlignment.Center
+                }
+                fromValue: appContainer.minScreenScale
+                toValue: appContainer.maxScreenScale
+                //NOTE: Using absolute value here
+                value: appContainer.initialScreenScale     // starting with the default size of the video
+                onValueChanged: {
+                    requestedValue = value;
+                    
+                    videoWindow.preferredWidth = myPlayer.videoDimensions.width * value;
+                    videoWindow.minWidth = myPlayer.videoDimensions.width  * value;
+                    videoWindow.maxWidth = myPlayer.videoDimensions.width  * value;
+                    videoWindow.preferredHeight = myPlayer.videoDimensions.height  * value;
+                    videoWindow.minHeight = myPlayer.videoDimensions.height * value;
+                    videoWindow.maxHeight = myPlayer.videoDimensions.height * value;
+                } // onValueChanged
+                    
+            } // ZoomSlider*/
+	                            
+	                            
             // Play image is transparent. It will become visible when the video
             // is played using tap event. It will be visible 1 sec.
             ImageView {
@@ -296,7 +389,21 @@ Page {
                
                // The ID of the ForeignWindow control to
                // use as the rendering surface.
-               windowId: "VideoWindow"           
+               windowId: "VideoWindow" 
+               onVideoDimensionsChanged: {
+                                /*   console.log ("onVideoDimensionsChanged: width = " + videoDimensions.width + " : height = " + videoDimensions.height + " : videoSurface.windowHandle = " + videoWindow.windowHandle);
+                                   
+                                  // videoWindow.preferredWidth = videoDimensions.width;
+                                   videoWindow.minWidth = videoDimensions.width;
+                                   videoWindow.maxWidth = videoDimensions.width;
+                                   
+                                  // videoWindow.preferredHeight = videoDimensions.height;
+                                   videoWindow.minHeight = videoDimensions.height;
+                                   videoWindow.maxHeight = videoDimensions.height;
+                                  
+                                   videoWindow.translationY = appContainer.preferredHeight / 2 - (videoWindow.preferredHeight / 2);
+                                   videoWindow.translationX = appContainer.preferredWidth / 2 - (videoWindow.preferredWidth / 2);
+                             */ }          
            },
            
            QTimer {
