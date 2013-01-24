@@ -19,6 +19,7 @@ Page {
         property int landscapeHeight : 768
         
         property int touchPositionX: 0
+        property int touchPositionY: 0
         property bool playerStarted: false
         
         Container {
@@ -35,32 +36,35 @@ Page {
 	        	if (event.touchType == TouchType.Down)
 	        	{
 	        	     appContainer.touchPositionX =  event.localX;
+	        	     appContainer.touchPositionY =  event.localY;
 	            }
 	            else if (event.touchType == TouchType.Up)
-	            { 
-	                if(myPlayer.mediaState == MediaState.Started) {
-	                     myPlayer.pause();
-	                	 appContainer.playerStarted = true;
-	                }
-	                if (appContainer.touchPositionX  > event.localX + 10) {
-	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
+	            {
+	                if (appContainer.touchPositionX  > event.localX + 30) {
 	                     appContainer.changeVideoPosition = true;
 	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
 	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
 	                     } else {
 	                         durationSlider.setValue(1);
-	                         appContainer.playerStarted = false;
+	                         myPlayer.pause();
 	                     }
-	                } else if (appContainer.touchPositionX + 10  < event.localX) {
-	                     console.log("touchPositionX  < event.localX: " + (event.localX - appContainer.touchPositionX));
+	                } else if (appContainer.touchPositionX + 30  < event.localX) {
 	                     appContainer.changeVideoPosition = true;
 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
-	                }
-	                if(appContainer.playerStarted == true) {
-	                    myPlayer.play();
-	                    appContainer.playerStarted = false;
-	                }
-	             }
+	                } else {
+	                       if(myPlayer.mediaState != MediaState.Started) {
+	                        	appContainer.playMediaPlayer();
+	                            screenPlayImage.setOpacity(0.5)
+	                            screenPauseImage.setOpacity(0)
+	                            screenPlayImageTimer.start()
+	                        } else {
+	                            appContainer.pauseMediaPlayer();
+	                            screenPauseImage.setOpacity(0.5)
+	                            screenPlayImage.setOpacity(0)
+	                            screenPauseImageTimer.start()
+	                        }
+	                 }
+	            }
 	        }
             
 	        ForeignWindowControl {
@@ -69,24 +73,6 @@ Page {
                 windowId: "VideoWindow"
 	                
 				gestureHandlers: [
-				    TapHandler {
-				        onTapped: {
-				            if(myPlayer.mediaState == MediaState.Started) {
-	                            appContainer.pauseMediaPlayer()
-	                            screenPauseImage.setOpacity(0.5)
-	                            screenPlayImage.setOpacity(0)
-	                            screenPauseImageTimer.start()
-	                        }
-	                        else if(myPlayer.mediaState == MediaState.Paused) {
-	                            appContainer.playMediaPlayer()
-	                            screenPlayImage.setOpacity(0.5)
-	                            screenPauseImage.setOpacity(0)
-	                            screenPlayImageTimer.start()
-	                        }
-	
-				        }
-				    }
-				        
 				]
 				    				    
 	            preferredWidth:  appContainer.landscapeWidth

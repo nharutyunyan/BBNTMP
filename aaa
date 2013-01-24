@@ -1,0 +1,224 @@
+diff --git a/assets/.preview-9130455323459969312qml~ b/assets/.preview-9130455323459969312qml~
+index 2ef50a4..b8f078d 100644
+--- a/assets/.preview-9130455323459969312qml~
++++ b/assets/.preview-9130455323459969312qml~
+@@ -19,6 +19,7 @@ Page {
+         property int landscapeHeight : 768
+         
+         property int touchPositionX: 0
++        property int touchPositionY: 0
+         property bool playerStarted: false
+         
+         Container {
+@@ -34,14 +35,15 @@ Page {
+ 	        onTouch: {
+ 	        	if (event.touchType == TouchType.Down)
+ 	        	{
++	        	    if(myPlayer.mediaState == MediaState.Started) {
++	        	        myPlayer.pause();
++	        	    	appContainer.playerStarted = true;
++	        	     }
+ 	        	     appContainer.touchPositionX =  event.localX;
++	        	     appContainer.touchPositionY =  event.localY;
+ 	            }
+ 	            else if (event.touchType == TouchType.Up)
+ 	            { 
+-	                if(myPlayer.mediaState == MediaState.Started) {
+-	                     myPlayer.pause();
+-	                	 appContainer.playerStarted = true;
+-	                }
+ 	                if (appContainer.touchPositionX  > event.localX + 10) {
+ 	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
+ 	                     appContainer.changeVideoPosition = true;
+@@ -60,6 +62,12 @@ Page {
+ 	                     myPlayer.play();
+ 	                     appContainer.playerStarted = false;
+ 	                }
++	                if ((videoWindow.preferredHeight == appContainer.landscapeHeight) &&
++	                    (appContainer.touchPositionY > appContainer.landscapeHeight - 100) &&  
++	                    (appContainer.touchPositionY < event.localY + 10)) {
++	                    //TODO video shots appear on the top of the screen
++	                    // add timer to hide videos after 20 sec.
++	                }
+ 	             }
+ 	        }
+             
+@@ -142,6 +150,14 @@ Page {
+                 horizontalAlignment: HorizontalAlignment.Center
+                 verticalAlignment: VerticalAlignment.Bottom
+ 
++            Container
++            {
++                id: sliderTimestampContainer
++                layout: StackLayout {
++                    orientation: LayoutOrientation.TopToBottom
++                }
++                horizontalAlignment: HorizontalAlignment.Fill
++                verticalAlignment: VerticalAlignment.Bottom
+                 Slider {
+                     id: durationSlider
+                     objectName: durationSlider
+@@ -162,7 +178,7 @@ Page {
+                         	     myPlayer.pause();
+                         	     appContainer.playerStarted = true;
+                         	 }
+-                        } else if (event.touchType == TouchType.Up) {                	             
++                        } else if (event.touchType == TouchType.Up) {              	             
+                             if(appContainer.playerStarted == true) {
+                                 if ( appContainer.playerStarted == true) {
+                                     myPlayer.play();
+@@ -179,9 +195,14 @@ Page {
+                                 }
+                         }
+                     }
+-                } //durationSlider
+-                                                   
+-	            Container {
++                }
++                    Label {
++                        text: "time"
++                    }
++                    //durationSlider
++                
++            }//sliderTimestampContainer
++                Container {
+ 	                id: buttonContainer
+ 	                objectName: buttonContainer
+ 
+@@ -236,8 +257,10 @@ Page {
+ 	                Button {
+ 	                    id:playButton
+ 	                    text: "Play/Pause"
+-	                    
+-	                    onClicked:{
++	                    property udengisnint tc: 0
++	                    onClicked:{	                       
++	                        tc = myPlayer.trackCount();
++	                        console.log("TRACKS COUNT: " + tc);
+ 	                        if(myPlayer.mediaState == MediaState.Started) {
+ 	                            myPlayer.pause();
+ 	                        }
+diff --git a/assets/main.qml b/assets/main.qml
+index d815922..d8383c6 100644
+--- a/assets/main.qml
++++ b/assets/main.qml
+@@ -19,6 +19,7 @@ Page {
+         property int landscapeHeight : 768
+         
+         property int touchPositionX: 0
++        property int touchPositionY: 0
+         property bool playerStarted: false
+         
+         Container {
+@@ -35,32 +36,35 @@ Page {
+ 	        	if (event.touchType == TouchType.Down)
+ 	        	{
+ 	        	     appContainer.touchPositionX =  event.localX;
++	        	     appContainer.touchPositionY =  event.localY;
+ 	            }
+ 	            else if (event.touchType == TouchType.Up)
+-	            { 
+-	                if(myPlayer.mediaState == MediaState.Started) {
+-	                     myPlayer.pause();
+-	                	 appContainer.playerStarted = true;
+-	                }
+-	                if (appContainer.touchPositionX  > event.localX + 10) {
+-	                     console.log("touchPositionX  > event.localX: " + (appContainer.touchPositionX  - event.localX));
++	            {
++	                if (appContainer.touchPositionX  > event.localX + 30) {
+ 	                     appContainer.changeVideoPosition = true;
+ 	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
+ 	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+ 	                     } else {
+ 	                         durationSlider.setValue(1);
+-	                         appContainer.playerStarted = false;
++	                         myPlayer.pause();
+ 	                     }
+-	                } else if (appContainer.touchPositionX + 10  < event.localX) {
+-	                     console.log("touchPositionX  < event.localX: " + (event.localX - appContainer.touchPositionX));
++	                } else if (appContainer.touchPositionX + 30  < event.localX) {
+ 	                     appContainer.changeVideoPosition = true;
+ 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
+-	                }
+-	                if(appContainer.playerStarted == true) {
+-	                     myPlayer.play();
+-	                     appContainer.playerStarted = false;
+-	                }
+-	             }
++	                } else {
++	                       if(myPlayer.mediaState != MediaState.Started) {
++	                        	myPlayer.play();
++	                            playImage.setOpacity(0.5)
++	                            pauseImage.setOpacity(0)
++	                            playImageTimer.start()
++	                        } else {
++	                            myPlayer.pause();
++	                            pauseImage.setOpacity(0.5)
++	                            playImage.setOpacity(0)
++	                            pauseImageTimer.start()
++	                        }
++	                 }
++	            }
+ 	        }
+             
+ 	        ForeignWindowControl {
+@@ -69,23 +73,6 @@ Page {
+                 windowId: "VideoWindow"
+ 	                
+ 				gestureHandlers: [
+-				    TapHandler {
+-				        onTapped: {
+-				            if(myPlayer.mediaState == MediaState.Started) {
+-	                            myPlayer.pause();
+-	                            pauseImage.setOpacity(0.5)
+-	                            playImage.setOpacity(0)
+-	                            pauseImageTimer.start()
+-	                        }
+-	                        else if(myPlayer.mediaState == MediaState.Paused) {
+-	                            myPlayer.play();
+-	                            playImage.setOpacity(0.5)
+-	                            pauseImage.setOpacity(0)
+-	                            playImageTimer.start()
+-	                        }
+-	
+-				        }
+-				    }
+ 				        
+ 				]
+ 				    				    
+@@ -162,7 +149,7 @@ Page {
+                         	     myPlayer.pause();
+                         	     appContainer.playerStarted = true;
+                         	 }
+-                        } else if (event.touchType == TouchType.Up) {                	             
++                        } else if (event.touchType == TouchType.Up) { 
+                             if(appContainer.playerStarted == true) {
+                                 if ( appContainer.playerStarted == true) {
+                                     myPlayer.play();
+@@ -180,8 +167,8 @@ Page {
+                         }
+                     }
+                 } //durationSlider
+-                                                   
+-	            Container {
++            
++                Container {
+ 	                id: buttonContainer
+ 	                objectName: buttonContainer
+ 
+@@ -236,12 +223,13 @@ Page {
+ 	                Button {
+ 	                    id:playButton
+ 	                    text: "Play/Pause"
+-	                    
+-	                    onClicked:{
++	                    onClicked:{	                       
+ 	                        if(myPlayer.mediaState == MediaState.Started) {
++	                            console.log("\n\n\n\nPAUUUSSSEEE\n\n\n\n")
+ 	                            myPlayer.pause();
+ 	                        }
+ 	                        else if(myPlayer.mediaState == MediaState.Paused) {
++	                            console.log("\n\n\n\nPLLLAYYYY\n\n\n\n")
+ 	                            myPlayer.play();
+ 	                        }
+ 	                        else {
