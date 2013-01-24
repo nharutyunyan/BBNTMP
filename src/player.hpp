@@ -34,6 +34,7 @@ public:
     Q_INVOKABLE QString getVideoPath(void);
     Q_INVOKABLE QString getNextVideoPath(void);
     Q_INVOKABLE QString getPreviousVideoPath(void);
+    Q_INVOKABLE QString getFormattedTime(int msecs);
 
     void setVideoPaths(QStringList videoPaths);
     void setCurrentVideoIndex(int index);
