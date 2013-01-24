@@ -310,4 +310,20 @@ void Player::setCurrentVideoIndex(int index)
 	mCurrentVideoIndex = index;
 }
 
+QString Player::getFormattedTime(int msecs)
+{
+    QString formattedTime;
+
+    int hours = msecs/(1000*60*60);
+    int minutes = (msecs-(hours*1000*60*60))/(1000*60);
+    int seconds = (msecs-(minutes*1000*60)-(hours*1000*60*60))/1000;
+    int milliseconds = msecs-(seconds*1000)-(minutes*1000*60)-(hours*1000*60*60);
+
+    formattedTime.append(QString("%1").arg(hours, 2, 10, QLatin1Char('0')) + ":" +
+                         QString( "%1" ).arg(minutes, 2, 10, QLatin1Char('0')) + ":" +
+                         QString( "%1" ).arg(seconds, 2, 10, QLatin1Char('0')) + ":" +
+                         QString( "%1" ).arg(milliseconds, 3, 10, QLatin1Char('0')));
+
+    return formattedTime;
+}
 

@@ -69,15 +69,15 @@ Page {
 	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
 	                } else {
 	                       if(myPlayer.mediaState != MediaState.Started) {
-	                        	myPlayer.play();
-	                            playImage.setOpacity(0.5)
-	                            pauseImage.setOpacity(0)
-	                            playImageTimer.start()
+	                        	appContainer.playMediaPlayer();
+	                            screenPlayImage.setOpacity(0.5)
+	                            screenPauseImage.setOpacity(0)
+	                            screenPlayImageTimer.start()
 	                        } else {
-	                            myPlayer.pause();
-	                            pauseImage.setOpacity(0.5)
-	                            playImage.setOpacity(0)
-	                            pauseImageTimer.start()
+	                            appContainer.pauseMediaPlayer();
+	                            screenPauseImage.setOpacity(0.5)
+	                            screenPlayImage.setOpacity(0)
+	                            screenPauseImageTimer.start()
 	                        }
 	                    }
 	                 }
@@ -112,7 +112,6 @@ Page {
                property double newScaleVal
                
 				gestureHandlers: [
-				        
 				]
 				    				    
 	            preferredWidth:  appContainer.landscapeWidth
@@ -192,9 +191,9 @@ Page {
             // Play image is transparent. It will become visible when the video
             // is played using tap event. It will be visible 1 sec.
             ImageView {
-                id: playImage
+                id: screenPlayImage
                 opacity: 0
-                imageSource: "asset:///images/play.jpg"
+                imageSource: "asset:///images/screenPlay.jpg"
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Center
                 touchPropagationMode: TouchPropagationMode.PassThrough
@@ -204,9 +203,9 @@ Page {
             // Pause image is transparent. It will become visible when the video
             // is paused using tap event. It will be visible 1 sec.
             ImageView {
-                id: pauseImage
+                id: screenPauseImage
                 opacity: 0
-                imageSource: "asset:///images/pause.jpg"
+                imageSource: "asset:///images/screenPause.jpg"
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Center
                 touchPropagationMode: TouchPropagationMode.PassThrough
@@ -222,62 +221,109 @@ Page {
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Bottom
 
-                Slider {
-                    id: durationSlider
-                    objectName: durationSlider
-                    leftMargin: 20
-                    rightMargin: 20
-                    fromValue: 0.0
-                    toValue: 1.0
-                    enabled: false
-                    horizontalAlignment: HorizontalAlignment.Fill
-                    verticalAlignment: VerticalAlignment.Bottom
-                    
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: 1
-                    }
-                    onTouch: {
-                        if (event.touchType == TouchType.Down) {  
-                            if(myPlayer.mediaState == MediaState.Started) {
-                        	     myPlayer.pause();
-                        	     appContainer.playerStarted = true;
-                        	 }
-                        } else if (event.touchType == TouchType.Up) { 
-                            if(appContainer.playerStarted == true) {
-                                if ( appContainer.playerStarted == true) {
-                                    myPlayer.play();
-                        	       	appContainer.playerStarted = false;
-                        	    }
-                            }
-                        }
-                    }
-                    onImmediateValueChanged: {
-                        if(myPlayer.mediaState == MediaState.Started ||
-                            myPlayer.mediaState == MediaState.Paused) {
-                                if(appContainer.changeVideoPosition == true) {
-                                    myPlayer.seekPercent(durationSlider.immediateValue);
-                                }
-                        }
-                    }
-                } //durationSlider
-            
-                Container {
-	                id: buttonContainer
-	                objectName: buttonContainer
+	            Container {
+	                id: sliderContainer
+	                objectName: sliderContainer
 
 	                layout: StackLayout {
 	                    orientation: LayoutOrientation.LeftToRight
 	                }
 	                
-	                leftPadding: 20
-	                rightPadding: 20
+	                leftPadding: 5
+	                rightPadding: 5
+	                horizontalAlignment: HorizontalAlignment.Fill
+	                verticalAlignment: VerticalAlignment.Bottom
+	            
+	            
+	                Label {
+	                    id: currentTime
+	                    // the "text" will be set when media plays
+	                    text: "00:00:00"
+	                    textStyle {
+	                        color: Color.White
+	                        fontWeight: FontWeight.Normal
+	                    }
+	                    preferredWidth: 150
+                        horizontalAlignment: HorizontalAlignment.Left
+                        verticalAlignment: VerticalAlignment.Center
+	                } // currentTimeLabel
+	
+	                Slider {
+	                    id: durationSlider
+	                    objectName: durationSlider
+	                    leftMargin: 5
+	                    rightMargin: 5
+	                    fromValue: 0.0
+	                    toValue: 1.0
+	                    enabled: false
+	                    horizontalAlignment: HorizontalAlignment.Fill
+	                    verticalAlignment: VerticalAlignment.Center
+	                    
+	                    layoutProperties: StackLayoutProperties {
+	                        spaceQuota: 1
+	                    }
+	                    onTouch: {
+	                        if (event.touchType == TouchType.Down) {  
+	                            if(myPlayer.mediaState == MediaState.Started) {
+	                        	     myPlayer.pause();
+	                        	     appContainer.playerStarted = true;
+	                        	 }
+	                        } else if (event.touchType == TouchType.Up) {                	             
+	                            if(appContainer.playerStarted == true) {
+	                                if ( appContainer.playerStarted == true) {
+	                                    myPlayer.play();
+	                        	       	appContainer.playerStarted = false;
+	                        	    }
+	                            }
+	                        }
+	                    }
+	                    onImmediateValueChanged: {
+	                        if(myPlayer.mediaState == MediaState.Started ||
+	                            myPlayer.mediaState == MediaState.Paused) {
+	                                if(appContainer.changeVideoPosition == true) {
+	                                    myPlayer.seekPercent(durationSlider.immediateValue);
+	                                }
+	                        }
+	                    }
+	                } //durationSlider
+	                
+	                Label {
+	                    id: totalTime
+	                    // the "text" will be set when media plays
+	                    text: "00:00:00"
+	                    preferredWidth: 150
+	                    textStyle {
+	                        color: Color.White
+	                        fontWeight: FontWeight.Normal
+	                    }
+                        horizontalAlignment: HorizontalAlignment.Right
+                        verticalAlignment: VerticalAlignment.Center
+	                } // totalTimeLabel
+
+	                
+	                
+                }//sliderContainer
+                                         
+	            Container {
+	                id: buttonContainer
+	                objectName: buttonContainer
+	                
+	                opacity: 0.5
+
+	                layout: StackLayout {
+	                    orientation: LayoutOrientation.LeftToRight
+	                }
+	                
+                
+	                leftPadding: 40
+	                rightPadding: 40
 	                horizontalAlignment: HorizontalAlignment.Center
 	                verticalAlignment: VerticalAlignment.Bottom
 	                
-/*	                Button {
+/*	                ImageButtonn {
 	                    id:stopButton
 	                    text: "Stop"
-	                    
+	                    opacity: 0.5
 	                    onClicked:{
 	                        videoWindow.visible = false;
 	                        myPlayer.stop()
@@ -287,23 +333,23 @@ Page {
 	                    }
 	                }
 */
-	                Button {
+	                ImageButton {
 	                    id:backButton
-	                    text: "Back"
+	                    defaultImageSource: "asset:///images/back.png"
 	                    
 	                    onClicked:{
 	                        // TODO Implement Back functionality
 	                    }
 	                }
 	                
-	                Button {
+	                ImageButton {
 	                    id:previousButton
-	                    text: "Previous"
+	                    defaultImageSource: "asset:///images/previous.png"
 	                    
 	                    onClicked:{
 	                        myPlayer.stop()
 	                        myPlayer.setSourceUrl(mycppPlayer.getPreviousVideoPath())
-	                        if (myPlayer.play() == MediaError.None) {
+	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
 	                          durationSlider.resetValue()
@@ -313,23 +359,22 @@ Page {
 	                    }
 	                }
 	                
-	                Button {
+	                ImageButton {
 	                    id:playButton
-	                    text: "Play/Pause"
-	                    onClicked:{	                       
+	                    defaultImageSource: "asset:///images/play.png"
+	                    
+	                    onClicked:{
 	                        if(myPlayer.mediaState == MediaState.Started) {
-	                            console.log("\n\n\n\nPAUUUSSSEEE\n\n\n\n")
-	                            myPlayer.pause();
+	                            appContainer.pauseMediaPlayer();
 	                        }
 	                        else if(myPlayer.mediaState == MediaState.Paused) {
-	                            console.log("\n\n\n\nPLLLAYYYY\n\n\n\n")
-	                            myPlayer.play();
+	                            appContainer.playMediaPlayer();
 	                        }
 	                        else {
 	                            console.log("CURRENT VIDEO PATH")
 	                            console.log(mycppPlayer.getVideoPath())
 	                            myPlayer.setSourceUrl(mycppPlayer.getVideoPath())
-	                            if (myPlayer.play() == MediaError.None) {
+	                            if (appContainer.playMediaPlayer() == MediaError.None) {
 	                                videoWindow.visible = true;
 	                                contentContainer.visible = true;
 	                                durationSlider.setEnabled(true)
@@ -340,14 +385,15 @@ Page {
 	                    }
 	                }
 	                
-	                Button {
+	                ImageButton {
 	                    id:nextButton
-	                    text: "Next"
+	                    defaultImageSource: "asset:///images/next.png"
+	                    opacity: 0.5
 	                    
 	                    onClicked:{
 	                        myPlayer.stop();
 	                        myPlayer.setSourceUrl(mycppPlayer.getNextVideoPath())
-	                        if (myPlayer.play() == MediaError.None) {
+	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
 	                          durationSlider.resetValue()
@@ -357,19 +403,50 @@ Page {
 	                    }
 	                }
 	                
-	                Button {
+/*	                ImageButton {
 	                    id:muteButton
 	                    text: "Mute"
 	                    
 	                    onClicked:{}
 	                }
-	               
+	                
+	                Slider {
+	                    id: volumeSlider
+	                    objectName: volumeSlider
+	                    leftMargin: 20
+	                    rightMargin: 20
+	                    fromValue: 0.0
+	                    toValue: 1.0
+	                    enabled: true
+	                    horizontalAlignment: HorizontalAlignment.Fill
+	                    verticalAlignment: VerticalAlignment.Center
+	                    
+	                    preferredWidth: 500
+	                    
+	                    layoutProperties: StackLayoutProperties {
+	                        spaceQuota: 1
+	                    }
+	                    onImmediateValueChanged: {
+	                        //TODO change the system volume
+	                    }
+	                } //volumeSlider
+*/	               
 	            }//buttonContainer
                 
             }//controlsContainer
             
         }//contentContainer
         
+        function playMediaPlayer() {
+            playButton.setDefaultImageSource("asset:///images/pause.png");            
+            return myPlayer.play();
+        }
+
+        function pauseMediaPlayer() {
+            playButton.setDefaultImageSource("asset:///images/play.png");            
+            return myPlayer.pause();
+        }
+
         attachedObjects: [
             Sheet {
                 id: videoSheet
@@ -389,21 +466,15 @@ Page {
                
                // The ID of the ForeignWindow control to
                // use as the rendering surface.
-               windowId: "VideoWindow" 
-               onVideoDimensionsChanged: {
-                                /*   console.log ("onVideoDimensionsChanged: width = " + videoDimensions.width + " : height = " + videoDimensions.height + " : videoSurface.windowHandle = " + videoWindow.windowHandle);
-                                   
-                                  // videoWindow.preferredWidth = videoDimensions.width;
-                                   videoWindow.minWidth = videoDimensions.width;
-                                   videoWindow.maxWidth = videoDimensions.width;
-                                   
-                                  // videoWindow.preferredHeight = videoDimensions.height;
-                                   videoWindow.minHeight = videoDimensions.height;
-                                   videoWindow.maxHeight = videoDimensions.height;
-                                  
-                                   videoWindow.translationY = appContainer.preferredHeight / 2 - (videoWindow.preferredHeight / 2);
-                                   videoWindow.translationX = appContainer.preferredWidth / 2 - (videoWindow.preferredWidth / 2);
-                             */ }          
+               windowId: "VideoWindow"
+
+               onPositionChanged: {
+                   //currentTime.text = position;
+                   currentTime.text = mycppPlayer.getFormattedTime(position)
+               }
+               onDurationChanged: {
+                   totalTime.text = mycppPlayer.getFormattedTime(duration)
+               }
            },
            
            QTimer {
@@ -432,22 +503,22 @@ Page {
            },
            
            QTimer {
-               id: playImageTimer
+               id: screenPlayImageTimer
                singleShot: true
                interval: 1000
                onTimeout: {
-                   playImage.setOpacity(0)
-                   playImageTimer.stop()
+                   screenPlayImage.setOpacity(0)
+                   screenPlayImageTimer.stop()
 		       }
            },
            
            QTimer {
-               id: pauseImageTimer
+               id: screenPauseImageTimer
                singleShot: true
                interval: 1000
                onTimeout: {
-                   pauseImage.setOpacity(0)
-                   pauseImageTimer.stop()
+                   screenPauseImage.setOpacity(0)
+                   screenPauseImageTimer.stop()
 		       }
            },
            
@@ -483,6 +554,6 @@ Page {
                 
             }
         }
-	    
+
     }//appContainer
 }// Page
