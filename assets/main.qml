@@ -242,7 +242,7 @@ Page {
 */
 	                ImageButton {
 	                    id:backButton
-	                    defaultImageSource: "asset:///images/back.jpg"
+	                    defaultImageSource: "asset:///images/back.png"
 	                    
 	                    onClicked:{
 	                        // TODO Implement Back functionality
@@ -251,7 +251,7 @@ Page {
 	                
 	                ImageButton {
 	                    id:previousButton
-	                    defaultImageSource: "asset:///images/previous.jpg"
+	                    defaultImageSource: "asset:///images/previous.png"
 	                    
 	                    onClicked:{
 	                        myPlayer.stop()
@@ -268,7 +268,7 @@ Page {
 	                
 	                ImageButton {
 	                    id:playButton
-	                    defaultImageSource: "asset:///images/play.jpg"
+	                    defaultImageSource: "asset:///images/play.png"
 	                    
 	                    onClicked:{
 	                        if(myPlayer.mediaState == MediaState.Started) {
@@ -294,7 +294,7 @@ Page {
 	                
 	                ImageButton {
 	                    id:nextButton
-	                    defaultImageSource: "asset:///images/next.jpg"
+	                    defaultImageSource: "asset:///images/next.png"
 	                    opacity: 0.5
 	                    
 	                    onClicked:{
@@ -345,12 +345,12 @@ Page {
         }//contentContainer
         
         function playMediaPlayer() {
-            playButton.setDefaultImageSource("asset:///images/pause.jpg");            
+            playButton.setDefaultImageSource("asset:///images/pause.png");            
             return myPlayer.play();
         }
 
         function pauseMediaPlayer() {
-            playButton.setDefaultImageSource("asset:///images/play.jpg");            
+            playButton.setDefaultImageSource("asset:///images/play.png");            
             return myPlayer.pause();
         }
 
