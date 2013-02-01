@@ -24,6 +24,14 @@ Page {
         property int touchPositionY: 0
         property bool playerStarted: false
         
+        property double minScreenScale: 0.5        //THIS IS THE MINIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
+        property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
+        property double initialScreenScale: 1.0  // Starts the video with original dimensions (that is, scale factor 1.0)
+                                                 // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
+                                                 // They both start with the same value but the "initialScale" value is different for every new pinch 
+        
+        property double currentTranslation;
+
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -34,51 +42,92 @@ Page {
 	        preferredWidth:  appContainer.landscapeWidth
 	        preferredHeight: appContainer.landscapeHeight 
 	        
-	        onTouch: {
+	        property int startingX
+	        property int startingY  
+	        
+	       onTouch: {
 	        	if (event.touchType == TouchType.Down)
 	        	{
 	        	     appContainer.touchPositionX =  event.localX;
 	        	     appContainer.touchPositionY =  event.localY;
+	        	     contentContainer.startingX = videoWindow.translationX
+	        	     contentContainer.startingY = videoWindow.translationY
 	            }
 	            else if (event.touchType == TouchType.Up)
 	            {
-	                if (appContainer.touchPositionX  > event.localX + 30) {
-	                     appContainer.changeVideoPosition = true;
-	                     if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
-	                         durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
-	                     } else {
-	                         durationSlider.setValue(1);
-	                         myPlayer.pause();
-	                     }
-	                } else if (appContainer.touchPositionX + 30  < event.localX) {
-	                     appContainer.changeVideoPosition = true;
-	                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
-	                } else {
-	                       if(myPlayer.mediaState != MediaState.Started) {
-	                        	appContainer.playMediaPlayer();
-	                            screenPlayImage.setOpacity(0.5)
-	                            screenPauseImage.setOpacity(0)
-	                            screenPlayImageTimer.start()
-	                        } else {
-	                            appContainer.pauseMediaPlayer();
-	                            screenPauseImage.setOpacity(0.5)
-	                            screenPlayImage.setOpacity(0)
-	                            screenPauseImageTimer.start()
-	                        }
+	                if ((appContainer.touchPositionX  > event.localX + 30) ||
+	                    (appContainer.touchPositionX + 30  < event.localX)) 
+	                {
+		                if (videoWindow.scaleX <= 1.0) 
+		                {
+		                    videoWindow.translationX = 0;
+		                    videoWindow.translationY = 0;
+		                    contentContainer.startingX = 0;
+		                    contentContainer.startingY = 0;		
+		                     if (appContainer.touchPositionX > event.localX + 30) {
+		                         appContainer.changeVideoPosition = true;
+		                         if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
+		                             durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+		                         } else {
+		                             durationSlider.setValue(1);
+		                             myPlayer.pause();
+		                         }
+		                     }
+		                     else if (appContainer.touchPositionX + 30  < event.localX)
+		                     {
+			                     appContainer.changeVideoPosition = true;
+			                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
+			                } 
+			            }
+			        }
+		            else
+		            {
+                       if(myPlayer.mediaState != MediaState.Started) {
+                        	appContainer.playMediaPlayer();
+                            screenPlayImage.setOpacity(0.5)
+                            screenPauseImage.setOpacity(0)
+                            screenPlayImageTimer.start()
+                        } else {
+                            appContainer.pauseMediaPlayer();
+                            screenPauseImage.setOpacity(0.5)
+                            screenPlayImage.setOpacity(0)
+                            screenPauseImageTimer.start()
+                        }
 	                 }
+	            } 
+	            else if (event.touchType == TouchType.Move)
+	            {
+	                if (videoWindow.scaleX > 1.0) 
+	                {
+	                    appContainer.moveX(event.localX);	
+	                    appContainer.moveY(event.localY);          	                  	                  
+                    }	
 	            }
-	        }
+	        }// onTouch
             
-	        ForeignWindowControl {
+	       ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
                 windowId: "VideoWindow"
-	                
+	             
+	            layoutProperties: AbsoluteLayoutProperties {
+	            }
+	            property double initialScale: appContainer.initialScreenScale   
+	            
+	           // This custom property determines how quickly the ForeignWindow grows
+               // or shrinks in response to the pinch gesture
+               property double scaleFactor: 0.5
+            
+               // Temporary variable, used in computation for pinching everytime
+               property double newScaleVal
+               
 				gestureHandlers: [
 				]
 				    				    
 	            preferredWidth:  appContainer.landscapeWidth
 	            preferredHeight: appContainer.landscapeHeight 
+	            
+	            visible:  boundToWindow
 	            updatedProperties:// WindowProperty.SourceSize | 
 	                WindowProperty.Size |
 	                WindowProperty.Position |
@@ -91,6 +140,35 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
+	        
+            gestureHandlers: [
+                // Add a handler for pinch gestures
+                PinchHandler {
+                    // When the pinch gesture starts, save the initial scale
+                    // of the window
+                    onPinchStarted: {
+                        console.log("onPinchStart: videoWindow.scaleX = " + videoWindow.scaleX);
+                        videoWindow.initialScale = videoWindow.scaleX;
+                    }
+
+                    // As the pinch expands or contracts, change the scale of
+                    // the image
+                    onPinchUpdated: {
+                        console.log("onPinchUpdate");
+                        videoWindow.newScaleVal = videoWindow.initialScale + ((event.pinchRatio - 1) * videoWindow.scaleFactor);
+                        console.log("onPinchUpdate: videoWindow.initialScale = " + videoWindow.initialScale + ": event.pinchRatio-1= " + event.pinchRatio - 1 + " : newScaleVal = " + videoWindow.newScaleVal);
+                        if (videoWindow.newScaleVal < 1) {
+                            videoWindow.newScaleVal = 1;
+                        }
+                        if (videoWindow.newScaleVal < appContainer.maxScreenScale && videoWindow.newScaleVal > appContainer.minScreenScale) {
+                            videoWindow.scaleX = videoWindow.newScaleVal;
+                            videoWindow.scaleY = videoWindow.newScaleVal;
+                            videoWindow.translationX = 0;
+                            videoWindow.translationY = 0;
+                        }
+                    } // onPinchUpdate
+                } // PinchHandler
+            ] // attachedObjects
 
             // Play image is transparent. It will become visible when the video
             // is played using tap event. It will be visible 1 sec.
@@ -294,35 +372,6 @@ Page {
 	                        }
 	                    }
 	                }
-	                
-/*	                ImageButton {
-	                    id:muteButton
-	                    text: "Mute"
-	                    
-	                    onClicked:{}
-	                }
-	                
-	                Slider {
-	                    id: volumeSlider
-	                    objectName: volumeSlider
-	                    leftMargin: 20
-	                    rightMargin: 20
-	                    fromValue: 0.0
-	                    toValue: 1.0
-	                    enabled: true
-	                    horizontalAlignment: HorizontalAlignment.Fill
-	                    verticalAlignment: VerticalAlignment.Center
-	                    
-	                    preferredWidth: 500
-	                    
-	                    layoutProperties: StackLayoutProperties {
-	                        spaceQuota: 1
-	                    }
-	                    onImmediateValueChanged: {
-	                        //TODO change the system volume
-	                    }
-	                } //volumeSlider
-*/	               
 	            }//buttonContainer
                 
             }//controlsContainer
@@ -338,7 +387,27 @@ Page {
             playButton.setDefaultImageSource("asset:///images/play.png");            
             return myPlayer.pause();
         }
-
+        function moveX(localX) {
+            appContainer.currentTranslation = localX - appContainer.touchPositionX + contentContainer.startingX;
+            if (appContainer.currentTranslation < 0) {
+                appContainer.currentTranslation = - appContainer.currentTranslation;
+            }
+            if (appContainer.currentTranslation < (videoWindow.preferredWidth * videoWindow.scaleX - videoWindow.preferredWidth) / 2) {
+                console.log("Trans XXXX = ", appContainer.currentTranslation);
+                videoWindow.translationX = localX - appContainer.touchPositionX + contentContainer.startingX;
+            }
+        }
+        function moveY(localY) {
+            appContainer.currentTranslation = localY - appContainer.touchPositionY + contentContainer.startingY;
+            if (appContainer.currentTranslation < 0) {
+                appContainer.currentTranslation = - appContainer.currentTranslation;
+            }
+            if (appContainer.currentTranslation < (videoWindow.preferredHeight * videoWindow.scaleY - videoWindow.preferredHeight) / 2) {
+                console.log("Trans YYYY = ", appContainer.currentTranslation)
+                videoWindow.translationY = localY - appContainer.touchPositionY + contentContainer.startingY;
+            }
+        }
+        
         attachedObjects: [
             Sheet {
                 id: videoSheet
@@ -435,7 +504,9 @@ Page {
 	    onCreationCompleted: {
 	        OrientationSupport.supportedDisplayOrientation =
 	            SupportedDisplayOrientation.All;
-	            
+	        // centre the videosurface
+	        videoWindow.translationY = 0;
+	        videoWindow.translationX = 0;  
             if (OrientationSupport.orientation == UIOrientation.Landscape) {
                 videoWindow.preferredWidth = appContainer.landscapeWidth
                 videoWindow.preferredHeight = appContainer.landscapeHeight

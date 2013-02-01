@@ -65,7 +65,7 @@
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <configuration id="com.qnx.qcc.toolChain.590376397" name="Default">
+    <configuration id="com.qnx.qcc.toolChain.1155620812" name="Default">
        <platformArchitecture>armle-v7</platformArchitecture>
        <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
     </configuration>
