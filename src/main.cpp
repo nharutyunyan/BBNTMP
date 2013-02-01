@@ -9,14 +9,14 @@
 #include <bb/cascades/ListView>
 #include <QVariantList>
 
-#include "window.hpp"
-#include "player.hpp"
+#include "NewListProject.hpp"
 #include "exceptions.hpp"
 #include "utility.hpp"
 
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/AbstractPane>
+#include <iostream>
 
 
 using namespace bb::cascades;
@@ -24,16 +24,9 @@ using namespace utility;
 using namespace exceptions;
 
 
-//TODO for testing purposes only
-/*ListView* getListView()
-{
-	ListView *pListView = new ListView();
-	pListView->setDataModel(new QListDataModel<QString>(entries));
-	return pListView;
-}*/
-
-
-//test commit
+/**
+ * Directs the logs to the standard output.
+ */
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     fprintf(stdout, "%s\n", msg);
@@ -55,10 +48,9 @@ int main(int argc, char **argv)
     }
 
 
-    //PlayerWindow mainWindow;
 	// Create and load the QML file, using build patterns.
-    Player player;
 
+    new NewListProject(&app);
 
     try
     {
@@ -66,20 +58,24 @@ int main(int argc, char **argv)
 		QStringList filters;
 		filters << "*.mp4";
 		filters << "*.avi";
-		bool b = FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 
-		if(b)
+		//TODO hard-coded paths must be changed to dynamic.
+		QString filename="/accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc/app/native/assets/mydata.json";
+		QFile file(filename);
+
+		if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
 		{
-			//TODO for now let's play the first found video
-			player.setCurrentVideoIndex(0);
-    		player.setVideoPaths(result);
-		}else{
-			QmlDocument *qml = QmlDocument::create("asset:///videoSheet.qml").parent(&player);
-
-			// create root object for the UI
-			AbstractPane *root = qml->createRootObject<AbstractPane>();
-			// set created root object as a scene
-			app.setScene(root);
+			QTextStream stream( &file );
+			stream << "[" << endl;
+			for(int i = 0; i < result.size(); ++i){
+				stream << "{" << "\"path\":" << '\"' << result[i] << "\"}";
+				if(i != result.size()-1 ) {
+					stream << ",\n";
+				}
+			}
+			stream << "]" << endl;
+			file.close();
 		}
     }
     catch(const exception& e)

@@ -8,6 +8,7 @@ SOURCES += ../src/*.cpp
 HEADERS += ../src/*.hpp ../src/*.h
 LIBS += -lmmrndclient -lscreen
 LIBS += -lbbmultimedia
+LIBS += -lbbdata
 
 
 lupdate_inclusion {
