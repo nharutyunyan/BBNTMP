@@ -14,3 +14,10 @@
 # generated files/folders
 x86/
 arm/
+
+# Compiled translation files
+/translations/*.qm
+
+# cascades generates these for .qml files
+.preview*
+
