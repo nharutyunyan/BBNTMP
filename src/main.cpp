@@ -12,6 +12,7 @@
 #include "NewListProject.hpp"
 #include "exceptions.hpp"
 #include "utility.hpp"
+#include "subtitleManager.hpp"
 
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
@@ -27,10 +28,12 @@ using namespace exceptions;
 /**
  * Directs the logs to the standard output.
  */
+
 void myMessageOutput(QtMsgType type, const char* msg)
 {
-    fprintf(stdout, "%s\n", msg);
-    fflush(stdout);
+    //Lets keep this commented, since it affects the performance.
+//    fprintf(stdout, "%s\n", msg);
+//    fflush(stdout);
 }
 
 int main(int argc, char **argv)
@@ -38,6 +41,7 @@ int main(int argc, char **argv)
     Application app(argc, argv);
     qInstallMsgHandler(myMessageOutput);
     qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
+    qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
 
 
     QTranslator translator;

@@ -1,6 +1,6 @@
 import bb.cascades 1.0
-
 import bb.multimedia 1.0
+import nuttyPlayer 1.0
 
 Page {
     id: pgPlayer
@@ -19,6 +19,9 @@ Page {
         // This properties are used for dynamically defining video window size for different orientations
         property int landscapeWidth : 1280
         property int landscapeHeight : 768
+        
+        property int subtitleAreaLandscapeY : 425
+        property int subtitleAreaPortraitY : 270
         
         property int touchPositionX: 0
         property int touchPositionY: 0
@@ -104,7 +107,10 @@ Page {
                     }	
 	            }
 	        }// onTouch
-            
+           
+           Container {                
+               layout: AbsoluteLayout {
+                           } 
 	       ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
@@ -141,6 +147,41 @@ Page {
 	            }
 	        } //videoWindow
 	        
+            ///Subtitle area
+            Container {
+                id: subtitleArea
+                layoutProperties: AbsoluteLayoutProperties {
+                    positionX: 0
+                    positionY: appContainer.subtitleAreaPortraitY
+                }
+                
+                layout: StackLayout {
+                    orientation: LayoutOrientation.TopToBottom
+                }
+                preferredHeight: 200                
+                Container {
+                    layoutProperties: StackLayoutProperties {
+                        spaceQuota: 1.0
+                    }
+                
+                }
+                TextArea {                    
+                    text: subtitleManager.text
+                    textFormat: TextFormat.Html
+                    backgroundVisible: false
+                    textStyle.color: Color.White
+                    textStyle.textAlign: TextAlign.Center
+                    editable: false
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    verticalAlignment: VerticalAlignment.Bottom
+                    horizontalAlignment: HorizontalAlignment.Center                        
+                    inputMode: TextAreaInputMode.Text     
+                    onCreationCompleted: {
+                        setImplicitLayoutAnimationsEnabled(false);
+                    }               
+                }
+            }
+        }	                    
             gestureHandlers: [
                 // Add a handler for pinch gestures
                 PinchHandler {
@@ -264,6 +305,7 @@ Page {
 	                            myPlayer.mediaState == MediaState.Paused) {
 	                                if(appContainer.changeVideoPosition == true) {
 	                                    myPlayer.seekPercent(durationSlider.immediateValue);
+	                                    myPlayer.valueChangedBySeek = true;
 	                                }
 	                        }
 	                    }
@@ -325,6 +367,7 @@ Page {
 	                          contentContainer.visible = true;
 	                          durationSlider.resetValue()
 	                          durationSlider.setEnabled(true)
+	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
 	                          trackTimer.start();
 	                        }
 	                    }
@@ -349,6 +392,7 @@ Page {
 	                                contentContainer.visible = true;
 	                                durationSlider.setEnabled(true)
 	                                durationSlider.resetValue()
+	                                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
 	                                trackTimer.start();
 	                            }
 	                        }
@@ -367,7 +411,9 @@ Page {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
 	                          durationSlider.resetValue()
+	                          myPlayer.positionInMsecs = 0;
 	                          durationSlider.setEnabled(true)
+	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
 	                          trackTimer.start();
 	                        }
 	                    }
@@ -428,9 +474,19 @@ Page {
                // The ID of the ForeignWindow control to
                // use as the rendering surface.
                windowId: "VideoWindow"
+               
+               property int positionInMsecs: 0 //track position in msecs. Using this since player does not give position value in msecs.
+               property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
                    currentTime.text = myListModel.getFormattedTime(position)
+                   //Set correct subtitle positon
+                   if (valueChangedBySeek) {
+                       myPlayer.positionInMsecs = myPlayer.position;
+                       subtitleManager.seek(myPlayer.positionInMsecs);
+                       valueChangedBySeek = false;
+                   }
+                   
                }
                onDurationChanged: {
                    totalTime.text = myListModel.getFormattedTime(duration)
@@ -446,7 +502,9 @@ Page {
                 }
                
            },
-           
+           SubtitleManager {
+               id: subtitleManager;
+           },                  
            MediaKeyWatcher {
                id: keyWatcher
                key: MediaKey.PlayPause
@@ -466,7 +524,7 @@ Page {
 	                           videoWindow.visible = true;
 	                           contentContainer.visible = true;
 	                           durationSlider.setEnabled(true)
-	                           durationSlider.resetValue()
+	                           durationSlider.resetValue()	                           
 	                           trackTimer.start();
 	                        }
 	                    }
@@ -475,14 +533,26 @@ Page {
            
            QTimer {
                id: trackTimer
-               singleShot: false
-               //Investigate why the onTimeout is called after 1000 msec
-               interval: 500
+               singleShot: false        
+               property int videoCurrentPos:0 //to track position changes on media player.                                      
+               interval: 5
                onTimeout: {
 		           if(myPlayer.mediaState == MediaState.Started) {
-		               appContainer.changeVideoPosition = false;
-		               durationSlider.setValue(myPlayer.position / myPlayer.duration)
-		               appContainer.changeVideoPosition = true;
+		               appContainer.changeVideoPosition = false;		               		               		           
+		               myPlayer.positionInMsecs += 5;
+		               //Sync every time when myPlayer.position changed: i.e. one time per second
+                       if(videoCurrentPos != myPlayer.position) {
+                           videoCurrentPos = myPlayer.position;
+                           myPlayer.positionInMsecs = myPlayer.position;		                    
+                       }
+                       //Duration is 0 for first several time outs.
+                       //TODO: Figure out that, though seems it is a MediaPlayer issue.
+                       //'if' is used as workaround
+                       if (myPlayer.duration) {
+                           durationSlider.setValue(myPlayer.positionInMsecs / myPlayer.duration)
+                       }
+                       appContainer.changeVideoPosition = true;
+                       subtitleManager.handlePositionChanged(myPlayer.positionInMsecs);
 		           }
 		           else if(myPlayer.mediaState == MediaState.Stopped) {
 		               appContainer.changeVideoPosition = false;
@@ -518,9 +588,11 @@ Page {
                    if (orientation == UIOrientation.Landscape) {
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
+                       subtitleArea.layoutProperties.positionY = appContainer.subtitleAreaLandscapeY;
                    } else {
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
+                       subtitleArea.layoutProperties.positionY = appContainer.subtitleAreaPortraitY;
                    }
                }
            }
