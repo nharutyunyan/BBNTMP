@@ -447,6 +447,32 @@ Page {
                
            },
            
+           MediaKeyWatcher {
+               id: keyWatcher
+               key: MediaKey.PlayPause
+                        
+               onShortPress: {
+                   if(myPlayer.mediaState == MediaState.Started) {
+	               appContainer.pauseMediaPlayer();
+	               }
+	               else if(myPlayer.mediaState == MediaState.Paused) {
+	                   appContainer.playMediaPlayer();
+	                   }
+	                   else {
+	                       console.log("CURRENT VIDEO PATH")
+	                       console.log(mycppPlayer.getVideoPath())
+	                       myPlayer.setSourceUrl(mycppPlayer.getVideoPath())
+	                       if (appContainer.playMediaPlayer() == MediaError.None) {
+	                           videoWindow.visible = true;
+	                           contentContainer.visible = true;
+	                           durationSlider.setEnabled(true)
+	                           durationSlider.resetValue()
+	                           trackTimer.start();
+	                        }
+	                    }
+                     }
+            },
+           
            QTimer {
                id: trackTimer
                singleShot: false
