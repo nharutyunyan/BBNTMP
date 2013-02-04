@@ -26,11 +26,11 @@
 
     <!-- A universally unique application identifier. Must be unique across all BlackBerry Tablet OS applications.
          Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-    <id>com.example.VideoTest</id>
+    <id>com.example.NuttyPlayer</id>
 
     <!-- The name that is displayed in the BlackBerry Tablet OS application installer. 
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
-    <name>VideoTest</name>
+    <name>NuttyPlayer</name>
     
     <!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade. 
          Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
@@ -46,28 +46,36 @@
 
     <!-- Description, displayed in the BlackBerry Tablet OS application installer.
          May have multiple values for each language. See samples or xsd schema file. Optional. -->
-    <description>The VideoTest application</description>
+    <description>The NuttyPlayer application</description>
 
     <!-- Copyright information. Optional. -->
     <!-- <copyright></copyright> -->
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
-    <author>Macadamian</author>
-    <authorId>gYAAgPy-T5-mBK1JaUhs4VarGgQ</authorId>
+    <author>Example Inc.</author>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
    
     <initialWindow>
-        <autoOrients>true</autoOrients>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <configuration id="com.qnx.qcc.toolChain.1155620812" name="Default">
+    <category>core.games</category>
+    <configuration name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="arm/o.le-v7-g/VideoTest" entry="true" type="Qnx/Elf">VideoTest</asset>
+       <asset path="arm/o.le-v7-g/NuttyPlayer" entry="true" type="Qnx/Elf">NuttyPlayer</asset>
+    </configuration>
+    <configuration name="Device-Release">
+       <entryPointType>Qnx/Cascades</entryPointType>
+       <platformArchitecture>armle-v7</platformArchitecture>
+       <asset path="arm/o.le-v7/NuttyPlayer.so" entry="true" type="Qnx/Elf">NuttyPlayer.so</asset>
+    </configuration>
+    <configuration name="Simulator-Debug">
+       <platformArchitecture>x86</platformArchitecture>
+       <asset path="x86/o-g/NuttyPlayer" entry="true" type="Qnx/Elf">NuttyPlayer</asset>
     </configuration>
     
     <!--  The icon for the application, which should be 86x86. -->
@@ -77,8 +85,6 @@
 
     <asset path="icon.png">icon.png</asset>
     <asset path="assets">assets</asset>
-    <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->
-    <!-- <splashscreen></splashscreen> -->
     
     <!-- Locale support -->
     <asset path="translations" dest="qm">
@@ -86,21 +92,10 @@
     </asset>
     
     <!-- Request permission to execute native code.  Required for native applications. -->
-    <permission>run_native</permission>
+    <permission system="true">run_native</permission>
+    <permission>run_when_backgrounded</permission>
     <permission>access_shared</permission>
     <permission>play_audio</permission>
-    <permission>run_when_backgrounded</permission>
     <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
-
-    <!--  The permissions requested by your application. -->
-    <!--  <action>access_shared</action> -->
-    <!--  <action>record_audio</action> -->
-    <!--  <action>read_geolocation</action> -->
-    <!--  <action>use_camera</action> -->
-    <!--  <action>access_internet</action> -->
-    <!--  <action>play_audio</action> -->
-    <!--  <action>post_notification</action> -->
-    <!--  <action>set_audio_volume</action> -->
-    <!--  <action>read_device_identifying_information</action> -->
 
 </qnx>

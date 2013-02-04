@@ -20,6 +20,7 @@ MyListModel::MyListModel(QObject* parent)
 {
     qDebug() << "Creating MyListModel object:" << this;
     setParent(parent);
+    load(QDir::home().absoluteFilePath("videoInfoList.json"));
 }
 
 MyListModel::~MyListModel()

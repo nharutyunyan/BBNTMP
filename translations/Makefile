@@ -1,4 +1,4 @@
-QMAKE_TARGET  = VideoTest
+QMAKE_TARGET  = NuttyPlayer
 LUPDATE       = $(QNX_HOST)/usr/bin/lupdate
 LRELEASE      = $(QNX_HOST)/usr/bin/lrelease
 
