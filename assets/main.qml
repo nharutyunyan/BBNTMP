@@ -77,10 +77,7 @@ Page {
 
         // enable layout to adapt to the device rotation
         // don't forget to enable screen rotation in bar-bescriptor.xml (Application->Orientation->Auto-orient)
-        OrientationSupport.supportedDisplayOrientation = SupportedDisplayOrientation.All;
-
-        // populate list view model with the sample data
-        myListModel.load("app/native/assets/mydata.json")
+        OrientationSupport.supportedDisplayOrientation = SupportedDisplayOrientation.All;               
     }
 }
 }

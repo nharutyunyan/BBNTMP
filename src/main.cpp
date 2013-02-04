@@ -52,10 +52,6 @@ int main(int argc, char **argv)
     }
 
 
-	// Create and load the QML file, using build patterns.
-
-    new NewListProject(&app);
-
     try
     {
     	QStringList result;
@@ -64,10 +60,10 @@ int main(int argc, char **argv)
 		filters << "*.avi";
 		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 
-		//TODO hard-coded paths must be changed to dynamic.
-		QString filename="/accounts/1000/appdata/com.example.VideoTest.testDev_e_VideoTestfba284dc/app/native/assets/mydata.json";
+		QString filename = QDir::home().absoluteFilePath("videoInfoList.json");
 		QFile file(filename);
-
+        //TODO: Change this. Though, this will be removed when we get proper handling of video info list
+		//(but,even sample data generation can be changed to not create json manually)
 		if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
 		{
 			QTextStream stream( &file );
@@ -86,6 +82,10 @@ int main(int argc, char **argv)
     {
     	//do corresponding job
     }
+
+	// Create and load the QML file, using build patterns.
+
+    new NewListProject(&app);
 
     return Application::exec();
 }
