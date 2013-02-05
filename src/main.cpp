@@ -81,9 +81,6 @@ int main(int argc, char **argv)
 	// Create and load the QML file, using build patterns.
     new NewListProject(&app);
 
-    // Create a BPS event handler
-    BpsEventHandler bpsEventHandler;
-
     return Application::exec();
 }
 

@@ -416,7 +416,6 @@ Page {
 
                     Slider {
                         id: volumeSlider
-                        objectName: volumeSlider
                         leftMargin: 20
                         rightMargin: 20
                         fromValue: 0.0
@@ -432,8 +431,8 @@ Page {
                         function speakerVolumeChanged(speakerVolume) {
                             value=speakerVolume
                         }
-                        onImmediateValueChanged: {  
-                            bpsEventHandler.sliderValueChanged(immediateValue)
+                        onImmediateValueChanged: {
+                            bpsEventHandler.onVolumeSliderValueChanged(immediateValue)
                         }
                     } //volumeSlider
 	            }//buttonContainer

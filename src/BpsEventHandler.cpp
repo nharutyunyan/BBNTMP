@@ -10,7 +10,6 @@
 #include <bb/cascades/Application>
 
 #include "BpsEventHandler.hpp"
-#include "NewListProject.hpp"
 
 BpsEventHandler::BpsEventHandler(QObject* parent)
 : QObject(parent)
@@ -49,9 +48,9 @@ void BpsEventHandler::event( bps_event_t *event ) {
     	}
 }
 
-void BpsEventHandler::sliderValueChanged(float sliderValue)
+void BpsEventHandler::onVolumeSliderValueChanged(float volumeSliderValue)
 {
 	// The volume slider value has been changed
 	// Synchronize the system volume value with the volume slider value
-	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, sliderValue);
+	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volumeSliderValue);
 }
