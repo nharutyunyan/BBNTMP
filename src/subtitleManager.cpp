@@ -97,9 +97,7 @@ void SubtitleManager::load(QString fileName)
 		entry.textStartPos = textPos;
 		//Get texts line by line. Read while the line is not empty
 		line = in.readLine();
-		//while(!in.atEnd() && line != "\n" && line != "")
 		while(!in.atEnd() && line.contains(QRegExp("\\w")))
-		//while(!in.atEnd() && line.size() >= 2)
 		{
 			m_textEntries += line;
 			textPos += line.size();
@@ -132,6 +130,9 @@ void SubtitleManager::parseTimesLine(const QString& input, uint& start, uint & e
 //Using linear search, since the data is not big and the performance is not affected.
 void SubtitleManager::seek(uint pos)
 {
+	if (!m_loaded)
+	  return;
+
 	while(1) //loop till return
 	{
 		if ( pos >= m_entries[m_currentEntryIndex].startTime && pos <= m_entries[m_currentEntryIndex].endTime)

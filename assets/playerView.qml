@@ -19,10 +19,9 @@ Page {
         // This properties are used for dynamically defining video window size for different orientations
         property int landscapeWidth : 1280
         property int landscapeHeight : 768
-
-        property int subtitleAreaLandscapeY : 425
-        property int subtitleAreaPortraitY : 270
-
+        
+        property int subtitleAreaBottomPadding : 150
+        
         property int touchPositionX: 0
         property int touchPositionY: 0
         property bool playerStarted: false
@@ -151,7 +150,7 @@ Page {
                 id: subtitleArea
                 layoutProperties: AbsoluteLayoutProperties {
                     positionX: 0
-                    positionY: appContainer.subtitleAreaPortraitY
+                    positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                 }
 
                 layout: StackLayout {
@@ -609,12 +608,12 @@ Page {
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
                        videoWindow.preferredWidth = appContainer.landscapeWidth
-                       videoWindow.preferredHeight = appContainer.landscapeHeight
-                       subtitleArea.layoutProperties.positionY = appContainer.subtitleAreaLandscapeY;
+                       videoWindow.preferredHeight = appContainer.landscapeHeight                       
+                       subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                    } else {
                        videoWindow.preferredWidth = appContainer.landscapeHeight
-                       videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
-                       subtitleArea.layoutProperties.positionY = appContainer.subtitleAreaPortraitY;
+                       videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth                       
+                       subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                    }
                }
            }
