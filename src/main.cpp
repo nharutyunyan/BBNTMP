@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     new NewListProject(&app);
 
     // Create a BPS event handler
-    new BpsEventHandler();
+    BpsEventHandler bpsEventHandler;
 
     return Application::exec();
 }
