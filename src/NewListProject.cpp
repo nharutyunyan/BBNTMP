@@ -1,9 +1,9 @@
 #include "NewListProject.hpp"
 #include "mylistmodel.hpp"
 
+#include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
-#include <bb/cascades/AbstractPane>
 
 using namespace bb::cascades;
 
@@ -22,4 +22,3 @@ NewListProject::NewListProject(bb::cascades::Application *app)
     // set created root object as a scene
     app->setScene(root);
 }
-

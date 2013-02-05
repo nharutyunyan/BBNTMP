@@ -5,6 +5,7 @@ CONFIG += qt warn_on cascades10
 LIBS += -lmmrndclient -lscreen
 LIBS += -lbbmultimedia
 LIBS += -lbbdata
+LIBS += -lbb
 
 TRANSLATIONS += \
     $${TARGET}_en_GB.ts \
