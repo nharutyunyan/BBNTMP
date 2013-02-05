@@ -1,53 +1,52 @@
 import bb.cascades 1.0
 import bb.multimedia 1.0
 import nuttyPlayer 1.0
-
+import bpsEventHandler 1.0
 Page {
     id: pgPlayer
-    
+
     Container {
         id: appContainer
         background: Color.create("#ff262626")
-        
+
         layout: DockLayout {
         }
-        
+
         //This variable is used to control video duration logic. 
         //Indicates whether to change the video position, when the slider's value is changed.
         property bool changeVideoPosition : true
-        
+
         // This properties are used for dynamically defining video window size for different orientations
         property int landscapeWidth : 1280
         property int landscapeHeight : 768
-        
+
         property int subtitleAreaLandscapeY : 425
         property int subtitleAreaPortraitY : 270
-        
+
         property int touchPositionX: 0
         property int touchPositionY: 0
         property bool playerStarted: false
-        
+
         property double minScreenScale: 0.5        //THIS IS THE MINIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
         property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
         property double initialScreenScale: 1.0  // Starts the video with original dimensions (that is, scale factor 1.0)
                                                  // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
                                                  // They both start with the same value but the "initialScale" value is different for every new pinch 
-        
         property double currentTranslation;
 
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
             verticalAlignment: VerticalAlignment.Bottom
-            
+
             layout: DockLayout {}
-            
+
 	        preferredWidth:  appContainer.landscapeWidth
 	        preferredHeight: appContainer.landscapeHeight 
-	        
+
 	        property int startingX
 	        property int startingY  
-	        
+
 	       onTouch: {
 	        	if (event.touchType == TouchType.Down)
 	        	{
@@ -107,7 +106,7 @@ Page {
                     }	
 	            }
 	        }// onTouch
-           
+
            Container {                
                layout: AbsoluteLayout {
                            } 
@@ -115,30 +114,30 @@ Page {
                 id: videoWindow
                 objectName: "VideoWindow"
                 windowId: "VideoWindow"
-	             
+
 	            layoutProperties: AbsoluteLayoutProperties {
 	            }
 	            property double initialScale: appContainer.initialScreenScale   
-	            
+
 	           // This custom property determines how quickly the ForeignWindow grows
                // or shrinks in response to the pinch gesture
                property double scaleFactor: 0.5
-            
+
                // Temporary variable, used in computation for pinching everytime
                property double newScaleVal
-               
+
 				gestureHandlers: [
 				]
-				    				    
+
 	            preferredWidth:  appContainer.landscapeWidth
 	            preferredHeight: appContainer.landscapeHeight 
-	            
+
 	            visible:  boundToWindow
 	            updatedProperties:// WindowProperty.SourceSize | 
 	                WindowProperty.Size |
 	                WindowProperty.Position |
 	                WindowProperty.Visible                
-	                
+
 	            onVisibleChanged: {
 	                console.log("foreignwindow visible = " + visible);
 	            }
@@ -146,7 +145,7 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
-	        
+
             ///Subtitle area
             Container {
                 id: subtitleArea
@@ -154,7 +153,7 @@ Page {
                     positionX: 0
                     positionY: appContainer.subtitleAreaPortraitY
                 }
-                
+
                 layout: StackLayout {
                     orientation: LayoutOrientation.TopToBottom
                 }
@@ -163,7 +162,7 @@ Page {
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1.0
                     }
-                
+
                 }
                 TextArea {                    
                     text: subtitleManager.text
@@ -222,7 +221,7 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-   
+
             // Pause image is transparent. It will become visible when the video
             // is paused using tap event. It will be visible 1 sec.
             ImageView {
@@ -234,7 +233,7 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-          
+
             Container
             {
                 id: controlsContainer
@@ -251,13 +250,12 @@ Page {
 	                layout: StackLayout {
 	                    orientation: LayoutOrientation.LeftToRight
 	                }
-	                
+
 	                leftPadding: 5
 	                rightPadding: 5
 	                horizontalAlignment: HorizontalAlignment.Fill
 	                verticalAlignment: VerticalAlignment.Bottom
-	            
-	            
+
 	                Label {
 	                    id: currentTime
 	                    // the "text" will be set when media plays
@@ -270,7 +268,7 @@ Page {
                         horizontalAlignment: HorizontalAlignment.Left
                         verticalAlignment: VerticalAlignment.Center
 	                } // currentTimeLabel
-	
+
 	                Slider {
 	                    id: durationSlider
 	                    objectName: durationSlider
@@ -281,7 +279,7 @@ Page {
 	                    enabled: false
 	                    horizontalAlignment: HorizontalAlignment.Fill
 	                    verticalAlignment: VerticalAlignment.Center
-	                    
+
 	                    layoutProperties: StackLayoutProperties {
 	                        spaceQuota: 1
 	                    }
@@ -310,7 +308,7 @@ Page {
 	                        }
 	                    }
 	                } //durationSlider
-	                
+
 	                Label {
 	                    id: totalTime
 	                    // the "text" will be set when media plays
@@ -324,41 +322,38 @@ Page {
                         verticalAlignment: VerticalAlignment.Center
 	                } // totalTimeLabel
 
-	                
-	                
                 }//sliderContainer
-                                         
+
 	            Container {
 	                id: buttonContainer
 	                objectName: buttonContainer
-	                
+
 	                opacity: 0.5
 
 	                layout: StackLayout {
 	                    orientation: LayoutOrientation.LeftToRight
 	                }
-	                
-                
+
 	                leftPadding: 40
 	                rightPadding: 40
 	                horizontalAlignment: HorizontalAlignment.Center
 	                verticalAlignment: VerticalAlignment.Bottom
-	                
+
 	                ImageButton {
 	                    id:backButton
 	                    defaultImageSource: "asset:///images/back.png"
-	                    
+
 	                    onClicked:{
 	                        myPlayer.stop();
                             navigationPane.pop();
                             pgPlayer.destroy();
 	                    }
 	                }
-	                
+
 	                ImageButton {
 	                    id:previousButton
 	                    defaultImageSource: "asset:///images/previous.png"
-	                    
+
 	                    onClicked:{
 	                        myPlayer.stop()
 	                        myPlayer.setSourceUrl(myListModel.getPreviousVideoPath())
@@ -372,11 +367,11 @@ Page {
 	                        }
 	                    }
 	                }
-	                
+
 	                ImageButton {
 	                    id:playButton
 	                    defaultImageSource: "asset:///images/play.png"
-	                    
+
 	                    onClicked:{
 	                        if(myPlayer.mediaState == MediaState.Started) {
 	                            appContainer.pauseMediaPlayer();
@@ -386,7 +381,7 @@ Page {
 	                        }
 	                        else {
 	                            myPlayer.setSourceUrl(myListModel.getSelectedVideoPath())
-	                            
+
 	                            if (appContainer.playMediaPlayer() == MediaError.None) {
 	                                videoWindow.visible = true;
 	                                contentContainer.visible = true;
@@ -398,12 +393,12 @@ Page {
 	                        }
 	                    }
 	                }
-	                
+
 	                ImageButton {
 	                    id:nextButton
 	                    defaultImageSource: "asset:///images/next.png"
 	                    opacity: 0.5
-	                    
+
 	                    onClicked:{
 	                        myPlayer.stop();
 	                        myPlayer.setSourceUrl(myListModel.getNextVideoPath())
@@ -418,12 +413,35 @@ Page {
 	                        }
 	                    }
 	                }
+
+                    Slider {
+                        id: volumeSlider
+                        objectName: volumeSlider
+                        leftMargin: 20
+                        rightMargin: 20
+                        fromValue: 0.0
+                        toValue: 100.0
+                        enabled: true
+                        horizontalAlignment: HorizontalAlignment.Fill
+                        verticalAlignment: VerticalAlignment.Center
+                        preferredWidth: 500
+                        layoutProperties: StackLayoutProperties {
+                            spaceQuota: 1
+                        }
+
+                        function speakerVolumeChanged(speakerVolume) {
+                            value=speakerVolume
+                        }
+                        onImmediateValueChanged: {  
+                            bpsEventHandler.sliderValueChanged(immediateValue)
+                        }
+                    } //volumeSlider
 	            }//buttonContainer
-                
+
             }//controlsContainer
-            
+
         }//contentContainer
-        
+
         function playMediaPlayer() {
             playButton.setDefaultImageSource("asset:///images/pause.png");            
             return myPlayer.play();
@@ -453,28 +471,26 @@ Page {
                 videoWindow.translationY = localY - appContainer.touchPositionY + contentContainer.startingY;
             }
         }
-        
+
         attachedObjects: [
             Sheet {
                 id: videoSheet
                 objectName: "videoSheet"
                 content:Page {
-                   
-                    
+
                 }
             },
-               
-               
+
            MediaPlayer {
                id: myPlayer
                // Use the device's primary display to
                // show the video.
                videoOutput: VideoOutput.PrimaryDisplay
-               
+
                // The ID of the ForeignWindow control to
                // use as the rendering surface.
                windowId: "VideoWindow"
-               
+
                property int positionInMsecs: 0 //track position in msecs. Using this since player does not give position value in msecs.
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
@@ -486,12 +502,11 @@ Page {
                        subtitleManager.seek(myPlayer.positionInMsecs);
                        valueChangedBySeek = false;
                    }
-                   
                }
                onDurationChanged: {
                    totalTime.text = myListModel.getFormattedTime(duration)
                }
-               
+
                // Investigate how the metadata can be retrieved without playing the video.
                onMetaDataChanged: {
                     console.log("player onMetaDataChanged");
@@ -500,19 +515,27 @@ Page {
                     console.log("-----------------------------sample_rate=" + myPlayer.metaData.sample_rate);
                     console.log("-----------------------------------title=" + myPlayer.metaData.title);
                 }
-               
            },
+
            SubtitleManager {
                id: subtitleManager;
-           },                  
+           },
+
+           BpsEventHandler {
+               id: bpsEventHandler
+               onSpeakerVolumeChanged: {
+                    volumeSlider.speakerVolumeChanged(speakerVolume)
+               }
+           },
+
            MediaKeyWatcher {
                id: keyWatcher
                key: MediaKey.PlayPause
-                        
+
                onShortPress: {
                    if(myPlayer.mediaState == MediaState.Started) {
-	               appContainer.pauseMediaPlayer();
-	               }
+                       appContainer.pauseMediaPlayer();
+                   }
 	               else if(myPlayer.mediaState == MediaState.Paused) {
 	                   appContainer.playMediaPlayer();
 	                   }
@@ -530,7 +553,7 @@ Page {
 	                    }
                      }
             },
-           
+
            QTimer {
                id: trackTimer
                singleShot: false        
@@ -562,7 +585,7 @@ Page {
 		           }
 		       }
            },
-           
+
            QTimer {
                id: screenPlayImageTimer
                singleShot: true
@@ -572,7 +595,7 @@ Page {
                    screenPlayImageTimer.stop()
 		       }
            },
-           
+
            QTimer {
                id: screenPauseImageTimer
                singleShot: true
@@ -582,7 +605,7 @@ Page {
                    screenPauseImageTimer.stop()
 		       }
            },
-           
+
            OrientationHandler {
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
@@ -596,9 +619,9 @@ Page {
                    }
                }
            }
-           
+
         ] // Attached objects.
-    
+
 	    onCreationCompleted: {
 	        OrientationSupport.supportedDisplayOrientation =
 	            SupportedDisplayOrientation.All;
@@ -608,11 +631,10 @@ Page {
             if (OrientationSupport.orientation == UIOrientation.Landscape) {
                 videoWindow.preferredWidth = appContainer.landscapeWidth
                 videoWindow.preferredHeight = appContainer.landscapeHeight
-                
+
             } else {
                 videoWindow.preferredWidth = appContainer.landscapeHeight
                 videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
-                
             }
         }
 
