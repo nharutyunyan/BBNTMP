@@ -568,11 +568,9 @@ Page {
 
            QTimer {
                id: trackTimer
-               property int position:0
                singleShot: false        
                property int videoCurrentPos:0 //to track position changes on media player.                                      
                interval: 5
-               property bool seeked:false
                onTimeout: {
 		           if(myPlayer.mediaState == MediaState.Started) {
 		               appContainer.changeVideoPosition = false;		               		               		           
@@ -590,20 +588,7 @@ Page {
                        }
                        appContainer.changeVideoPosition = true;
                        subtitleManager.handlePositionChanged(myPlayer.positionInMsecs);
-      
-		             /*  trackTimer.position += 5;
-		               if (trackTimer.position >= 1000) {
-		                   //console.log("VIDEO DURATION : " + myPlayer.duration);  
-		                   appContainer.changeVideoPosition = false;
-                            if (! trackTimer.seeked) {
-                                var videoPos = myListModel.getVideoPosition()
-                                myPlayer.seekTime(videoPos);
-                                trackTimer.seeked = true;
-                            }
-                            appContainer.changeVideoPosition = true;
-		               }*/
-
-		           }
+      	           }
 		           else if(myPlayer.mediaState == MediaState.Stopped) {
 		               appContainer.changeVideoPosition = false;
 		               durationSlider.setValue(durationSlider.toValue)

@@ -89,7 +89,6 @@ private:
     int m_selectedIndex;
     QVariantList m_list;
     QString m_file;
-    QVariant mQtData;
 };
 
 

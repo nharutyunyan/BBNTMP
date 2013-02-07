@@ -83,7 +83,7 @@ Page {
         function onManualExit() {
             myListModel.saveData();
             // This must exit the application.
-            // exitApplication();
+            application.quit();
         }
     }
 }
