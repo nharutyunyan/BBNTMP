@@ -13,6 +13,7 @@ namespace bb { namespace cascades { class Application; }}
 class NewListProject : public QObject
 {
     Q_OBJECT
+
 public:
     NewListProject(bb::cascades::Application *app);
     virtual ~NewListProject() {}

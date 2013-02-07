@@ -26,7 +26,9 @@ public:
      *
      * @param file_name  file to load
      */
-    Q_INVOKABLE void load(const QString& file_name);
+    Q_INVOKABLE void load();
+
+    Q_INVOKABLE void saveData();
 
     /*
      * Convenience method to read the model data.
@@ -75,12 +77,18 @@ public:
      */
     Q_INVOKABLE QString getFormattedTime(int msecs);
 
+    Q_INVOKABLE void setVideoPosition(int);
+
+    Q_INVOKABLE int getVideoPosition();
+
 public:
     MyListModel(QObject* parent = 0);
     virtual ~MyListModel();
 
 private:
     int m_selectedIndex;
+    QVariantList m_list;
+    QString m_file;
 };
 
 

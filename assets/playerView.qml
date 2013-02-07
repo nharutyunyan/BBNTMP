@@ -71,7 +71,7 @@ Page {
 		                             durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
 		                         } else {
 		                             durationSlider.setValue(1);
-		                             myPlayer.pause();
+		                             myPlayer.pause();		                         
 		                         }
 		                     }
 		                     else if (appContainer.touchPositionX + 30  < event.localX)
@@ -284,7 +284,7 @@ Page {
 	                    }
 	                    onTouch: {
 	                        if (event.touchType == TouchType.Down) {  
-	                            if(myPlayer.mediaState == MediaState.Started) {
+	                            if(myPlayer.mediaState == MediaState.Started) {	                               
 	                        	     myPlayer.pause();
 	                        	     appContainer.playerStarted = true;
 	                        	 }
@@ -343,6 +343,7 @@ Page {
 	                    defaultImageSource: "asset:///images/back.png"
 
 	                    onClicked:{
+	                        myListModel.setVideoPosition(myPlayer.position);
 	                        myPlayer.stop();
                             navigationPane.pop();
                             pgPlayer.destroy();
@@ -352,25 +353,27 @@ Page {
 	                ImageButton {
 	                    id:previousButton
 	                    defaultImageSource: "asset:///images/previous.png"
-
+	                    	                   
 	                    onClicked:{
 	                        myPlayer.stop()
-	                        myPlayer.setSourceUrl(myListModel.getPreviousVideoPath())
+	                        myPlayer.setSourceUrl(myListModel.getPreviousVideoPath())                        
 	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
-	                          durationSlider.resetValue()
+	                          durationSlider.resetValue();
 	                          durationSlider.setEnabled(true)
 	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
 	                          trackTimer.start();
 	                        }
+	                      
 	                    }
 	                }
 
 	                ImageButton {
 	                    id:playButton
 	                    defaultImageSource: "asset:///images/play.png"
-
+	                    property int videoPos : 0
+	                    
 	                    onClicked:{
 	                        if(myPlayer.mediaState == MediaState.Started) {
 	                            appContainer.pauseMediaPlayer();
@@ -380,14 +383,21 @@ Page {
 	                        }
 	                        else {
 	                            myPlayer.setSourceUrl(myListModel.getSelectedVideoPath())
-
+	                            myPlayer.prepare();
 	                            if (appContainer.playMediaPlayer() == MediaError.None) {
+	                                videoPos = myListModel.getVideoPosition();
+	                                console.log("SET VIDEO POS : " + videoPos);
 	                                videoWindow.visible = true;
 	                                contentContainer.visible = true;
-	                                durationSlider.setEnabled(true)
-	                                durationSlider.resetValue()
+	                                durationSlider.setEnabled(true);
+	                                durationSlider.resetValue();
 	                                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-	                                trackTimer.start();
+	                                appContainer.changeVideoPosition = false;                     
+	                                if(myPlayer.seekTime(videoPos) != MediaError.None) {
+	                                    console.log("seekTime ERROR");
+	                                }
+	                                appContainer.changeVideoPosition = true;
+	                                trackTimer.start();	
 	                            }
 	                        }
 	                    }
@@ -404,8 +414,10 @@ Page {
 	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
+
 	                          durationSlider.resetValue()
 	                          myPlayer.positionInMsecs = 0;
+
 	                          durationSlider.setEnabled(true)
 	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
 	                          trackTimer.start();
@@ -446,7 +458,7 @@ Page {
         }
 
         function pauseMediaPlayer() {
-            playButton.setDefaultImageSource("asset:///images/play.png");            
+            playButton.setDefaultImageSource("asset:///images/play.png");           
             return myPlayer.pause();
         }
         function moveX(localX) {
@@ -477,7 +489,9 @@ Page {
                 content:Page {
 
                 }
-            },
+           
+            },               
+               
 
            MediaPlayer {
                id: myPlayer
@@ -574,7 +588,7 @@ Page {
                        }
                        appContainer.changeVideoPosition = true;
                        subtitleManager.handlePositionChanged(myPlayer.positionInMsecs);
-		           }
+      	           }
 		           else if(myPlayer.mediaState == MediaState.Stopped) {
 		               appContainer.changeVideoPosition = false;
 		               durationSlider.setValue(durationSlider.toValue)
