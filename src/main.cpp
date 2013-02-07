@@ -27,8 +27,8 @@ using namespace exceptions;
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     //Lets keep this commented, since it affects the performance.
-//    fprintf(stdout, "%s\n", msg);
-//    fflush(stdout);
+    fprintf(stdout, "%s\n", msg);
+    fflush(stdout);
 }
 
 int main(int argc, char **argv)
@@ -45,7 +45,6 @@ int main(int argc, char **argv)
     if (translator.load(filename, "app/native/qm")) {
     	app.installTranslator( &translator );
     }
-
 
     try
     {
@@ -64,7 +63,7 @@ int main(int argc, char **argv)
 			QTextStream stream( &file );
 			stream << "[" << endl;
 			for(int i = 0; i < result.size(); ++i){
-				stream << "{" << "\"path\":" << '\"' << result[i] << "\"}";
+				stream << "{" << "\"path\":" << '\"' << result[i] << "\", \"position\" : \"0\"}";
 				if(i != result.size()-1 ) {
 					stream << ",\n";
 				}
@@ -80,6 +79,7 @@ int main(int argc, char **argv)
 
 	// Create and load the QML file, using build patterns.
     new NewListProject(&app);
+    app.setAutoExit(false);
 
     return Application::exec();
 }

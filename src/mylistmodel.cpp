@@ -5,6 +5,7 @@
 #include <QFile>
 #include <Qdir>
 #include <Qtextstream>
+#include <iostream>
 
 
 #include <QVariantList>
@@ -14,13 +15,16 @@
 #include <bb/data/JsonDataAccess>
 
 using namespace bb::cascades;
+using namespace utility;
 
 MyListModel::MyListModel(QObject* parent)
 : bb::cascades::QVariantListDataModel()
+, m_selectedIndex(0)
 {
+	m_file = QDir::home().absoluteFilePath("videoInfoList.json");
     qDebug() << "Creating MyListModel object:" << this;
     setParent(parent);
-    load(QDir::home().absoluteFilePath("videoInfoList.json"));
+    load();
 }
 
 MyListModel::~MyListModel()
@@ -28,17 +32,33 @@ MyListModel::~MyListModel()
     qDebug() << "Destroying MyListModel object:" << this;
 }
 
-void MyListModel::load(const QString& file_name)
+void MyListModel::load()
 {
     bb::data::JsonDataAccess jda;
-    QVariantList lst = jda.load(file_name).value<QVariantList>();
+    m_list = jda.load(m_file).value<QVariantList>();
     if (jda.hasError()) {
         bb::data::DataAccessError error = jda.error();
-        qDebug() << file_name << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
+        qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
     }
     else {
-        qDebug() << file_name << "JSON data loaded OK!";
-        append(lst);
+        qDebug() << m_file << "JSON data loaded OK!";
+        append(m_list);
+    }
+}
+
+void MyListModel::saveData()
+{
+    bb::data::JsonDataAccess jda;
+    QString buffer;
+    jda.saveToBuffer(m_list, &buffer);
+   // qDebug() << "BUFFER - " << buffer;
+    jda.save(m_list, m_file);
+    if (jda.hasError()) {
+        bb::data::DataAccessError error = jda.error();
+        qDebug() << m_file << "JSON save error: " << error.errorType() << ": " << error.errorMessage();
+    }
+    else {
+        qDebug() << m_file << "JSON data save OK!";
     }
 }
 
@@ -64,6 +84,7 @@ void MyListModel::setValue(int ix, const QString& fld_name, const QVariant& val)
         curr_val[fld_name] = val;
         // replace updated dictionary in array
         replace(ix, curr_val);
+        m_list[ix].setValue(curr_val);
     }
 }
 
@@ -117,3 +138,16 @@ QString MyListModel::getFormattedTime(int msecs)
     return formattedTime;
 }
 
+void MyListModel::setVideoPosition(int pos)
+{
+	const QString flagName("position");
+	setValue(m_selectedIndex, flagName, pos);
+}
+
+int MyListModel::getVideoPosition()
+{
+	const QString flagName("position");
+	QVariant v = value(m_selectedIndex, flagName);
+	int retValue =  v.toInt();
+	return retValue;
+}
