@@ -46,38 +46,7 @@ int main(int argc, char **argv)
     	app.installTranslator( &translator );
     }
 
-    try
-    {
-    	QStringList result;
-		QStringList filters;
-		filters << "*.mp4";
-		filters << "*.avi";
-		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-
-		QString filename = QDir::home().absoluteFilePath("videoInfoList.json");
-		QFile file(filename);
-        //TODO: Change this. Though, this will be removed when we get proper handling of video info list
-		//(but,even sample data generation can be changed to not create json manually)
-		if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
-		{
-			QTextStream stream( &file );
-			stream << "[" << endl;
-			for(int i = 0; i < result.size(); ++i){
-				stream << "{" << "\"path\":" << '\"' << result[i] << "\", \"position\" : \"0\"}";
-				if(i != result.size()-1 ) {
-					stream << ",\n";
-				}
-			}
-			stream << "]" << endl;
-			file.close();
-		}
-    }
-    catch(const exception& e)
-    {
-    	//do corresponding job
-    }
-
-	// Create and load the QML file, using build patterns.
+  	// Create and load the QML file, using build patterns.
     new NewListProject(&app);
     app.setAutoExit(false);
 
