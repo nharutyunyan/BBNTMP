@@ -79,6 +79,8 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			QVariantMap val;
 			val["path"] = result[i];
 			val["position"] = "0";
+			//thumbnail is used as temp data. This should be removed when we have correct thumnail paths in dataModel
+            val["thumbnail"] = result[i]+"-thumb.png";
 			videos.append(val);
 		}
 	}

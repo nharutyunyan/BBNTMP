@@ -144,6 +144,24 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
+                VideoListScrollBar {
+                    id: videoListScrollBar
+                    horizontalAlignment: HorizontalAlignment.Center
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    onVideoSelected: {
+                        console.log(item.path);
+                        myPlayer.stop()
+                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())
+                        if (appContainer.playMediaPlayer() == MediaError.None) {
+                            videoWindow.visible = true;
+                            contentContainer.visible = true;
+                            durationSlider.resetValue();
+                            durationSlider.setEnabled(true)
+                            subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                            trackTimer.start();
+                        }
+                    }
+                }
 
             ///Subtitle area
             Container {

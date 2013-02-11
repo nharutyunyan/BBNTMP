@@ -1,7 +1,7 @@
 // Navigation pane with. The first page is the list view of videos. The second page is player view.
 import bb.cascades 1.0
 import bb.multimedia 1.0
-import com.rim.example.custom 1.0
+import nuttyPlayer 1.0
 
 NavigationPane {
     id: navigationPane
