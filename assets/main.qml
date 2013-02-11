@@ -15,8 +15,8 @@ Page {
             id: listView
             objectName: "listView"
             horizontalAlignment: HorizontalAlignment.Center
-            dataModel: MyListModel {
-                id: myListModel
+            dataModel: InfoListModel {
+                id: infoListModel
             }
         
             // Override default GroupDataModel::itemType() behaviour, which is to return item type "header"
@@ -44,7 +44,7 @@ Page {
                     // slot called when ListView emits selectionChanged signal
                     // A slot naming convention is used for automatic connection of list view signals to slots
                     if (selected) {
-                        myListModel.setSelectedIndex(listView.selectionList())
+                        infoListModel.setSelectedIndex(listView.selectionList())
                         var page = getSecondPage();
                         console.debug("pushing detail " + page)
                         navigationPane.push(page);
@@ -81,7 +81,7 @@ Page {
             application.manualExit.connect(onManualExit);
         }
         function onManualExit() {
-            myListModel.saveData();
+            infoListModel.saveData();
             // This must exit the application.
             application.quit();
         }

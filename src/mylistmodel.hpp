@@ -1,10 +1,10 @@
 /*
- * MyListModel.h
+ * InfoListModel.h
  * Data model for the video list view
  */
 
-#ifndef MyListModel_HPP_
-#define MyListModel_HPP_
+#ifndef InfoListModel_HPP_
+#define InfoListModel_HPP_
 
 #include <QObject>
 #include <QString>
@@ -16,7 +16,7 @@
 /*
  * Mutable list model implementation
  */
-class MyListModel : public bb::cascades::QVariantListDataModel
+class InfoListModel : public bb::cascades::QVariantListDataModel
 {
     Q_OBJECT
 public:
@@ -82,14 +82,19 @@ public:
     Q_INVOKABLE int getVideoPosition();
 
 public:
-    MyListModel(QObject* parent = 0);
-    virtual ~MyListModel();
+    InfoListModel(QObject* parent = 0);
+    virtual ~InfoListModel();
 
 private:
     int m_selectedIndex;
     QVariantList m_list;
     QString m_file;
+
+    void updateVideoList();
+    void updateListWithDeletedVideos(const QStringList& result);
+    void updateListWithAddedVideos(const QStringList& result);
+    void getVideoFiles();
 };
 
 
-#endif /* MyListModel_HPP_ */
+#endif /* InfoListModel_HPP_ */

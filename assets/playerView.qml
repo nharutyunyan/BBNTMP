@@ -343,7 +343,7 @@ Page {
 	                    defaultImageSource: "asset:///images/back.png"
 
 	                    onClicked:{
-	                        myListModel.setVideoPosition(myPlayer.position);
+	                        infoListModel.setVideoPosition(myPlayer.position);
 	                        myPlayer.stop();
                             navigationPane.pop();
                             pgPlayer.destroy();
@@ -356,7 +356,7 @@ Page {
 	                    	                   
 	                    onClicked:{
 	                        myPlayer.stop()
-	                        myPlayer.setSourceUrl(myListModel.getPreviousVideoPath())                        
+	                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())                       
 	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
@@ -382,17 +382,16 @@ Page {
 	                            appContainer.playMediaPlayer();
 	                        }
 	                        else {
-	                            myPlayer.setSourceUrl(myListModel.getSelectedVideoPath())
+	                            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath())
 	                            myPlayer.prepare();
 	                            if (appContainer.playMediaPlayer() == MediaError.None) {
-	                                videoPos = myListModel.getVideoPosition();
-	                                console.log("SET VIDEO POS : " + videoPos);
+	                                videoPos = infoListModel.getVideoPosition();
 	                                videoWindow.visible = true;
 	                                contentContainer.visible = true;
 	                                durationSlider.setEnabled(true);
 	                                durationSlider.resetValue();
 	                                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-	                                appContainer.changeVideoPosition = false;                     
+	                                appContainer.changeVideoPosition = false;       
 	                                if(myPlayer.seekTime(videoPos) != MediaError.None) {
 	                                    console.log("seekTime ERROR");
 	                                }
@@ -410,7 +409,7 @@ Page {
 
 	                    onClicked:{
 	                        myPlayer.stop();
-	                        myPlayer.setSourceUrl(myListModel.getNextVideoPath())
+	                        myPlayer.setSourceUrl(infoListModel.getNextVideoPath())
 	                        if (appContainer.playMediaPlayer() == MediaError.None) {
 	                          videoWindow.visible = true;
 	                          contentContainer.visible = true;
@@ -507,7 +506,7 @@ Page {
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
-                   currentTime.text = myListModel.getFormattedTime(position)
+                   currentTime.text = infoListModel.getFormattedTime(position)
                    //Set correct subtitle positon
                    if (valueChangedBySeek) {
                        myPlayer.positionInMsecs = myPlayer.position;
@@ -516,7 +515,7 @@ Page {
                    }
                }
                onDurationChanged: {
-                   totalTime.text = myListModel.getFormattedTime(duration)
+                   totalTime.text = infoListModel.getFormattedTime(duration)
                }
 
                // Investigate how the metadata can be retrieved without playing the video.
