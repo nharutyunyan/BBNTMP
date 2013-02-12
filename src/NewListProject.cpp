@@ -1,5 +1,5 @@
 #include "NewListProject.hpp"
-#include "mylistmodel.hpp"
+#include "infolistmodel.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>

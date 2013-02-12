@@ -129,7 +129,6 @@ void InfoListModel::updateVideoList()
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 	append(m_list);
-	//saveData();
 }
 
 InfoListModel::~InfoListModel()
