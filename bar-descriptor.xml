@@ -81,7 +81,7 @@
        <asset path="ffmpeg/lib/lgpl/armle-v7/libavutil.so.51">lib/libavutil.so.51</asset>
        <asset path="ffmpeg/lib/lgpl/armle-v7/libswscale.so.2">lib/libswscale.so.2</asset>
        <!-- <asset path="libx264/lib/armle-v7/libx264.so.125">lib/libx264.so.125</asset>-->
-       <asset path="arm/o.le-v7/NuttyPlayer.so" entry="true" type="Qnx/Elf">NuttyPlayer.so</asset>
+       <asset path="arm/o.le-v7/NuttyPlayer.so" entry="true" type="Qnx/Elf">NuttyPlayer.so</asset> 
     </configuration>
     <configuration id="com.qnx.qcc.toolChain.297178804" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>

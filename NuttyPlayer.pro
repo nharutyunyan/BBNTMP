@@ -35,7 +35,7 @@ INCLUDEPATH += ../ffmpeg/include
 
 SOURCES += ../src/*.cpp
 HEADERS += ../src/*.hpp ../src/*.h
-
+ 
 TRANSLATIONS += \
     $${TARGET}_en_GB.ts \
     $${TARGET}_fr.ts \
