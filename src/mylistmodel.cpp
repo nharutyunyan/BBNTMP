@@ -44,6 +44,11 @@ void InfoListModel::getVideoFiles()
 					QVariantMap val;
 					val["path"] = result[i];
 					val["position"] = "0";
+					//Get the last path component and set it as title. Might be changed in future to get title from metadata
+					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+					val["title"] = pathElements[pathElements.size()-1];
+					//URL for thumbnail image of video. Temporary hard-coded.
+					val["thumbURL"] ="asset:///images/screenPause.jpg";
 					m_list.append(val);
 				}
 				file.close();
@@ -79,6 +84,11 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			QVariantMap val;
 			val["path"] = result[i];
 			val["position"] = "0";
+			//Get the last path component and set it as title. Might be changed in future to get title from metadata
+			QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+			val["title"] = pathElements[pathElements.size()-1];
+			//URL for thumbnail image of video. Temporary hard-coded.
+			val["thumbURL"] ="asset:///images/screenPause.jpg";
 			videos.append(val);
 		}
 	}
