@@ -32,6 +32,8 @@ Page {
                                                  // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
                                                  // They both start with the same value but the "initialScale" value is different for every new pinch 
         property double currentTranslation;
+        
+        property double curVolume: bpsEventHandler.getVolume();
 
         Container {
             id: contentContainer
@@ -80,9 +82,19 @@ Page {
 			                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
 			                } 
 			            }
-			        }
-		            else
-		            {
+			        } 
+			        else if (appContainer.touchPositionY - event.localY > 20)
+			        {
+                       appContainer.curVolume = appContainer.curVolume + 25;
+                       bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                    }
+                    else if (event.localY - appContainer.touchPositionY > 20)
+                    {
+                        appContainer.curVolume = appContainer.curVolume - 25;
+                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                    }
+                    else
+                    {
                        if(myPlayer.mediaState != MediaState.Started) {
                         	appContainer.playMediaPlayer();
                             screenPlayImage.setOpacity(0.5)
@@ -345,6 +357,8 @@ Page {
 	                    onClicked:{
 	                        infoListModel.setVideoPosition(myPlayer.position);
 	                        myPlayer.stop();
+	                        appContainer.curVolume = bpsEventHandler.getVolume();
+	                        console.log("CUR VOLUME ==== " + appContainer.curVolume);
                             navigationPane.pop();
                             pgPlayer.destroy();
 	                    }
@@ -382,8 +396,9 @@ Page {
 	                            appContainer.playMediaPlayer();
 	                        }
 	                        else {
-	                            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath())
+	                            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
 	                            myPlayer.prepare();
+	                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 	                            if (appContainer.playMediaPlayer() == MediaError.None) {
 	                                videoPos = infoListModel.getVideoPosition();
 	                                videoWindow.visible = true;
@@ -423,28 +438,6 @@ Page {
 	                        }
 	                    }
 	                }
-
-                    Slider {
-                        id: volumeSlider
-                        leftMargin: 20
-                        rightMargin: 20
-                        fromValue: 0.0
-                        toValue: 100.0
-                        enabled: true
-                        horizontalAlignment: HorizontalAlignment.Fill
-                        verticalAlignment: VerticalAlignment.Center
-                        preferredWidth: 500
-                        layoutProperties: StackLayoutProperties {
-                            spaceQuota: 1
-                        }
-
-                        function speakerVolumeChanged(speakerVolume) {
-                            value=speakerVolume
-                        }
-                        onImmediateValueChanged: {
-                            bpsEventHandler.onVolumeSliderValueChanged(immediateValue)
-                        }
-                    } //volumeSlider
 	            }//buttonContainer
 
             }//controlsContainer
@@ -534,9 +527,7 @@ Page {
 
            BpsEventHandler {
                id: bpsEventHandler
-               onSpeakerVolumeChanged: {
-                    volumeSlider.speakerVolumeChanged(speakerVolume)
-               }
+             
            },
 
            MediaKeyWatcher {

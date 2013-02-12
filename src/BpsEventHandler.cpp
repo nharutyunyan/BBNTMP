@@ -8,6 +8,7 @@
 #include <bps/audiomixer.h>
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
+#include <iostream>
 
 #include "BpsEventHandler.hpp"
 
@@ -48,9 +49,16 @@ void BpsEventHandler::event( bps_event_t *event ) {
     	}
 }
 
-void BpsEventHandler::onVolumeSliderValueChanged(float volumeSliderValue)
+void BpsEventHandler::onVolumeValueChanged(float volumeValue)
 {
 	// The volume slider value has been changed
 	// Synchronize the system volume value with the volume slider value
-	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volumeSliderValue);
+	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volumeValue);
+}
+
+float BpsEventHandler::getVolume()
+{
+	float oldVolume;
+	audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &oldVolume);
+	return oldVolume;;
 }

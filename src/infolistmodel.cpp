@@ -1,5 +1,5 @@
 // List with context menu project template
-#include "myListModel.hpp"
+#include "infoListModel.hpp"
 #include <iostream.h>
 
 #include <QFile>
@@ -119,7 +119,7 @@ void InfoListModel::updateVideoList()
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 	append(m_list);
-	saveData();
+	//saveData();
 }
 
 InfoListModel::~InfoListModel()

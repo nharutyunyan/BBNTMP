@@ -22,7 +22,8 @@ public:
 
 
     virtual void event(bps_event_t *event);
-    Q_INVOKABLE void onVolumeSliderValueChanged(float volumeSliderValue);
+    Q_INVOKABLE void onVolumeValueChanged(float volumeSliderValue);
+    Q_INVOKABLE float getVolume();
 
 signals:
   	void speakerVolumeChanged(float speakerVolume);
