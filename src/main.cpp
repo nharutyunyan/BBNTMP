@@ -16,6 +16,7 @@
 #include "NewListProject.hpp"
 #include "utility.hpp"
 #include "subtitleManager.hpp"
+#include "infolistmodel.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -38,6 +39,7 @@ int main(int argc, char **argv)
     qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
     qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
     qmlRegisterType<BpsEventHandler>("bpsEventHandler", 1, 0, "BpsEventHandler");
+    qmlRegisterType<InfoListModel>("nuttyPlayer", 1, 0, "InfoListModel");
 
     QTranslator translator;
     QString locale_string = QLocale().name();
