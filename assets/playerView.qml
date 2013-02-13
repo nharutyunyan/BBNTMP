@@ -51,7 +51,12 @@ Page {
 	       onTouch: {
 	        	if (event.touchType == TouchType.Down)
 	        	{
-	        	     appContainer.touchPositionX =  event.localX;
+                    if (event.localY < 100) {
+                        videoListScrollBar.visible = true;
+                    } else {
+                        videoListScrollBar.visible = false;
+                    }
+                    appContainer.touchPositionX =  event.localX;
 	        	     appContainer.touchPositionY =  event.localY;
 	        	     contentContainer.startingX = videoWindow.translationX
 	        	     contentContainer.startingY = videoWindow.translationY
@@ -59,7 +64,9 @@ Page {
 	            else if (event.touchType == TouchType.Up)
 	            {
 	                if ((appContainer.touchPositionX  > event.localX + 30) ||
-	                    (appContainer.touchPositionX + 30  < event.localX)) 
+	                    (appContainer.touchPositionX + 30  < event.localX) && 
+	                    ((appContainer.touchPositionY - event.localY <= 10) ||
+	                    (event.localY - appContainer.touchPositionY <= 10))) 
 	                {
 		                if (videoWindow.scaleX <= 1.0) 
 		                {
@@ -83,15 +90,23 @@ Page {
 			                } 
 			            }
 			        } 
-			        else if (appContainer.touchPositionY - event.localY > 20)
+			        else if (appContainer.touchPositionY - event.localY > 10)
 			        {
-                       appContainer.curVolume = appContainer.curVolume + 25;
-                       bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        if (videoWindow.scaleX <= 1.0) {
+                            appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
+                            if (appContainer.curVolume > 100) 
+                                appContainer.curVolume = 100;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        }
                     }
-                    else if (event.localY - appContainer.touchPositionY > 20)
+                    else if (event.localY - appContainer.touchPositionY > 10)
                     {
-                        appContainer.curVolume = appContainer.curVolume - 25;
-                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        if (videoWindow.scaleX <= 1.0) {
+                            appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
+                            if (appContainer.curVolume < 0) 
+                                appContainer.curVolume = 0;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        }
                     }
                     else
                     {
@@ -156,8 +171,28 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
+	        
+            VideoListScrollBar {
+                    id: videoListScrollBar
+                    horizontalAlignment: HorizontalAlignment.Center
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    visible: false
+                    onVideoSelected: {
+                        console.log(item.path);
+                        myPlayer.stop()
+                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())
+                        if (appContainer.playMediaPlayer() == MediaError.None) {
+                            videoWindow.visible = true;
+                            contentContainer.visible = true;
+                            durationSlider.resetValue();
+                            durationSlider.setEnabled(true)
+                            subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                            trackTimer.start();
+                        }
+                    }
+                }// videoListScrollBar
 
-            ///Subtitle area
+                ///Subtitle area
             Container {
                 id: subtitleArea
                 layoutProperties: AbsoluteLayoutProperties {
@@ -347,7 +382,7 @@ Page {
 
 	                leftPadding: 40
 	                rightPadding: 40
-	                horizontalAlignment: HorizontalAlignment.Center
+	                horizontalAlignment: HorizontalAlignment.Left
 	                verticalAlignment: VerticalAlignment.Bottom
 
 	                ImageButton {
@@ -361,25 +396,6 @@ Page {
 	                        console.log("CUR VOLUME ==== " + appContainer.curVolume);
                             navigationPane.pop();
                             pgPlayer.destroy();
-	                    }
-	                }
-
-	                ImageButton {
-	                    id:previousButton
-	                    defaultImageSource: "asset:///images/previous.png"
-	                    	                   
-	                    onClicked:{
-	                        myPlayer.stop()
-	                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())                       
-	                        if (appContainer.playMediaPlayer() == MediaError.None) {
-	                          videoWindow.visible = true;
-	                          contentContainer.visible = true;
-	                          durationSlider.resetValue();
-	                          durationSlider.setEnabled(true)
-	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-	                          trackTimer.start();
-	                        }
-	                      
 	                    }
 	                }
 
@@ -413,28 +429,6 @@ Page {
 	                                appContainer.changeVideoPosition = true;
 	                                trackTimer.start();	
 	                            }
-	                        }
-	                    }
-	                }
-
-	                ImageButton {
-	                    id:nextButton
-	                    defaultImageSource: "asset:///images/next.png"
-	                    opacity: 0.5
-
-	                    onClicked:{
-	                        myPlayer.stop();
-	                        myPlayer.setSourceUrl(infoListModel.getNextVideoPath())
-	                        if (appContainer.playMediaPlayer() == MediaError.None) {
-	                          videoWindow.visible = true;
-	                          contentContainer.visible = true;
-
-	                          durationSlider.resetValue()
-	                          myPlayer.positionInMsecs = 0;
-
-	                          durationSlider.setEnabled(true)
-	                          subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-	                          trackTimer.start();
 	                        }
 	                    }
 	                }
