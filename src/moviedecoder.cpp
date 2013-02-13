@@ -14,7 +14,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-static const int THUMBNAIL_SIZE=250;
+static const int THUMBNAIL_SIZE=200;
 static const bool MAINTAIN_ASPECT_RATIO = true;
 
 MovieDecoder::MovieDecoder(const std::string& filename, AVFormatContext* pavContext)
@@ -54,21 +54,12 @@ void MovieDecoder::initialize(const std::string& filename)
     // This code helps to generate thumbnail for the .avi video files.
     // It successfully generated them on the simulator but crashed on the device.
 //	if (avformat_find_stream_info(pFormatContext_, 0) < 0)
-//    {
+//	{
 //		destroy();
-//        throw std::logic_error(std::string("Could not find stream information"));
-//    }
-
+//		throw std::logic_error(std::string("Could not find stream information"));
+//	}
     initializeVideo();
     pFrame_ = avcodec_alloc_frame();
-    if(pFrame_ == 0)
-    {
-    	fprintf(stderr, "sdfsdf \n");
-    }
-    else
-    {
-    	//fprintf(stderr, "trtrtrtrtrtrt   %p pointer value\n",pFrame_);
-    }
 }
 
 void MovieDecoder::destroy()
