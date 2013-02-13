@@ -10,6 +10,7 @@
 
 #include <QVariantList>
 #include "utility.hpp"
+#include "videothumbnailer.hpp"
 
 
 #include <bb/data/JsonDataAccess>
@@ -29,6 +30,10 @@ InfoListModel::InfoListModel(QObject* parent)
 
 void InfoListModel::getVideoFiles()
 {
+    QDir dir;
+    dir.mkpath("data/thumbnails/");
+    QString filepath = dir.absolutePath() + "/data/thumbnails/";
+    QString thumbPng = "-thumb.png";
 	try {
 		QStringList result;
 		QStringList filters;
@@ -47,8 +52,28 @@ void InfoListModel::getVideoFiles()
 					//Get the last path component and set it as title. Might be changed in future to get title from metadata
 					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 					val["title"] = pathElements[pathElements.size()-1];
-					//URL for thumbnail image of video. Temporary hard-coded.
-					val["thumbURL"] ="asset:///images/screenPause.jpg";
+
+					// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
+					QString finalFileName = filepath + val["title"].toString() + thumbPng;
+
+					//create thumbnail
+					try
+					{
+						VideoThumbnailer videoThumbnailer;
+						videoThumbnailer.generateThumbnail(result[i].toUtf8().constData(), finalFileName.toUtf8().constData());
+					}
+					catch(exception& e)
+					{
+						std::cerr << "Error: " << e.what() << endl;
+					}
+					catch (...)
+					{
+						std::cerr << "General error" << endl;
+					}
+
+					// Add the thumbnail URL to the JSON file
+					val["thumbURL"] = finalFileName;
+
 					m_list.append(val);
 				}
 				file.close();
@@ -69,6 +94,8 @@ void InfoListModel::getVideoFiles()
 
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
+    QString filepath = QDir::homePath() + "/thumbnails/";
+    QString thumbPng = "-thumb.png";
 	QVariantList videos;
 	for (int i = 0; i < result.size(); ++i) {
 		bool videoExist = false;
@@ -87,8 +114,27 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			//Get the last path component and set it as title. Might be changed in future to get title from metadata
 			QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 			val["title"] = pathElements[pathElements.size()-1];
-			//URL for thumbnail image of video. Temporary hard-coded.
-			val["thumbURL"] ="asset:///images/screenPause.jpg";
+
+			// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
+			QString finalFileName = filepath + val["title"].toString() + thumbPng;
+			//create thumbnail
+			try
+			{
+				VideoThumbnailer videoThumbnailer;
+				videoThumbnailer.generateThumbnail(result[i].toUtf8().constData(), finalFileName.toUtf8().constData());
+			}
+			catch(exception& e)
+			{
+				std::cerr << "Error: " << e.what() << endl;
+			}
+			catch (...)
+			{
+				std::cerr << "General error" << endl;
+			}
+
+			// Add the thumbnail URL to the JSON file
+			val["thumbURL"] = finalFileName;
+
 			videos.append(val);
 		}
 	}
@@ -97,6 +143,9 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 
 void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
  {
+	QDir dir;
+	QString thumbnailDir = dir.homePath() + "/thumbnails/";
+	dir.cd(thumbnailDir);
 	QVariantList index;
 	for (int ix = 0; ix < m_list.size(); ++ix) {
 		bool videoExist = false;
@@ -108,7 +157,8 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 			}
 		}
 		if (!videoExist) {
-			QVariantMap val;
+			// if the video does not exist any more remote its thumbnail as well
+			dir.remove(v["thumbURL"].toString());
 			index.append(ix);
 		}
 	}
@@ -133,6 +183,7 @@ void InfoListModel::updateVideoList()
 
 InfoListModel::~InfoListModel()
 {
+	m_list.clear();
     qDebug() << "Destroying InfoListModel object:" << this;
 }
 
