@@ -60,16 +60,6 @@ public:
     Q_INVOKABLE QString getSelectedVideoPath();
 
     /*
-     * Gets the path of the next video.
-     */
-    Q_INVOKABLE QString getNextVideoPath(void);
-
-    /*
-     * Gets the path of the previous video.
-     */
-    Q_INVOKABLE QString getPreviousVideoPath(void);
-
-    /*
      * Converts the specified amount of milliseconds to a formatted time (hh:mm:ss).
      *
      * @param msecs The amount of milliseconds to be converted.
