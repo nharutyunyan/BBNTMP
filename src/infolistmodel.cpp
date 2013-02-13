@@ -253,6 +253,26 @@ QString InfoListModel::getSelectedVideoPath()
 	return v.toString();
 }
 
+QString InfoListModel::getNextVideoPath(void)
+{
+	++m_selectedIndex;
+	if(m_selectedIndex >= size())
+	{
+		m_selectedIndex = 0;
+	}
+	return getSelectedVideoPath();
+}
+
+QString InfoListModel::getPreviousVideoPath(void)
+{
+	--m_selectedIndex;
+	if(m_selectedIndex < 0)
+	{
+		m_selectedIndex = size() - 1;
+	}
+	return getSelectedVideoPath();
+}
+
 QString InfoListModel::getFormattedTime(int msecs)
 {
     QString formattedTime;
