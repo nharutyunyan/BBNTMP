@@ -14,17 +14,10 @@
 #include <bb/cascades/Color>
 #include <bb/cascades/LayoutUpdateHandler>
 #include <bb/cascades/AbsoluteLayoutProperties>
-#include <bb/cascades/TouchEvent>
 #include <bb/cascades/TouchBehavior>
-#include <bb/cascades/TouchResponse>
-#include <bb/cascades/ImplicitAnimationController>
-//#include <bb/cascades/ImageViewLoadEffect>
 #include <bb/cascades/LongPressHandler>
 #include <bb/cascades/LongPressEvent>
 #include <bb/cascades/ImageTracker>
-#include <QTimer>
-
-
 
 CustomSlider::CustomSlider(Container* parent)
     :CustomControl(parent),
@@ -77,7 +70,6 @@ float CustomSlider::value() const
 
 void CustomSlider::setValue(float value)
 {
-	fprintf(stderr, "setValue is called %f.\n", value);
     if(m_value == value)
         return;
 
@@ -96,7 +88,6 @@ float CustomSlider::fromValue() const
 
 void CustomSlider::setFromValue(float value)
 {
-	fprintf(stderr, "setFromValue is called.\n");
     if(m_fromValue == value)
         return;
 
@@ -112,7 +103,6 @@ float CustomSlider::toValue() const
 
 void CustomSlider::setToValue(float value)
 {
-	fprintf(stderr, "setToValue is called %f.\n", value);
     if(m_toValue == value)
         return;
 
@@ -129,7 +119,6 @@ float CustomSlider::immediateValue() const
 
 void CustomSlider::setImmediateValue(float value, bool fireEvent)
 {
-	fprintf(stderr, "setImmediateValue is called.\n");
     if(m_immediateValue == value)
         return;
 
@@ -161,7 +150,6 @@ void CustomSlider::resetValue()
 
 void CustomSlider::handleLayoutFrameUpdated(QRectF frame)
 {
-	fprintf(stderr, "handleLayoutFrameUpdated is called.\n");
     m_progressBarContainer->setPreferredWidth(frame.width() - m_rootContainerHeight);
     m_rootContainerWidth = frame.width();
     m_rootContainerHeight = frame.height();
@@ -259,7 +247,6 @@ void CustomSlider::createHandle()
 
 void CustomSlider::sliderHandleTouched(TouchEvent* event)
 {
-	fprintf(stderr, "sliderHandleTouched is called.\n");
     if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
         m_handleTouched = true;
         TouchType::Type type  = event->touchType();
@@ -319,7 +306,6 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
 
 void CustomSlider::progressBarTouched(TouchEvent* event)
 {
-	fprintf(stderr, "progressBarTouched is called.\n");
     if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
         TouchType::Type type = event->touchType();
         float handlePosX = event->localX() - m_rootContainerHeight / 2;
@@ -359,7 +345,6 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
 
 void CustomSlider::updateHandlePositionX()
 {
-	fprintf(stderr, "updateHandlePositionX is called.\n");
     float x = fromValueToPosX(m_immediateValue);
 
     Q_ASSERT(dynamic_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
@@ -375,7 +360,6 @@ void CustomSlider::updateHandlePositionX()
 
 float CustomSlider::fromValueToPosX(float value) const
 {
-	fprintf(stderr, "fromValueToPosX is called.\n");
     float factor = (value - m_fromValue) / (m_toValue - m_fromValue);
 
     return (m_rootContainerWidth - m_rootContainerHeight) * factor;
@@ -383,7 +367,6 @@ float CustomSlider::fromValueToPosX(float value) const
 
 float CustomSlider::fromPosXToValue(float positionX) const
 {
-	fprintf(stderr, "fromPosXToValue is called.\n");
     float endX = m_rootContainerWidth - m_rootContainerHeight;
 
     if(positionX < 0)
@@ -398,13 +381,11 @@ float CustomSlider::fromPosXToValue(float positionX) const
 
 void CustomSlider::onDragUpdateTimerTimeout()
 {
-	fprintf(stderr, "onDragUpdateTimerTimeout is called.\n");
     emit immediateValueChanged(m_immediateValue);
 }
 
 void CustomSlider::setUpdateInterval(int interval)
 {
-	fprintf(stderr, "setUpdateInterval is called %d.\n", interval);
     if(m_updateInterval == interval)
         return;
 
@@ -413,14 +394,12 @@ void CustomSlider::setUpdateInterval(int interval)
 
 void CustomSlider::onHandleLongPressed(bb::cascades::LongPressEvent* event)
 {
-	fprintf(stderr, "onHandleLongPressed is called.\n");
     m_handleLongPressed = true;
     emit handleLongPressed(event->x());
 }
 
 float CustomSlider::handleLocalX() const
 {
-	fprintf(stderr, "handleLocalX is called.\n");
     return fromValueToPosX(m_immediateValue);
 }
 

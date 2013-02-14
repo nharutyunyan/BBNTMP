@@ -121,8 +121,6 @@ private:
     float m_immediateValue;
     bool m_dragging;
 
-    AbsoluteLayoutProperties* m_handleLayoutProperties;
-
     float m_touchEventInitX;
     float m_handleInitX;
 
