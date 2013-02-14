@@ -81,9 +81,14 @@ public:
 
     Q_INVOKABLE int getVideoPosition();
 
+    void refresh();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
+
+public slots:
+    void onMetadataReady(const QVariantMap& data);
 
 private:
     int m_selectedIndex;
@@ -94,6 +99,8 @@ private:
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
     void getVideoFiles();
+
+    void readMetadatas(QStringList videoFiles);
 };
 
 

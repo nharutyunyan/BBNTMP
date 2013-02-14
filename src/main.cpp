@@ -29,8 +29,8 @@ using namespace exceptions;
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     //Lets keep this commented, since it affects the performance.
-    fprintf(stdout, "%s\n", msg);
-    fflush(stdout);
+  //  fprintf(stdout, "%s\n", msg);
+  //  fflush(stdout);
 }
 
 int main(int argc, char **argv)
