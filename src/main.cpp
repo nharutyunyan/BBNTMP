@@ -17,6 +17,7 @@
 #include "utility.hpp"
 #include "subtitleManager.hpp"
 #include "infolistmodel.hpp"
+#include "CustomSlider.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -40,6 +41,7 @@ int main(int argc, char **argv)
     qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
     qmlRegisterType<BpsEventHandler>("bpsEventHandler", 1, 0, "BpsEventHandler");
     qmlRegisterType<InfoListModel>("nuttyPlayer", 1, 0, "InfoListModel");
+    qmlRegisterType<CustomSlider>("nutty.slider", 1, 0, "CustomSlider");
 
     QTranslator translator;
     QString locale_string = QLocale().name();
