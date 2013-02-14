@@ -2,6 +2,8 @@ import bb.cascades 1.0
 import bb.multimedia 1.0
 import nuttyPlayer 1.0
 import bpsEventHandler 1.0
+import nutty.slider 1.0
+
 Page {
     id: pgPlayer
 
@@ -302,72 +304,23 @@ Page {
 	                horizontalAlignment: HorizontalAlignment.Fill
 	                verticalAlignment: VerticalAlignment.Bottom
 
-	                Label {
-	                    id: currentTime
-	                    // the "text" will be set when media plays
-	                    text: "00:00:00"
-	                    textStyle {
-	                        color: Color.White
-	                        fontWeight: FontWeight.Normal
-	                    }
-	                    preferredWidth: 150
-                        horizontalAlignment: HorizontalAlignment.Left
-                        verticalAlignment: VerticalAlignment.Center
-	                } // currentTimeLabel
-
-	                Slider {
+	                SlideBar {
 	                    id: durationSlider
-	                    objectName: durationSlider
 	                    leftMargin: 5
 	                    rightMargin: 5
-	                    fromValue: 0.0
-	                    toValue: 1.0
-	                    enabled: false
 	                    horizontalAlignment: HorizontalAlignment.Fill
 	                    verticalAlignment: VerticalAlignment.Center
 
 	                    layoutProperties: StackLayoutProperties {
 	                        spaceQuota: 1
 	                    }
-	                    onTouch: {
-	                        if (event.touchType == TouchType.Down) {  
-	                            if(myPlayer.mediaState == MediaState.Started) {	                               
-	                        	     myPlayer.pause();
-	                        	     appContainer.playerStarted = true;
-	                        	 }
-	                        } else if (event.touchType == TouchType.Up) {                	             
-	                            if(appContainer.playerStarted == true) {
-	                                if ( appContainer.playerStarted == true) {
-	                                    myPlayer.play();
-	                        	       	appContainer.playerStarted = false;
-	                        	    }
-	                            }
-	                        }
-	                    }
-	                    onImmediateValueChanged: {
-	                        if(myPlayer.mediaState == MediaState.Started ||
-	                            myPlayer.mediaState == MediaState.Paused) {
-	                                if(appContainer.changeVideoPosition == true) {
-	                                    myPlayer.seekPercent(durationSlider.immediateValue);
-	                                    myPlayer.valueChangedBySeek = true;
-	                                }
-	                        }
-	                    }
+
+                        onClickedByUserChanged: {
+                            if(myPlayer.seekTime(durationSlider.clickedByUser) != MediaError.None) {
+                                console.log("seekTime ERROR");
+                            }
+                          }
 	                } //durationSlider
-
-	                Label {
-	                    id: totalTime
-	                    // the "text" will be set when media plays
-	                    text: "00:00:00"
-	                    preferredWidth: 150
-	                    textStyle {
-	                        color: Color.White
-	                        fontWeight: FontWeight.Normal
-	                    }
-                        horizontalAlignment: HorizontalAlignment.Right
-                        verticalAlignment: VerticalAlignment.Center
-	                } // totalTimeLabel
-
                 }//sliderContainer
 
 	            Container {
@@ -477,7 +430,6 @@ Page {
                 }
            
             },               
-               
 
            MediaPlayer {
                id: myPlayer
@@ -493,7 +445,7 @@ Page {
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
-                   currentTime.text = infoListModel.getFormattedTime(position)
+                   durationSlider.time = position;
                    //Set correct subtitle positon
                    if (valueChangedBySeek) {
                        myPlayer.positionInMsecs = myPlayer.position;
@@ -502,6 +454,7 @@ Page {
                    }
                }
                onDurationChanged: {
+                   durationSlider.totalTime = duration;
                    totalTime.text = infoListModel.getFormattedTime(duration)
                }
 
@@ -631,6 +584,22 @@ Page {
             } else {
                 videoWindow.preferredWidth = appContainer.landscapeHeight
                 videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
+            }
+
+            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
+            myPlayer.prepare();
+            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+            if (appContainer.playMediaPlayer() == MediaError.None) {
+                videoPos = infoListModel.getVideoPosition();
+                videoWindow.visible = true;
+                contentContainer.visible = true;
+                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                appContainer.changeVideoPosition = false;       
+                if(myPlayer.seekTime(videoPos) != MediaError.None) {
+                    console.log("seekTime ERROR");
+                }
+                appContainer.changeVideoPosition = true;
+                trackTimer.start();	
             }
         }
 
