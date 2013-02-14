@@ -19,6 +19,9 @@
 using namespace bb::cascades;
 using namespace utility;
 
+//TODO: Move the data handling (storage/loading) into separate module  - DataManager
+//View model should be simple, and just keep the list for Views
+
 InfoListModel::InfoListModel(QObject* parent)
 : bb::cascades::QVariantListDataModel()
 , m_selectedIndex(0)
@@ -71,6 +74,7 @@ void InfoListModel::getVideoFiles(int& startIndex)
 		filters << "*.mp4";
 		filters << "*.avi";
 		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+
 		QFile file(m_file);
 		if (!file.exists()) {
 			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
@@ -92,6 +96,7 @@ void InfoListModel::getVideoFiles(int& startIndex)
 			}
 			saveData();
 			load();
+			readMetadatas(result);
 			append(m_list);
 		}
 		else
@@ -99,6 +104,7 @@ void InfoListModel::getVideoFiles(int& startIndex)
 			load();
 			startIndex = m_list.size();
 			updateVideoList(startIndex);
+			readMetadatas(result);
 		}
 	} catch (const exception& e) {
 		//do corresponding job
@@ -177,6 +183,12 @@ void InfoListModel::updateVideoList(int& start)
 	append(m_list);
 }
 
+void InfoListModel::refresh()
+{
+	clear();
+	append(m_list);
+}
+
 InfoListModel::~InfoListModel()
 {
 	m_list.clear();
@@ -209,6 +221,64 @@ void InfoListModel::saveData()
     else {
         qDebug() << m_file << "JSON data save OK!";
     }
+}
+
+void InfoListModel::readMetadatas(QStringList videoFiles)
+{
+	MetaDataReader* reader = new MetaDataReader(this);
+	if (!reader)
+	{
+		qDebug() << "ERROR: Can't allocate memory for MetadataReader \n";
+		return;
+	}
+
+	connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
+	reader->addMetadataReadRequest(videoFiles);
+}
+
+void InfoListModel::onMetadataReady(const QVariantMap& data)
+{
+	//Update the appropriate video info entry
+	QString path = data[bb::multimedia::MetaData::Uri].toString();
+	if(path.isEmpty())
+	{
+		qDebug() << "Error: No uri in metadata \n";
+		return;
+	}
+
+	bool changed = false;
+
+	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
+	{
+		if(path == (*it).toMap()["path"].toString())
+		{
+			QVariantMap infoMap = (*it).toMap();
+			//Set only needed fields : title, duration
+			QString titleInMD = data.value("title").toString();
+			if(!titleInMD.isEmpty() && infoMap.value(bb::multimedia::MetaData::Title).toString() != titleInMD)
+			{
+				infoMap[bb::multimedia::MetaData::Title] = titleInMD;
+				changed = true;
+			}
+
+			QString duration = data.value(bb::multimedia::MetaData::Duration).toString();
+			if (!duration.isEmpty() && infoMap.value("duration").toString() != duration)
+			{
+				infoMap["duration"] = duration;
+				changed = true;
+			}
+			//Update the list
+			(*it) = infoMap;
+			break;
+		}
+	}
+
+	//Save and reload the new list
+	if (changed)
+	{
+		saveData();
+		refresh();
+	}
 }
 
 QVariant InfoListModel::value(int ix, const QString &fld_name)
