@@ -15,7 +15,9 @@ Page {
         ListView {
             id: listView
             objectName: "listView"
-            layout: GridListLayout {}            
+              layout: GridListLayout {
+                    id: videoGridView
+                }          
             horizontalAlignment: HorizontalAlignment.Center
             dataModel: InfoListModel {
                 id: infoListModel
@@ -41,6 +43,7 @@ Page {
                             //and text below
                             Label {
                                 text: ListItemData.title
+                                maxWidth:200 //might be changed in future- to be get dinamically
                                 textStyle.color: Color.White
                                 textStyle.base: SystemDefaults.TextStyles.SmallText
                                 horizontalAlignment: HorizontalAlignment.Center
@@ -70,6 +73,18 @@ Page {
                     return secondPage;
                 }
                 attachedObjects: [
+                    OrientationHandler {
+                        onOrientationChanged: {
+                            // can update the UI after the orientation changed
+                            if (orientation == UIOrientation.Portrait) {
+                                // make some ui changes related to portrait
+                                videoGridView.columnCount = 3
+                            } else if (orientation == UIOrientation.Landscape) {
+                                // make some ui changes related to landscape
+                                videoGridView.columnCount = 4
+                            }
+                        }
+                    },
                     ComponentDefinition {
                         id: secondPageDefinition
                         source: "playerView.qml"
