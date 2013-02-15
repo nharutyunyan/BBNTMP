@@ -98,10 +98,10 @@ private:
     Producer* m_producer;
     QThread* m_producerThread;
 
-    void updateVideoList();
+    void updateVideoList(int&);
     void updateListWithDeletedVideos(const QStringList& result);
-    void updateListWithAddedVideos(const QStringList& result);
-    void getVideoFiles();
+    void updateListWithAddedVideos(const QStringList& result, int&);
+    void getVideoFiles(int&);
 };
 
 

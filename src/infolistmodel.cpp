@@ -27,7 +27,10 @@ InfoListModel::InfoListModel(QObject* parent)
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
 
-    m_producer = new Producer();
+    int start = 0;
+    getVideoFiles(start);
+
+    m_producer = new Producer(m_list, start);
 
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(produced(QString, int)), this,
@@ -43,7 +46,6 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(m_producer, SIGNAL(finished()), m_producerThread,
 			SLOT(quit()));
 
-    getVideoFiles();
 
     m_producerThread->start();
 }
@@ -57,7 +59,7 @@ void InfoListModel::consume(QString data, int index)
 	emit consumed();
 }
 
-void InfoListModel::getVideoFiles()
+void InfoListModel::getVideoFiles(int& startIndex)
 {
     QDir dir;
     dir.mkpath("data/thumbnails/");
@@ -95,14 +97,15 @@ void InfoListModel::getVideoFiles()
 		else
 		{
 			load();
-			updateVideoList();
+			startIndex = m_list.size();
+			updateVideoList(startIndex);
 		}
 	} catch (const exception& e) {
 		//do corresponding job
 	}
 }
 
-void InfoListModel::updateListWithAddedVideos(const QStringList& result)
+void InfoListModel::updateListWithAddedVideos(const QStringList& result, int& startIndex)
 {
     QString filepath = QDir::homePath() + "/thumbnails/";
     QString thumbPng = "-thumb.png";
@@ -130,6 +133,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			videos.append(val);
 		}
 	}
+	startIndex = m_list.size();
 	m_list.append(videos);
 }
 
@@ -160,7 +164,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	}
 }
 
-void InfoListModel::updateVideoList()
+void InfoListModel::updateVideoList(int& start)
  {
 	QStringList result;
 	QStringList filters;
@@ -168,7 +172,7 @@ void InfoListModel::updateVideoList()
 	filters << "*.mp4";
 	filters << "*.avi";
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	updateListWithAddedVideos(result);
+	updateListWithAddedVideos(result, start);
 	updateListWithDeletedVideos(result);
 	append(m_list);
 }

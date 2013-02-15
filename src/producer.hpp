@@ -3,13 +3,14 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariantList>
 
 class Producer: public QObject
 {
 	Q_OBJECT
 
 public:
-    Producer();
+    Producer(const QVariantList& videoFiles, int);
 
 public slots:
     void produce();
