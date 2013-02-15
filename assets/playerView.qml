@@ -23,7 +23,10 @@ Page {
         property int landscapeHeight : 768
         
         property int subtitleAreaBottomPadding : 150
-        
+
+        property double maxPinchPercentFactor :1.2 //120 percent
+        property double minPinchPercentFactor :0.8 //80 percent
+
         property int touchPositionX: 0
         property int touchPositionY: 0
         property bool playerStarted: false
@@ -34,8 +37,16 @@ Page {
                                                  // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
                                                  // They both start with the same value but the "initialScale" value is different for every new pinch 
         property double currentTranslation;
-        
+        property double startPinchDistance:0.0;
+
+        property double endPinchDistance:0.0;
+
+        property double startMidPointXPinch:0.0;
+        property double endMidPointXPinch:0.0;
+
         property double curVolume: bpsEventHandler.getVolume();
+        
+        property bool videoTitleVisible : false
 
         Container {
             id: contentContainer
@@ -62,7 +73,16 @@ Page {
 	        	     appContainer.touchPositionY =  event.localY;
 	        	     contentContainer.startingX = videoWindow.translationX
 	        	     contentContainer.startingY = videoWindow.translationY
-	            }
+	        	     
+                    if (! appContainer.videoTitleVisible) {
+                        titleAppearAnimation.play()
+                        titleAppearOpacityAnimation.play()
+                    } else {
+                        titleDisappearAnimation.play()
+                        titleDisappearOpacityAnimation.play()
+                        appContainer.videoTitleVisible = false;
+                    }
+                }
 	            else if (event.touchType == TouchType.Up)
 	            {
 	                if ((appContainer.touchPositionX  > event.localX + 30) ||
@@ -237,6 +257,8 @@ Page {
                     onPinchStarted: {
                         console.log("onPinchStart: videoWindow.scaleX = " + videoWindow.scaleX);
                         videoWindow.initialScale = videoWindow.scaleX;
+                        appContainer.startPinchDistance = event.distance;
+                        appContainer.startMidPointXPinch = event.midPointX;
                     }
 
                     // As the pinch expands or contracts, change the scale of
@@ -255,7 +277,20 @@ Page {
                             videoWindow.translationY = 0;
                         }
                     } // onPinchUpdate
-                } // PinchHandler
+                    onPinchEnded: {
+                        appContainer.endPinchDistance = event.distance;
+                        appContainer.endMidPointXPinch = event.midPointX;
+                        if ((appContainer.startPinchDistance / appContainer.endPinchDistance > appContainer.minPinchPercentFactor) && (appContainer.startPinchDistance / appContainer.endPinchDistance < appContainer.maxPinchPercentFactor)) {
+                            if (appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
+                                myPlayer.setSourceUrl(infoListModel.getNextVideoPath());
+                                myPlayer.play();
+                            } else {
+                                myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath());
+                                myPlayer.play();
+                            }
+                        }
+                    } // PinchHandler
+                }
             ] // attachedObjects
 
             // Play image is transparent. It will become visible when the video
@@ -281,9 +316,74 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-
-            Container
-            {
+            // title of the video
+            Container {
+                id: videoTitleContainer
+                background: backgroundPaint.imagePaint
+                preferredWidth: contentContainer.preferredWidth
+                horizontalAlignment: HorizontalAlignment.Center
+                layout: DockLayout {
+                }
+                animations: [
+                    
+                    TranslateTransition {
+                        id: titleAppearAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        fromY: -50
+                        toY: 0
+                        onEnded: {
+                            if (myPlayer.mediaState != MediaState.Paused) {
+                                titleDisappearOpacityAnimation.play()
+                                titleDisappearAnimation.play()
+                            } else {
+                                appContainer.videoTitleVisible = true;
+                            }
+                        } 
+                    },
+                    TranslateTransition {
+                        id: titleDisappearAnimation
+                        duration: 800
+                        delay: 2000
+                        easingCurve: StockCurve.CubicOut
+                        toY: -50
+                    },
+                    FadeTransition {
+                        id: titleDisappearOpacityAnimation
+                        duration: 800
+                        delay: 2000
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 0.0
+                    },
+                    FadeTransition {
+                        id: titleAppearOpacityAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 1.0
+                    }
+                ]
+                Label {
+                    id: videoTitle
+                    text: myPlayer.sourceUrl // TODO: change to title
+                    textStyle.color: Color.Black
+                    textStyle.textAlign: TextAlign.Center
+                    maxWidth: handler.layoutFrame.width * 0.8
+                    verticalAlignment: VerticalAlignment.Center
+                    horizontalAlignment: HorizontalAlignment.Center
+                    textStyle.fontStyle: FontStyle.Italic
+                }
+                attachedObjects: [
+                    ImagePaintDefinition {
+                        id: backgroundPaint
+                        imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
+                    },
+                    LayoutUpdateHandler {
+                        id: handler
+                    }
+                ]
+            } // videoTitleContainer
+            
+            Container {
                 id: controlsContainer
                 layout: StackLayout {
                     orientation: LayoutOrientation.TopToBottom
