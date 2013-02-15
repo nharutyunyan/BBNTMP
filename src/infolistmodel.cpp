@@ -11,6 +11,7 @@
 #include <QVariantList>
 #include "utility.hpp"
 #include "videothumbnailer.hpp"
+#include "producer.hpp"
 
 
 #include <bb/data/JsonDataAccess>
@@ -25,10 +26,40 @@ InfoListModel::InfoListModel(QObject* parent)
 	m_file = QDir::home().absoluteFilePath("videoInfoList.json");
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
-    getVideoFiles();
+
+    int start = 0;
+    getVideoFiles(start);
+
+    m_producer = new Producer(m_list, start);
+
+	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
+	QObject::connect(m_producer, SIGNAL(produced(QString, int)), this,
+			SLOT(consume(QString, int)));
+
+	m_producerThread  = new QThread();
+	m_producer->moveToThread(m_producerThread);
+
+	//when producer thread is started, start to produce
+	QObject::connect(m_producerThread, SIGNAL(started()), m_producer,
+			SLOT(produce()));
+
+	QObject::connect(m_producer, SIGNAL(finished()), m_producerThread,
+			SLOT(quit()));
+
+
+    m_producerThread->start();
 }
 
-void InfoListModel::getVideoFiles()
+void InfoListModel::consume(QString data, int index)
+{
+	//process that data
+	// add generated thumbnail to list model
+	setValue(index, "thumbURL", data);
+	//when finished processing emit a consumed signal
+	emit consumed();
+}
+
+void InfoListModel::getVideoFiles(int& startIndex)
 {
     QDir dir;
     dir.mkpath("data/thumbnails/");
@@ -52,27 +83,8 @@ void InfoListModel::getVideoFiles()
 					//Get the last path component and set it as title. Might be changed in future to get title from metadata
 					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 					val["title"] = pathElements[pathElements.size()-1];
-
-					// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
-					QString finalFileName = filepath + val["title"].toString() + thumbPng;
-
-					//create thumbnail
-					try
-					{
-						VideoThumbnailer videoThumbnailer;
-						videoThumbnailer.generateThumbnail(result[i].toUtf8().constData(), finalFileName.toUtf8().constData());
-					}
-					catch(exception& e)
-					{
-						std::cerr << "Error: " << e.what() << endl;
-					}
-					catch (...)
-					{
-						std::cerr << "General error" << endl;
-					}
-
 					// Add the thumbnail URL to the JSON file
-					val["thumbURL"] = finalFileName;
+					val["thumbURL"] = "asset:///images/play.png";//finalFileName;
 
 					m_list.append(val);
 				}
@@ -85,14 +97,15 @@ void InfoListModel::getVideoFiles()
 		else
 		{
 			load();
-			updateVideoList();
+			startIndex = m_list.size();
+			updateVideoList(startIndex);
 		}
 	} catch (const exception& e) {
 		//do corresponding job
 	}
 }
 
-void InfoListModel::updateListWithAddedVideos(const QStringList& result)
+void InfoListModel::updateListWithAddedVideos(const QStringList& result, int& startIndex)
 {
     QString filepath = QDir::homePath() + "/thumbnails/";
     QString thumbPng = "-thumb.png";
@@ -114,30 +127,13 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			//Get the last path component and set it as title. Might be changed in future to get title from metadata
 			QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 			val["title"] = pathElements[pathElements.size()-1];
-
-			// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
-			QString finalFileName = filepath + val["title"].toString() + thumbPng;
-			//create thumbnail
-			try
-			{
-				VideoThumbnailer videoThumbnailer;
-				videoThumbnailer.generateThumbnail(result[i].toUtf8().constData(), finalFileName.toUtf8().constData());
-			}
-			catch(exception& e)
-			{
-				std::cerr << "Error: " << e.what() << endl;
-			}
-			catch (...)
-			{
-				std::cerr << "General error" << endl;
-			}
-
 			// Add the thumbnail URL to the JSON file
-			val["thumbURL"] = finalFileName;
+			val["thumbURL"] = "asset:///images/play.png";
 
 			videos.append(val);
 		}
 	}
+	startIndex = m_list.size();
 	m_list.append(videos);
 }
 
@@ -168,7 +164,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	}
 }
 
-void InfoListModel::updateVideoList()
+void InfoListModel::updateVideoList(int& start)
  {
 	QStringList result;
 	QStringList filters;
@@ -176,7 +172,7 @@ void InfoListModel::updateVideoList()
 	filters << "*.mp4";
 	filters << "*.avi";
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	updateListWithAddedVideos(result);
+	updateListWithAddedVideos(result, start);
 	updateListWithDeletedVideos(result);
 	append(m_list);
 }
@@ -184,6 +180,8 @@ void InfoListModel::updateVideoList()
 InfoListModel::~InfoListModel()
 {
 	m_list.clear();
+	delete m_producer;
+	delete m_producerThread;
     qDebug() << "Destroying InfoListModel object:" << this;
 }
 

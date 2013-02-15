@@ -12,7 +12,7 @@
 #include <QMetaType>
 #include <bb/cascades/QListDataModel>
 
-
+class Producer;
 /*
  * Mutable list model implementation
  */
@@ -85,15 +85,23 @@ public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
 
+public slots:
+    void consume(QString data, int index);
+    signals:
+        void consumed();
+        void finished();
+
 private:
     int m_selectedIndex;
     QVariantList m_list;
     QString m_file;
+    Producer* m_producer;
+    QThread* m_producerThread;
 
-    void updateVideoList();
+    void updateVideoList(int&);
     void updateListWithDeletedVideos(const QStringList& result);
-    void updateListWithAddedVideos(const QStringList& result);
-    void getVideoFiles();
+    void updateListWithAddedVideos(const QStringList& result, int&);
+    void getVideoFiles(int&);
 };
 
 
