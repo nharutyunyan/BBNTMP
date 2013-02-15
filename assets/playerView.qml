@@ -36,6 +36,8 @@ Page {
         property double currentTranslation;
         
         property double curVolume: bpsEventHandler.getVolume();
+        
+        property bool videoTitleVisible : false
 
         Container {
             id: contentContainer
@@ -62,7 +64,16 @@ Page {
 	        	     appContainer.touchPositionY =  event.localY;
 	        	     contentContainer.startingX = videoWindow.translationX
 	        	     contentContainer.startingY = videoWindow.translationY
-	            }
+	        	     
+                    if (! appContainer.videoTitleVisible) {
+                        titleAppearAnimation.play()
+                        titleAppearOpacityAnimation.play()
+                    } else {
+                        titleDisappearAnimation.play()
+                        titleDisappearOpacityAnimation.play()
+                        appContainer.videoTitleVisible = false;
+                    }
+                }
 	            else if (event.touchType == TouchType.Up)
 	            {
 	                if ((appContainer.touchPositionX  > event.localX + 30) ||
@@ -281,9 +292,74 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-
-            Container
-            {
+            // title of the video
+            Container {
+                id: videoTitleContainer
+                background: backgroundPaint.imagePaint
+                preferredWidth: contentContainer.preferredWidth
+                horizontalAlignment: HorizontalAlignment.Center
+                layout: DockLayout {
+                }
+                animations: [
+                    
+                    TranslateTransition {
+                        id: titleAppearAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        fromY: -50
+                        toY: 0
+                        onEnded: {
+                            if (myPlayer.mediaState != MediaState.Paused) {
+                                titleDisappearOpacityAnimation.play()
+                                titleDisappearAnimation.play()
+                            } else {
+                                appContainer.videoTitleVisible = true;
+                            }
+                        } 
+                    },
+                    TranslateTransition {
+                        id: titleDisappearAnimation
+                        duration: 800
+                        delay: 2000
+                        easingCurve: StockCurve.CubicOut
+                        toY: -50
+                    },
+                    FadeTransition {
+                        id: titleDisappearOpacityAnimation
+                        duration: 800
+                        delay: 2000
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 0.0
+                    },
+                    FadeTransition {
+                        id: titleAppearOpacityAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 1.0
+                    }
+                ]
+                Label {
+                    id: videoTitle
+                    text: myPlayer.sourceUrl // TODO: change to title
+                    textStyle.color: Color.Black
+                    textStyle.textAlign: TextAlign.Center
+                    maxWidth: handler.layoutFrame.width * 0.8
+                    verticalAlignment: VerticalAlignment.Center
+                    horizontalAlignment: HorizontalAlignment.Center
+                    textStyle.fontStyle: FontStyle.Italic
+                }
+                attachedObjects: [
+                    ImagePaintDefinition {
+                        id: backgroundPaint
+                        imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
+                    },
+                    LayoutUpdateHandler {
+                        id: handler
+                    }
+                ]
+            } // videoTitleContainer
+            
+            Container {
                 id: controlsContainer
                 layout: StackLayout {
                     orientation: LayoutOrientation.TopToBottom
