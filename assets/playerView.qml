@@ -180,9 +180,9 @@ Page {
                     overlapTouchPolicy: OverlapTouchPolicy.Allow
                     visible: false
                     onVideoSelected: {
-                        console.log(item.path);
+                        console.log("selected item PATH == " + item.path);
                         myPlayer.stop()
-                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())
+                        myPlayer.setSourceUrl(item.path);
                         if (appContainer.playMediaPlayer() == MediaError.None) {
                             videoWindow.visible = true;
                             contentContainer.visible = true;
@@ -346,7 +346,6 @@ Page {
 	                        infoListModel.setVideoPosition(myPlayer.position);
 	                        myPlayer.stop();
 	                        appContainer.curVolume = bpsEventHandler.getVolume();
-	                        console.log("CUR VOLUME ==== " + appContainer.curVolume);
                             navigationPane.pop();
                             pgPlayer.destroy();
 	                    }

@@ -17,7 +17,7 @@ Container {
                 Container {
                     background: Color.Black
                     verticalAlignment: VerticalAlignment.Bottom
-                    maxWidth: 400
+                    maxWidth: 200
                     id: listItemtDef                    
                     ImageView {
                         imageSource: ListItemData.thumbURL
