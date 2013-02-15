@@ -2,6 +2,7 @@
 import bb.cascades 1.0
 import bb.multimedia 1.0
 import nuttyPlayer 1.0
+import "helpers.js" as Helpers
 
 NavigationPane {
     id: navigationPane
@@ -48,6 +49,12 @@ Page {
                                 textStyle.base: SystemDefaults.TextStyles.SmallText
                                 horizontalAlignment: HorizontalAlignment.Center
                             }
+                            Label {
+                                text: ListItemData.duration ? Helpers.formatTime(ListItemData.duration) : ""
+                                textStyle.color: Color.White
+                                textStyle.base: SystemDefaults.TextStyles.SmallText
+                                horizontalAlignment: HorizontalAlignment.Center                                
+                            }                             
                         }
                     }
                 ]

@@ -81,12 +81,16 @@ public:
 
     Q_INVOKABLE int getVideoPosition();
 
+    void refresh();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
 
 public slots:
     void consume(QString data, int index);
+    void onMetadataReady(const QVariantMap& data);
+
     signals:
         void consumed();
         void finished();
@@ -102,6 +106,7 @@ private:
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result, int&);
     void getVideoFiles(int&);
+    void readMetadatas(QStringList videoFiles);
 };
 
 
