@@ -182,7 +182,7 @@ Page {
                     onVideoSelected: {
                         console.log(item.path);
                         myPlayer.stop()
-                        myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath())
+                        myPlayer.setSourceUrl(item.path);
                         if (appContainer.playMediaPlayer() == MediaError.None) {
                             videoWindow.visible = true;
                             contentContainer.visible = true;
