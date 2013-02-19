@@ -64,16 +64,17 @@ void InfoListModel::consume(QString data, int index)
 
 void InfoListModel::getVideoFiles(int& startIndex)
 {
-    QDir dir;
-    dir.mkpath("data/thumbnails/");
-    QString filepath = dir.absolutePath() + "/data/thumbnails/";
-    QString thumbPng = "-thumb.png";
+   QDir dir;
+   dir.mkpath("data/thumbnails/");
+   QString filepath = dir.absolutePath() + "/data/thumbnails/";
+   QString thumbPng = "-thumb.png";
 	try {
 		QStringList result;
 		QStringList filters;
 		filters << "*.mp4";
 		filters << "*.avi";
-		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos",
+				filters, result);
 
 		QFile file(m_file);
 		if (!file.exists()) {
@@ -103,7 +104,7 @@ void InfoListModel::getVideoFiles(int& startIndex)
 		{
 			load();
 			startIndex = m_list.size();
-			updateVideoList(startIndex);
+			updateVideoList();
 			readMetadatas(result);
 		}
 	} catch (const exception& e) {
@@ -111,10 +112,10 @@ void InfoListModel::getVideoFiles(int& startIndex)
 	}
 }
 
-void InfoListModel::updateListWithAddedVideos(const QStringList& result, int& startIndex)
+void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
-    QString filepath = QDir::homePath() + "/thumbnails/";
-    QString thumbPng = "-thumb.png";
+  //  QString filepath = QDir::homePath() + "/thumbnails/";
+   // QString thumbPng = "-thumb.png";
 	QVariantList videos;
 	for (int i = 0; i < result.size(); ++i) {
 		bool videoExist = false;
@@ -139,7 +140,6 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result, int& st
 			videos.append(val);
 		}
 	}
-	startIndex = m_list.size();
 	m_list.append(videos);
 }
 
@@ -170,7 +170,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	}
 }
 
-void InfoListModel::updateVideoList(int& start)
+void InfoListModel::updateVideoList()
  {
 	QStringList result;
 	QStringList filters;
@@ -178,7 +178,7 @@ void InfoListModel::updateVideoList(int& start)
 	filters << "*.mp4";
 	filters << "*.avi";
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	updateListWithAddedVideos(result, start);
+	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 	append(m_list);
 }
