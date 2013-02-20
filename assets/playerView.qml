@@ -283,10 +283,9 @@ Page {
                         }
                     ]
                 } // videoTitleContainer
-            
             }
-            //Subtitle area
 
+            //Subtitle area
             Container {
                 id: subtitleArea
                 layoutProperties: AbsoluteLayoutProperties {
