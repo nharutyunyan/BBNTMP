@@ -194,8 +194,8 @@ Page {
 	                console.log("VideoWindow bound to mediaplayer!");
 	            }
 	        } //videoWindow
-	        
-            VideoListScrollBar {
+            Container {
+                VideoListScrollBar {
                     id: videoListScrollBar
                     horizontalAlignment: HorizontalAlignment.Center
                     overlapTouchPolicy: OverlapTouchPolicy.Allow
@@ -214,7 +214,76 @@ Page {
                         }
                     }
                 }// videoListScrollBar
-
+                
+                // title of the video
+                Container {
+                    id: videoTitleContainer
+                    background: backgroundPaint.imagePaint
+                    preferredWidth: contentContainer.preferredWidth
+                    horizontalAlignment: HorizontalAlignment.Center
+                    layout: DockLayout {
+                    }
+                    animations: [
+                        
+                        TranslateTransition {
+                            id: titleAppearAnimation
+                            duration: 800
+                            easingCurve: StockCurve.CubicOut
+                            fromY: -50
+                            toY: 0
+                            onEnded: {
+                                if (myPlayer.mediaState == MediaState.Paused) {
+                                    appContainer.videoTitleVisible = true;
+                                    
+                                } else {
+                                    titleDisappearOpacityAnimation.play()
+                                    titleDisappearAnimation.play()
+                                }
+                            } 
+                        },
+                        TranslateTransition {
+                            id: titleDisappearAnimation
+                            duration: 800
+                            delay: 2000
+                            easingCurve: StockCurve.CubicOut
+                            toY: -50
+                        },
+                        FadeTransition {
+                            id: titleDisappearOpacityAnimation
+                            duration: 800
+                            delay: 2000
+                            easingCurve: StockCurve.CubicOut
+                            toOpacity: 0.0
+                        },
+                        FadeTransition {
+                            id: titleAppearOpacityAnimation
+                            duration: 800
+                            easingCurve: StockCurve.CubicOut
+                            toOpacity: 1.0
+                        }
+                    ]
+                    Label {
+                        id: videoTitle
+                        text: infoListModel.getVideoTitle()
+                        textStyle.color: Color.White
+                        textStyle.textAlign: TextAlign.Center
+                        maxWidth: handler.layoutFrame.width * 0.8
+                        verticalAlignment: VerticalAlignment.Center
+                        horizontalAlignment: HorizontalAlignment.Center
+                        textStyle.fontStyle: FontStyle.Italic
+                    }
+                    attachedObjects: [
+                        ImagePaintDefinition {
+                            id: backgroundPaint
+                            imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
+                        },
+                        LayoutUpdateHandler {
+                            id: handler
+                        }
+                    ]
+                } // videoTitleContainer
+            
+            }
                 ///Subtitle area
             Container {
                 id: subtitleArea
@@ -317,71 +386,6 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-            // title of the video
-            Container {
-                id: videoTitleContainer
-                background: backgroundPaint.imagePaint
-                preferredWidth: contentContainer.preferredWidth
-                horizontalAlignment: HorizontalAlignment.Center
-                layout: DockLayout {
-                }
-                animations: [
-                    TranslateTransition {
-                        id: titleAppearAnimation
-                        duration: 800
-                        easingCurve: StockCurve.CubicOut
-                        fromY: -50
-                        toY: 0
-                        onEnded: {
-                            if (myPlayer.mediaState != MediaState.Paused) {
-                                titleDisappearOpacityAnimation.play()
-                                titleDisappearAnimation.play()
-                            } else {
-                                appContainer.videoTitleVisible = true;
-                            }
-                        } 
-                    },
-                    TranslateTransition {
-                        id: titleDisappearAnimation
-                        duration: 800
-                        delay: 2000
-                        easingCurve: StockCurve.CubicOut
-                        toY: -50
-                    },
-                    FadeTransition {
-                        id: titleDisappearOpacityAnimation
-                        duration: 800
-                        delay: 2000
-                        easingCurve: StockCurve.CubicOut
-                        toOpacity: 0.0
-                    },
-                    FadeTransition {
-                        id: titleAppearOpacityAnimation
-                        duration: 800
-                        easingCurve: StockCurve.CubicOut
-                        toOpacity: 1.0
-                    }
-                ]
-                Label {
-                    id: videoTitle
-                    text: myPlayer.sourceUrl // TODO: change to title
-                    textStyle.color: Color.Black
-                    textStyle.textAlign: TextAlign.Center
-                    maxWidth: handler.layoutFrame.width * 0.8
-                    verticalAlignment: VerticalAlignment.Center
-                    horizontalAlignment: HorizontalAlignment.Center
-                    textStyle.fontStyle: FontStyle.Italic
-                }
-                attachedObjects: [
-                    ImagePaintDefinition {
-                        id: backgroundPaint
-                        imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
-                    },
-                    LayoutUpdateHandler {
-                        id: handler
-                    }
-                ]
-            } // videoTitleContainer
             
             Container {
                 id: controlsContainer
