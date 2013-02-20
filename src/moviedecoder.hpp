@@ -35,7 +35,7 @@ public:
     void destroy();
     void decodeVideoFrame();
     void seek(int timeInSeconds);
-    int getDuration();
+    int getDuration(const std::string& videoFile);
     void getScaledVideoFrame(VideoFrame& videoFrame);
 
 private:

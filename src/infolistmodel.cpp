@@ -48,9 +48,6 @@ InfoListModel::InfoListModel(QObject* parent)
 
 	QObject::connect(m_producer, SIGNAL(finished()), m_producerThread,
 			SLOT(quit()));
-
-
-    m_producerThread->start();
 }
 
 void InfoListModel::consume(QString data, int index)
@@ -64,10 +61,12 @@ void InfoListModel::consume(QString data, int index)
 
 void InfoListModel::getVideoFiles(int& startIndex)
 {
-   QDir dir;
-   dir.mkpath("data/thumbnails/");
-   QString filepath = dir.absolutePath() + "/data/thumbnails/";
-   QString thumbPng = "-thumb.png";
+	// need to create the folder for thumbnails here
+	QDir dir;
+	if(!dir.exists(QDir::home().absoluteFilePath("thumbnails/")))
+	{
+		dir.mkpath("data/thumbnails/");
+	}
 	try {
 		QStringList result;
 		QStringList filters;
@@ -114,8 +113,6 @@ void InfoListModel::getVideoFiles(int& startIndex)
 
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
-  //  QString filepath = QDir::homePath() + "/thumbnails/";
-   // QString thumbPng = "-thumb.png";
 	QVariantList videos;
 	for (int i = 0; i < result.size(); ++i) {
 		bool videoExist = false;
@@ -233,6 +230,7 @@ void InfoListModel::readMetadatas(QStringList videoFiles)
 	}
 
 	connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
+	connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
 	reader->addMetadataReadRequest(videoFiles);
 }
 
@@ -279,6 +277,11 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 		saveData();
 		refresh();
 	}
+}
+
+void InfoListModel::onAllMetadataRead()
+{
+    m_producerThread->start();
 }
 
 QVariant InfoListModel::value(int ix, const QString &fld_name)

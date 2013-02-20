@@ -51,6 +51,7 @@ public:
 
 signals:
 	void metadataReady(const QVariantMap&);
+	void allMetadataRead();
 
 
 public slots:
