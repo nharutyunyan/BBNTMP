@@ -17,9 +17,7 @@
 Producer::Producer(const QVariantList& videoFiles, int start)
     : m_index(start)
  {
-	QDir dir;
-	dir.mkpath("thumbnails/");
-	m_filepath = dir.homePath() + "/thumbnails/";
+	m_filepath = QDir::home().absoluteFilePath("thumbnails/");
 	qDebug() << "m_filepath " << m_filepath;
 	m_thumbPng = "-thumb.png";
 

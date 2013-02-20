@@ -64,6 +64,7 @@ void MetaDataReader::readNextMetadata()
     {
     	m_started = false;
     	m_mediaPlayer.reset();
+    	emit allMetadataRead();
     	return; //nothing to do
     }
 

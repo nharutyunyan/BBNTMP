@@ -9,6 +9,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <QVariantList>
+#include <Qdir>
+#include <bb/data/JsonDataAccess>
 
 extern "C" {
 #include <libswscale/swscale.h>
@@ -164,11 +167,34 @@ void MovieDecoder::seek(int timeInSeconds)
     }
 }
 
-int MovieDecoder::getDuration()
+int MovieDecoder::getDuration(const std::string& videoFile)
 {
     if (pFormatContext_)
     {
-    	return static_cast<unsigned long int>(pFormatContext_->duration / AV_TIME_BASE);
+    	bb::data::JsonDataAccess jda;
+    	QString m_file = QDir::home().absoluteFilePath("videoInfoList.json");
+    	QVariantList m_list = jda.load(m_file).value<QVariantList>();
+    	if (jda.hasError())
+    	{
+    		bb::data::DataAccessError error = jda.error();
+    		qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
+    	}
+    	else
+    	{
+    		qDebug() << m_file << "JSON data loaded OK!";
+    	}
+
+    	QVariantList index;
+    	for (int ix = 0; ix < m_list.size(); ++ix)
+    	{
+    		QVariantMap v = m_list[ix].toMap();
+    		if (v["path"].toString().compare(videoFile.c_str()) == 0)
+    		{
+    			//found the video, now get the duration!
+    			unsigned long long int duration = v["duration"].toString().toULongLong();
+    			return duration/1000;
+    		}
+    	}
     }
 
     return 0;

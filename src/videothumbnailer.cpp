@@ -32,7 +32,7 @@ void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter
     try
     {
     	// Seek to 20% on the video
-        int secondToSeekTo = movieDecoder.getDuration() * SEEK_PERCENTAGE / 100;
+        int secondToSeekTo = movieDecoder.getDuration(videoFile) * SEEK_PERCENTAGE / 100;
         movieDecoder.seek(secondToSeekTo);
     }
     catch (exception& e)
