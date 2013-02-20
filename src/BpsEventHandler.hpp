@@ -27,6 +27,8 @@ public:
 
 signals:
   	void speakerVolumeChanged(float speakerVolume);
+  	void videoWindowStateChanged(bool isMinimized); // pass isMinimized true if the app is minimized
+  	                                                // if it is fullscreen pass false
 };
 
 #endif /* BPSEVENTHANDLER_HPP_ */

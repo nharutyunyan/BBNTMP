@@ -22,31 +22,45 @@ BpsEventHandler::BpsEventHandler(QObject* parent)
     audiomixer_request_events(0);
 }
 
-BpsEventHandler::~BpsEventHandler() {
+BpsEventHandler::~BpsEventHandler()
+{
     bps_shutdown();
 }
 
-void BpsEventHandler::event( bps_event_t *event ) {
+void BpsEventHandler::event( bps_event_t *event )
+{
     int domain = bps_event_get_domain(event);
-    // un-comment this code if there are navigation events to be handled
-    /*if (domain == navigator_get_domain()) {
-        int code = bps_event_get_code(event);
-        switch(code) {
-        case AUDIO:
-            break;
-        default:
-            break;
-        }
-    }*/
-    if (domain == audiomixer_get_domain()) {
-    	if (AUDIOMIXER_INFO == bps_event_get_code(event)) {
+    // handle navigator events
+    if (domain == navigator_get_domain())
+    {
+    	int code = navigator_event_get_window_state(event);
+    	switch(code)
+    	{
+    	case NAVIGATOR_WINDOW_THUMBNAIL:
+    		// The video window has been minimized.
+    		// Notify to stop the video if it is playing
+    		emit videoWindowStateChanged(true);
+    		break;
+    	case NAVIGATOR_WINDOW_FULLSCREEN:
+    		// The video window has been minimized.
+    		// Notify to start playing the paused video
+    		emit videoWindowStateChanged(false);
+    		break;
+    	}
+    }
+
+    // handle audiomixer events
+    if (domain == audiomixer_get_domain())
+    {
+    	if (AUDIOMIXER_INFO == bps_event_get_code(event))
+    	{
     		// The system volume value has been changed.
     		// Synchronize the volume slider value with the system volume value
     	  	float speaker_volume;
     	    audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &speaker_volume);
     	    emit speakerVolumeChanged(speaker_volume);
-    		}
     	}
+    }
 }
 
 void BpsEventHandler::onVolumeValueChanged(float volumeValue)
