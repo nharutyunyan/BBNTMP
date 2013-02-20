@@ -283,8 +283,6 @@ Page {
                         }
                     ]
                 } // videoTitleContainer
-            }
-
             //Subtitle area
             Container {
                 id: subtitleArea
