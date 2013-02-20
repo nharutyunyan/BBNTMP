@@ -34,6 +34,7 @@ Producer::Producer(const QVariantList& videoFiles, int start)
 
 void Producer::produce()
 {
+	//if no more data, emit a finished signal
 	if (m_index >= m_result.size()) {
 			emit finished();
 		} else {
@@ -60,8 +61,6 @@ void Producer::produce()
 		}
 		qDebug() << " process data === " << m_index;
 		++m_index;
-
-		//if no more data, emit a finished signal
 
 		emit produced(finalFileName, m_index - 1);
 	}
