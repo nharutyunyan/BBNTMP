@@ -4,27 +4,28 @@ import nutty.slider 1.0
 // TODO Clean up if needed
 
 Container {
-    property int currentTime
-    property int totalTime
-    property int time
-    property int clickedByUser:0
-    
+    id: slideBar
+    property real immediateValue
+    property real value
+    property real fromValue: 0
+    property real toValue: 1
+
     preferredWidth: my.width
     horizontalAlignment: HorizontalAlignment.Fill
-    
+
     layout: AbsoluteLayout {}
     background: Color.create("#0088cc")
 
     TimeArea {
         id: currentTimeLabel
-        timeInMsc: currentTime
+        timeInMsc: slideBar.immediateValue
         preferredWidth: my.timeAreaWidth
         preferredHeight: my.height
     }
 
     TimeArea {
         id: timeArea
-        timeInMsc: totalTime
+        timeInMsc: slideBar.toValue
         preferredWidth: my.timeAreaWidth
         preferredHeight: my.height
         layoutProperties: AbsoluteLayoutProperties {
@@ -34,9 +35,17 @@ Container {
 
     CustomSlider {
         id: slider
-        fromValue: 0
-        toValue: totalTime
-        value: time
+        fromValue: slideBar.fromValue
+        toValue: slideBar.toValue
+        value: if(dragging) {
+            if(my.handlLongPressed)
+                return smallStepSlider.value;
+            else
+                return;
+        } else {
+            return slideBar.value;
+        }
+
         preferredWidth: my.width - 2 * my.timeAreaWidth
 
         layoutProperties: AbsoluteLayoutProperties {
@@ -44,47 +53,48 @@ Container {
         }
 
         onHandleLongPressed: {
-            smallStepSlider.visible = true;
-            smallStepSlider.value = slider.value;
-            if(slider.value - my.dt < slider.fromValue) {
-                smallStepSlider.fromValue = slider.fromValue;
-                smallStepSlider.toValue = slider.value + my.dt;
-                smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+            if(slider.toValue > my.minTime) {
+                smallStepSlider.visible = true;
+                smallStepSlider.value = slider.value;
+                if(slider.value - my.dt < slider.fromValue) {
+                    smallStepSlider.fromValue = slider.fromValue;
+                    smallStepSlider.toValue = slider.value + my.dt;
+                    smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                }
+                else if(slider.value + my.dt > slider.toValue) {
+                    smallStepSlider.fromValue = slider.value - my.dt;
+                    smallStepSlider.toValue = slider.toValue;
+                    smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                }
+                else {
+                    smallStepSlider.fromValue = slider.value - my.dt;
+                    smallStepSlider.toValue = slider.value + my.dt;
+                    smallStepSlider.preferredWidth = my.smallStepSliderWidth + smallStepSlider.handleSize.width;
+                }
+                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.layoutProperties.positionX;
+                my.longPressInitX = positionX;
+                my.handlLongPressed = true;
             }
-            else if(slider.value + my.dt > slider.toValue) {
-                smallStepSlider.fromValue = slider.value - my.dt;
-                smallStepSlider.toValue = slider.toValue;
-                smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
-            }
-            else {
-                smallStepSlider.fromValue = slider.value - my.dt;
-                smallStepSlider.toValue = slider.value + my.dt;
-                smallStepSlider.preferredWidth = my.smallStepSliderWidth + smallStepSlider.handleSize.width;
-            }
-            smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.layoutProperties.positionX;
-            my.longPressInitX = positionX;
+            else
+                slider.setLongPressEnabled(false);
         }
-        
+
         onMove: {
-            smallStepSlider.value = smallStepSlider.fromPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
+            if(slider.toValue > my.minTime)
+                smallStepSlider.value = smallStepSlider.fromPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
         }
 
         onHandleReleased: {
+            my.handlLongPressed = false;
             smallStepSlider.visible = false;
         }
-        
+
         onImmediateValueChanged: {
-            currentTimeLabel.timeInMsc = immediateValue;
+            slideBar.immediateValue = immediateValue;
         }
 
         onValueChanged: {
-            time = value;
-            }
-            
-        onDraggingChanged: {
-            if(dragging) {
-                clickedByUser = immediateValue;
-            }
+            slideBar.value = value;
         }
     }
 
@@ -93,12 +103,6 @@ Container {
         preferredWidth: my.smallStepSliderWidth
         visible: false
         layoutProperties: AbsoluteLayoutProperties {
-        }
-        onValueChanged: {
-            time = value;
-            clickedByUser = value;
-        }
-        onPreferredWidthChanged: {
         }
     }
 
@@ -112,6 +116,8 @@ Container {
             property int smallStepSliderWidth: 300
             property int dt: 10 * 1000 // delta time in seconds
             property real longPressInitX
+            property int minTime: 5 * 60 * 1000 // min time to show small steps slider
+            property bool handlLongPressed: false
         },
         LayoutUpdateHandler {
             id: layoutHandler
@@ -121,9 +127,14 @@ Container {
         }
     ]
 
-    function setCurrentTime(curTime) {
-        slider.value = curTime
-        currentTimeLabel.timeInMsc = curTime
+    function setValue(value) {
+        slideBar.value = value;
     }
-    
+
+    function resetValue() {
+        slideBar.value = slideBar.fromValue;
+    }
+
+    function enabled(en) {
+    }
 }

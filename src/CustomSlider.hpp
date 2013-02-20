@@ -49,6 +49,7 @@ public:
     float immediateValue() const;
     bool dragging() const;
     Q_INVOKABLE float handleLocalX() const;
+    Q_INVOKABLE void setLongPressEnabled(bool enabled);
 
 public Q_SLOTS:
     void setValue(float value);
@@ -133,6 +134,8 @@ private:
 
     bool m_handleLongPressed;
     Container* m_dummyContainer;
+
+    AbsoluteLayoutProperties* m_handleLayoutProperties;
 };
 
 #endif /* CUSTOMSLIDER_H_ */
