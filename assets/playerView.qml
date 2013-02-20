@@ -16,7 +16,7 @@ Page {
 
         //This variable is used to control video duration logic. 
         //Indicates whether to change the video position, when the slider's value is changed.
-        property bool changeVideoPosition : true
+        property bool changeVideoPosition : false
 
         // This properties are used for dynamically defining video window size for different orientations
         property int landscapeWidth : 1280
@@ -98,18 +98,19 @@ Page {
 		                    contentContainer.startingY = 0;		
 		                     if (appContainer.touchPositionX > event.localX + 30) {
 		                         appContainer.changeVideoPosition = true;
-		                         if (durationSlider.immediateValue + 5000/myPlayer.duration < 1) {
-		                             durationSlider.setValue(durationSlider.immediateValue + 5000/myPlayer.duration);
+		                         if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
+                                     appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
 		                         } else {
-		                             durationSlider.setValue(1);
-		                             myPlayer.pause();		                         
+                                     appContainer.seekPlayer(durationSlider.toValue);
+		                             myPlayer.pause();
 		                         }
 		                     }
 		                     else if (appContainer.touchPositionX + 30  < event.localX)
 		                     {
 			                     appContainer.changeVideoPosition = true;
-			                     durationSlider.setValue(durationSlider.immediateValue - 5000/myPlayer.duration);
-			                } 
+                                 appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
+			                }
+                            appContainer.changeVideoPosition = false;
 			            }
 			        } 
 			        else if (appContainer.touchPositionY - event.localY > 10)
@@ -150,7 +151,7 @@ Page {
 	                if (videoWindow.scaleX > 1.0) 
 	                {
 	                    appContainer.moveX(event.localX);	
-	                    appContainer.moveY(event.localY);          	                  	                  
+	                    appContainer.moveY(event.localY);
                     }	
 	            }
 	        }// onTouch
@@ -225,7 +226,7 @@ Page {
                 layout: StackLayout {
                     orientation: LayoutOrientation.TopToBottom
                 }
-                preferredHeight: 200                
+                preferredHeight: 200
                 Container {
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1.0
@@ -241,7 +242,7 @@ Page {
                     editable: false
                     overlapTouchPolicy: OverlapTouchPolicy.Allow
                     verticalAlignment: VerticalAlignment.Bottom
-                    horizontalAlignment: HorizontalAlignment.Center                        
+                    horizontalAlignment: HorizontalAlignment.Center
                     inputMode: TextAreaInputMode.Text     
                     onCreationCompleted: {
                         setImplicitLayoutAnimationsEnabled(false);
@@ -325,7 +326,6 @@ Page {
                 layout: DockLayout {
                 }
                 animations: [
-                    
                     TranslateTransition {
                         id: titleAppearAnimation
                         duration: 800
@@ -404,22 +404,26 @@ Page {
 	                horizontalAlignment: HorizontalAlignment.Fill
 	                verticalAlignment: VerticalAlignment.Bottom
 
-	                SlideBar {
-	                    id: durationSlider
-	                    leftMargin: 5
-	                    rightMargin: 5
-	                    horizontalAlignment: HorizontalAlignment.Fill
-	                    verticalAlignment: VerticalAlignment.Center
+                    SlideBar {
+                        id: durationSlider
+                        leftMargin: 5
+                        rightMargin: 5
+                        horizontalAlignment: HorizontalAlignment.Fill
+                        verticalAlignment: VerticalAlignment.Center
 
-	                    layoutProperties: StackLayoutProperties {
-	                        spaceQuota: 1
-	                    }
-
-                        onClickedByUserChanged: {
-                            if(myPlayer.seekTime(durationSlider.clickedByUser) != MediaError.None) {
-                                console.log("seekTime ERROR");
+                        layoutProperties: StackLayoutProperties {
+                            spaceQuota: 1
+                        }
+                        onImmediateValueChanged: {
+                            if(myPlayer.mediaState == MediaState.Started ||
+                                myPlayer.mediaState == MediaState.Paused) {
+                            if(appContainer.changeVideoPosition == true && immediateValue != value) {
+                                    myPlayer.seekTime(durationSlider.immediateValue);
+                                    myPlayer.valueChangedBySeek = true;
+                                    appContainer.changeVideoPosition = false;
+                                }
                             }
-                          }
+                        }
 	                } //durationSlider
                 }//sliderContainer
 
@@ -491,7 +495,8 @@ Page {
         }//contentContainer
 
         function playMediaPlayer() {
-            playButton.setDefaultImageSource("asset:///images/pause.png");            
+            playButton.setDefaultImageSource("asset:///images/pause.png");
+            trackTimer.start();
             return myPlayer.play();
         }
 
@@ -519,6 +524,11 @@ Page {
                 videoWindow.translationY = localY - appContainer.touchPositionY + contentContainer.startingY;
             }
         }
+        function seekPlayer(time) {
+            myPlayer.seekTime(time);
+            myPlayer.valueChangedBySeek = true;
+            appContainer.changeVideoPosition = false;
+        }
 
         attachedObjects: [
             Sheet {
@@ -544,7 +554,7 @@ Page {
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
-                   durationSlider.time = position;
+                   durationSlider.value = position;
                    //Set correct subtitle positon
                    if (valueChangedBySeek) {
                        myPlayer.positionInMsecs = myPlayer.position;
@@ -553,8 +563,7 @@ Page {
                    }
                }
                onDurationChanged: {
-                   durationSlider.totalTime = duration;
-                   totalTime.text = infoListModel.getFormattedTime(duration)
+                   durationSlider.toValue = duration;
                }
 
                // Investigate how the metadata can be retrieved without playing the video.
@@ -609,7 +618,7 @@ Page {
                interval: 5
                onTimeout: {
 		           if(myPlayer.mediaState == MediaState.Started) {
-		               appContainer.changeVideoPosition = false;		               		               		           
+		               appContainer.changeVideoPosition = false;
 		               myPlayer.positionInMsecs += 5;
 		               //Sync every time when myPlayer.position changed: i.e. one time per second
                        if(videoCurrentPos != myPlayer.position) {
@@ -620,18 +629,18 @@ Page {
                        //TODO: Figure out that, though seems it is a MediaPlayer issue.
                        //'if' is used as workaround
                        if (myPlayer.duration) {
-                           durationSlider.setValue(myPlayer.positionInMsecs / myPlayer.duration)
+                           durationSlider.setValue(myPlayer.positionInMsecs)
                        }
                        appContainer.changeVideoPosition = true;
                        subtitleManager.handlePositionChanged(myPlayer.positionInMsecs);
-      	           }
-		           else if(myPlayer.mediaState == MediaState.Stopped) {
-		               appContainer.changeVideoPosition = false;
-		               durationSlider.setValue(durationSlider.toValue)
-		               appContainer.changeVideoPosition = true;		                
-		               trackTimer.stop();
-		           }
-		       }
+                   }
+                   else if(myPlayer.mediaState == MediaState.Stopped) {
+                       appContainer.changeVideoPosition = false;
+                       durationSlider.setValue(durationSlider.toValue)
+                       appContainer.changeVideoPosition = true;
+                       trackTimer.stop();
+                   }
+               }
            },
 
            QTimer {
@@ -689,16 +698,17 @@ Page {
             myPlayer.prepare();
             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
             if (appContainer.playMediaPlayer() == MediaError.None) {
-                videoPos = infoListModel.getVideoPosition();
+
+                var videoPos = infoListModel.getVideoPosition();
                 videoWindow.visible = true;
                 contentContainer.visible = true;
                 subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-                appContainer.changeVideoPosition = false;       
+                appContainer.changeVideoPosition = false;
                 if(myPlayer.seekTime(videoPos) != MediaError.None) {
                     console.log("seekTime ERROR");
                 }
                 appContainer.changeVideoPosition = true;
-                trackTimer.start();	
+                trackTimer.start();
             }
         }
 

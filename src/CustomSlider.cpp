@@ -26,7 +26,7 @@ CustomSlider::CustomSlider(Container* parent)
      m_fromValue(0.0),
      m_toValue(1.0)
 {
-    setUpdateInterval(1);
+    setUpdateInterval(0);
     setValue(m_fromValue);
     setPreferredHeight(m_rootContainerHeight);
     m_rootContainer = Container::create()
@@ -229,8 +229,8 @@ void CustomSlider::createHandle()
     m_handleImageTracker = new ImageTracker(m_handleOnImg.source());
 
 
-    AbsoluteLayoutProperties* lp = AbsoluteLayoutProperties::create();
-    m_handle->setLayoutProperties(lp);
+    m_handleLayoutProperties = AbsoluteLayoutProperties::create();
+    m_handle->setLayoutProperties(m_handleLayoutProperties);
 
     m_handle->setImage(m_handleOffImg);
     m_handle->setImplicitLayoutAnimationsEnabled(false);
@@ -250,18 +250,14 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
     if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
         m_handleTouched = true;
         TouchType::Type type  = event->touchType();
-        AbsoluteLayoutProperties* layoutProperties
-            = dynamic_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties());
 
-        if(!layoutProperties) {
-            return;
-        }
 
         if(TouchType::Down == type) {
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             m_handle->setImage(m_handleOnImg);
             m_touchEventInitX = event->windowX();
-            m_handleInitX = layoutProperties->positionX() + m_rootContainerPositionX;
+
+            m_handleInitX = m_handleLayoutProperties->positionX() + m_rootContainerPositionX;
             return;
         }
 
@@ -274,8 +270,7 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
                     setImmediateValue(fromPosXToValue(handlePosX), true);
                     m_timer->start(m_updateInterval);
                 }
-                else
-                    setImmediateValue(fromPosXToValue(handlePosX), false);
+
                 setDragging(true);
 
                 return;
@@ -284,11 +279,14 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
                 emit move(event->windowX());
             }
         }
+        else
+            setImmediateValue(fromPosXToValue(handlePosX), false);
 
         if(TouchType::Up == type) {
             m_handle->setImage(m_handleOffImg);
             m_progressBarImageView->setImage(m_progressBarImage);
-            float handlePosX = layoutProperties->positionX();
+
+            float handlePosX = m_handleLayoutProperties->positionX();
             if(!m_handleLongPressed)
                 setValue(fromPosXToValue(handlePosX));
             m_handleTouched = false;
@@ -347,8 +345,8 @@ void CustomSlider::updateHandlePositionX()
 {
     float x = fromValueToPosX(m_immediateValue);
 
-    Q_ASSERT(dynamic_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
-    ((AbsoluteLayoutProperties*)m_handle->layoutProperties())->setPositionX(x);
+//    Q_ASSERT(static_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
+    m_handleLayoutProperties->setPositionX(x);
     if(x == 0) {
         m_progressBarImageView->setVisible(false);
     }
@@ -418,4 +416,9 @@ QSize CustomSlider::handleSize() const
 void CustomSlider::updateRootContainerPreferredWidth(float width)
 {
     m_rootContainerWidth = width;
+}
+
+void CustomSlider::setLongPressEnabled(bool enabled)
+{
+    m_handleLongPressed = enabled;
 }
