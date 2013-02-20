@@ -374,3 +374,11 @@ int InfoListModel::getVideoPosition()
 	int retValue =  v.toInt();
 	return retValue;
 }
+
+QString InfoListModel::getVideoTitle()
+{
+	const QString flagName("title");
+	QVariant v = value(m_selectedIndex, flagName);
+	std::cout << "\n\nSelected Index = " << m_selectedIndex << "\n";
+	return v.toString();
+}

@@ -81,6 +81,8 @@ public:
 
     Q_INVOKABLE int getVideoPosition();
 
+    Q_INVOKABLE QString getVideoTitle();
+
     void refresh();
 
 public:
