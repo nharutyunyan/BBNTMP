@@ -33,9 +33,9 @@ Page {
 
         property double minScreenScale: 0.5        //THIS IS THE MINIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
         property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
-        property double initialScreenScale: 1.0  // Starts the video with original dimensions (that is, scale factor 1.0)
-                                                 // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
-                                                 // They both start with the same value but the "initialScale" value is different for every new pinch 
+        property double initialScreenScale: 1.0    // Starts the video with original dimensions (that is, scale factor 1.0)
+                                                   // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
+                                                   // They both start with the same value but the "initialScale" value is different for every new pinch 
         property double currentTranslation;
         property double startPinchDistance:0.0;
 
@@ -45,76 +45,60 @@ Page {
         property double endMidPointXPinch:0.0;
 
         property double curVolume: bpsEventHandler.getVolume();
-        
+
         property bool videoTitleVisible : false
 
-        Container {
-            id: contentContainer
-            horizontalAlignment: HorizontalAlignment.Center
-            verticalAlignment: VerticalAlignment.Bottom
-
-            layout: DockLayout {}
-
-	        preferredWidth:  appContainer.landscapeWidth
-	        preferredHeight: appContainer.landscapeHeight 
-
-	        property int startingX
-	        property int startingY  
-
-	       onTouch: {
-	        	if (event.touchType == TouchType.Down)
-	        	{
-                    if (event.localY < 100) {
-                        videoListScrollBar.visible = true;
-                    } else {
-                        videoListScrollBar.visible = false;
-                    }
-                    appContainer.touchPositionX =  event.localX;
-	        	     appContainer.touchPositionY =  event.localY;
-	        	     contentContainer.startingX = videoWindow.translationX
-	        	     contentContainer.startingY = videoWindow.translationY
-
-                    if (! appContainer.videoTitleVisible) {
-                        titleAppearAnimation.play()
-                        titleAppearOpacityAnimation.play()
-                    } else {
-                        titleDisappearAnimation.play()
-                        titleDisappearOpacityAnimation.play()
-                        appContainer.videoTitleVisible = false;
-                    }
+        onTouch: {
+            if (event.touchType == TouchType.Down)
+            {
+                if (event.localY < 100) {
+                    videoListScrollBar.visible = true;
+                } else {
+                    videoListScrollBar.visible = false;
                 }
-	            else if (event.touchType == TouchType.Up)
-	            {
-	                if ((appContainer.touchPositionX  > event.localX + 30) ||
-	                    (appContainer.touchPositionX + 30  < event.localX) && 
-	                    ((appContainer.touchPositionY - event.localY <= 10) ||
-	                    (event.localY - appContainer.touchPositionY <= 10))) 
-	                {
-		                if (videoWindow.scaleX <= 1.0) 
-		                {
-		                    videoWindow.translationX = 0;
-		                    videoWindow.translationY = 0;
-		                    contentContainer.startingX = 0;
-		                    contentContainer.startingY = 0;		
-		                     if (appContainer.touchPositionX > event.localX + 30) {
-		                         appContainer.changeVideoPosition = true;
-		                         if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
-                                     appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
-		                         } else {
-                                     appContainer.seekPlayer(durationSlider.toValue);
-		                             myPlayer.pause();
-		                         }
-		                     }
-		                     else if (appContainer.touchPositionX + 30  < event.localX)
-		                     {
-			                     appContainer.changeVideoPosition = true;
-                                 appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
-			                }
+                appContainer.touchPositionX =  event.localX;
+                appContainer.touchPositionY =  event.localY;
+                contentContainer.startingX = videoWindow.translationX
+                contentContainer.startingY = videoWindow.translationY
+                
+                if (! appContainer.videoTitleVisible) {
+                    titleAppearAnimation.play()
+                    titleAppearOpacityAnimation.play()
+                } else {
+                    titleDisappearAnimation.play()
+                    titleDisappearOpacityAnimation.play()
+                    appContainer.videoTitleVisible = false;
+                }
+            }
+            else if (event.touchType == TouchType.Up)
+            {
+                if ((appContainer.touchPositionX  > event.localX + 30) ||
+                    (appContainer.touchPositionX + 30  < event.localX) && 
+                    ((appContainer.touchPositionY - event.localY <= 10) ||
+                    (event.localY - appContainer.touchPositionY <= 10))) { 
+                        if (videoWindow.scaleX <= 1.0) 
+                        {
+                            videoWindow.translationX = 0;
+                            videoWindow.translationY = 0;
+                            contentContainer.startingX = 0;
+                            contentContainer.startingY = 0;		
+                            if (appContainer.touchPositionX > event.localX + 30) {
+                                appContainer.changeVideoPosition = true;
+                                if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
+                                    appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
+                                } else {
+                                    appContainer.seekPlayer(durationSlider.toValue);
+                                    myPlayer.pause();
+                                }
+                            }
+                            else if (appContainer.touchPositionX + 30  < event.localX) {
+                                appContainer.changeVideoPosition = true;
+                                appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
+                            }
                             appContainer.changeVideoPosition = false;
-			            }
-			        } 
-			        else if (appContainer.touchPositionY - event.localY > 10)
-			        {
+                        }
+                    }
+                    else if (appContainer.touchPositionY - event.localY > 10) {
                         if (videoWindow.scaleX <= 1.0) {
                             appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
                             if (appContainer.curVolume > 100) 
@@ -122,8 +106,7 @@ Page {
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                         }
                     }
-                    else if (event.localY - appContainer.touchPositionY > 10)
-                    {
+                    else if (event.localY - appContainer.touchPositionY > 10) {
                         if (videoWindow.scaleX <= 1.0) {
                             appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
                             if (appContainer.curVolume < 0) 
@@ -131,10 +114,9 @@ Page {
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                         }
                     }
-                    else
-                    {
-                       if(myPlayer.mediaState != MediaState.Started) {
-                        	appContainer.playMediaPlayer();
+                    else {
+                        if(myPlayer.mediaState != MediaState.Started) {
+                            appContainer.playMediaPlayer();
                             screenPlayImage.setOpacity(0.5)
                             screenPauseImage.setOpacity(0)
                             screenPlayImageTimer.start()
@@ -144,21 +126,52 @@ Page {
                             screenPlayImage.setOpacity(0)
                             screenPauseImageTimer.start()
                         }
-	                 }
-	            } 
-	            else if (event.touchType == TouchType.Move)
-	            {
-	                if (videoWindow.scaleX > 1.0) 
-	                {
-	                    appContainer.moveX(event.localX);	
-	                    appContainer.moveY(event.localY);
-                    }	
-	            }
-	        }// onTouch
+                    }
+            }
+            else if (event.touchType == TouchType.Move) {
+                if (videoWindow.scaleX > 1.0) { 
+                    appContainer.moveX(event.localX);	
+                    appContainer.moveY(event.localY);
+                }	
+            }
+        }// onTouch
+        
+        VideoListScrollBar {
+            id: videoListScrollBar
+            horizontalAlignment: HorizontalAlignment.Center
+            overlapTouchPolicy: OverlapTouchPolicy.Allow
+            visible: false
+            onVideoSelected: {
+                console.log("selected item PATH == " + item.path);
+                myPlayer.stop()
+                myPlayer.setSourceUrl(item.path);
+                if (appContainer.playMediaPlayer() == MediaError.None) {
+                    videoWindow.visible = true;
+                    contentContainer.visible = true;
+                    durationSlider.resetValue();
+                    durationSlider.setEnabled(true)
+                    subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                    trackTimer.start();
+                }
+            }
+        }// videoListScrollBar
+
+        Container {
+            id: contentContainer
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Center
+
+            layout: DockLayout {}
+
+	        preferredWidth:  appContainer.width
+	        preferredHeight: appContainer.height 
+
+	        property int startingX
+	        property int startingY  
 
            Container {
                layout: AbsoluteLayout {
-                           } 
+                           }
 	       ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
@@ -196,25 +209,6 @@ Page {
 	        } //videoWindow
 
             Container {
-                VideoListScrollBar {
-                    id: videoListScrollBar
-                    horizontalAlignment: HorizontalAlignment.Center
-                    overlapTouchPolicy: OverlapTouchPolicy.Allow
-                    visible: false
-                    onVideoSelected: {
-                        console.log("selected item PATH == " + item.path);
-                        myPlayer.stop()
-                        myPlayer.setSourceUrl(item.path);
-                        if (appContainer.playMediaPlayer() == MediaError.None) {
-                            videoWindow.visible = true;
-                            contentContainer.visible = true;
-                            durationSlider.resetValue();
-                            durationSlider.setEnabled(true)
-                            subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-                            trackTimer.start();
-                        }
-                    }
-                }// videoListScrollBar
 
                 // title of the video
                 Container {
@@ -387,116 +381,114 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
-            
+
+        }//contentContainer
+        Container {
+            id: controlsContainer
+            layout: StackLayout {
+                orientation: LayoutOrientation.TopToBottom
+            }
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Bottom
+
             Container {
-                id: controlsContainer
+                id: sliderContainer
+                objectName: sliderContainer
+                
                 layout: StackLayout {
-                    orientation: LayoutOrientation.TopToBottom
+                    orientation: LayoutOrientation.LeftToRight
                 }
-                horizontalAlignment: HorizontalAlignment.Center
+                
+                leftPadding: 5
+                rightPadding: 5
+                horizontalAlignment: HorizontalAlignment.Fill
                 verticalAlignment: VerticalAlignment.Bottom
 
-	            Container {
-	                id: sliderContainer
-	                objectName: sliderContainer
+                SlideBar {
+                    id: durationSlider
+                    leftMargin: 5
+                    rightMargin: 5
+                    horizontalAlignment: HorizontalAlignment.Fill
+                    verticalAlignment: VerticalAlignment.Center
 
-	                layout: StackLayout {
-	                    orientation: LayoutOrientation.LeftToRight
-	                }
-
-	                leftPadding: 5
-	                rightPadding: 5
-	                horizontalAlignment: HorizontalAlignment.Fill
-	                verticalAlignment: VerticalAlignment.Bottom
-
-                    SlideBar {
-                        id: durationSlider
-                        leftMargin: 5
-                        rightMargin: 5
-                        horizontalAlignment: HorizontalAlignment.Fill
-                        verticalAlignment: VerticalAlignment.Center
-
-                        layoutProperties: StackLayoutProperties {
-                            spaceQuota: 1
-                        }
-                        onImmediateValueChanged: {
-                            if(myPlayer.mediaState == MediaState.Started ||
-                                myPlayer.mediaState == MediaState.Paused) {
+                    layoutProperties: StackLayoutProperties {
+                        spaceQuota: 1
+                    }
+                    onImmediateValueChanged: {
+                        if(myPlayer.mediaState == MediaState.Started ||
+                            myPlayer.mediaState == MediaState.Paused) {
                             if(appContainer.changeVideoPosition == true && immediateValue != value) {
-                                    myPlayer.seekTime(durationSlider.immediateValue);
-                                    myPlayer.valueChangedBySeek = true;
-                                    appContainer.changeVideoPosition = false;
-                                }
+                                myPlayer.seekTime(durationSlider.immediateValue);
+                                myPlayer.valueChangedBySeek = true;
+                                appContainer.changeVideoPosition = false;
                             }
                         }
-	                } //durationSlider
-                }//sliderContainer
+                    }
+                } //durationSlider
+            }//sliderContainer
+            
+            Container {
+                id: buttonContainer
+                objectName: buttonContainer
+                opacity: 0.5
 
-	            Container {
-	                id: buttonContainer
-	                objectName: buttonContainer
+                layout: StackLayout {
+                    orientation: LayoutOrientation.LeftToRight
+                }
 
-	                opacity: 0.5
+                leftPadding: 40
+                rightPadding: 40
+                horizontalAlignment: HorizontalAlignment.Left
+                verticalAlignment: VerticalAlignment.Bottom
 
-	                layout: StackLayout {
-	                    orientation: LayoutOrientation.LeftToRight
-	                }
+                ImageButton {
+                    id:backButton
+                    defaultImageSource: "asset:///images/back.png"
+                    
+                    onClicked:{
+                        infoListModel.setVideoPosition(myPlayer.position);
+                        myPlayer.stop();
+                        appContainer.curVolume = bpsEventHandler.getVolume();
+                        navigationPane.pop();
+                        pgPlayer.destroy();
+                    }
+                }
 
-	                leftPadding: 40
-	                rightPadding: 40
-	                horizontalAlignment: HorizontalAlignment.Left
-	                verticalAlignment: VerticalAlignment.Bottom
+                ImageButton {
+                    id:playButton
+                    property int videoPos : 0
 
-	                ImageButton {
-	                    id:backButton
-	                    defaultImageSource: "asset:///images/back.png"
+                    onClicked:{
+                        if(myPlayer.mediaState == MediaState.Started) {
+                            appContainer.pauseMediaPlayer();
+                        }
+                        else if(myPlayer.mediaState == MediaState.Paused) {
+                            appContainer.playMediaPlayer();
+                        }
+                        else {
+                            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
+                            myPlayer.prepare();
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                            if (appContainer.playMediaPlayer() == MediaError.None) {
+                                videoPos = infoListModel.getVideoPosition();
+                                videoWindow.visible = true;
+                                contentContainer.visible = true;
+                                durationSlider.setEnabled(true);
+                                durationSlider.resetValue();
+                                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                                appContainer.changeVideoPosition = false;
+                                if(myPlayer.seekTime(videoPos) != MediaError.None) {
+                                    console.log("seekTime ERROR");
+                                }
+                                appContainer.changeVideoPosition = true;
+                                trackTimer.start();	
+                            }
+                        }
+                    }
+                }
+            }//buttonContainer
 
-	                    onClicked:{
-	                        infoListModel.setVideoPosition(myPlayer.position);
-	                        myPlayer.stop();
-	                        appContainer.curVolume = bpsEventHandler.getVolume();
-                            navigationPane.pop();
-                            pgPlayer.destroy();
-	                    }
-	                }
-
-	                ImageButton {
-	                    id:playButton
-	                    property int videoPos : 0
-	                    
-	                    onClicked:{
-	                        if(myPlayer.mediaState == MediaState.Started) {
-	                            appContainer.pauseMediaPlayer();
-	                        }
-	                        else if(myPlayer.mediaState == MediaState.Paused) {
-	                            appContainer.playMediaPlayer();
-	                        }
-	                        else {
-	                            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
-	                            myPlayer.prepare();
-	                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-	                            if (appContainer.playMediaPlayer() == MediaError.None) {
-	                                videoPos = infoListModel.getVideoPosition();
-	                                videoWindow.visible = true;
-	                                contentContainer.visible = true;
-	                                durationSlider.setEnabled(true);
-	                                durationSlider.resetValue();
-	                                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-	                                appContainer.changeVideoPosition = false;
-	                                if(myPlayer.seekTime(videoPos) != MediaError.None) {
-	                                    console.log("seekTime ERROR");
-	                                }
-	                                appContainer.changeVideoPosition = true;
-	                                trackTimer.start();	
-	                            }
-	                        }
-	                    }
-	                }
-	            }//buttonContainer
-
-            }//controlsContainer
-
-        }//contentContainer
+        }//controlsContainer
 
         function playMediaPlayer() {
             trackTimer.start();
