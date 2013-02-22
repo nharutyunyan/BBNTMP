@@ -53,6 +53,7 @@ Page {
             {
                 if(event.localY > 100) {
                     videoListScrollBar.visible = false;
+                    videoListScrollBarLandscape.visible = false;
                 }
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
@@ -133,6 +134,7 @@ Page {
             }
         }// onTouch
 
+        // Video list scroll bar for Portrait mode
         VideoListScrollBar {
             id: videoListScrollBar
             horizontalAlignment: HorizontalAlignment.Center
@@ -205,7 +207,27 @@ Page {
 	            }
 	        } //videoWindow
 
+            // Video list scroll bar for Landscape mode
             Container {
+                VideoListScrollBar {
+                    id: videoListScrollBarLandscape
+                    horizontalAlignment: HorizontalAlignment.Center
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    visible: false
+                    onVideoSelected: {
+                        console.log("selected item PATH == " + item.path);
+                        myPlayer.stop()
+                        myPlayer.setSourceUrl(item.path);
+                        if (appContainer.playMediaPlayer() == MediaError.None) {
+                            videoWindow.visible = true;
+                            contentContainer.visible = true;
+                            durationSlider.resetValue();
+                            durationSlider.setEnabled(true)
+                            subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                            trackTimer.start();
+                        }
+                    }
+                }// videoListScrollBar
 
                 // title of the video
                 Container {
@@ -584,7 +606,12 @@ Page {
                }
 
                onShowVideoScrollBar: {
-                   videoListScrollBar.visible = true;
+                   if(OrientationSupport.orientation == UIOrientation.Portrait) {
+                       videoListScrollBar.visible = true;
+                   }
+                   else {
+                       videoListScrollBarLandscape.visible = true;
+                   }
                }
            },
 
@@ -672,10 +699,18 @@ Page {
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                       if(videoListScrollBar.visible) {
+                           videoListScrollBarLandscape.visible = true;
+                       }
+                       videoListScrollBar.visible = false;
                    } else {
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                       if(videoListScrollBarLandscape.visible) {
+                           videoListScrollBar.visible = true;
+                       }
+                       videoListScrollBarLandscape.visible = false;
                    }
                }
            }
