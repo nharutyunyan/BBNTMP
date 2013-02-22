@@ -51,22 +51,20 @@ Page {
         onTouch: {
             if (event.touchType == TouchType.Down)
             {
-                if (event.localY < 100) {
-                    videoListScrollBar.visible = true;
-                } else {
+                if(event.localY > 100) {
                     videoListScrollBar.visible = false;
                 }
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
-                contentContainer.startingX = videoWindow.translationX
-                contentContainer.startingY = videoWindow.translationY
+                contentContainer.startingX = videoWindow.translationX;
+                contentContainer.startingY = videoWindow.translationY;
                 
                 if (! appContainer.videoTitleVisible) {
-                    titleAppearAnimation.play()
-                    titleAppearOpacityAnimation.play()
+                    titleAppearAnimation.play();
+                    titleAppearOpacityAnimation.play();
                 } else {
-                    titleDisappearAnimation.play()
-                    titleDisappearOpacityAnimation.play()
+                    titleDisappearAnimation.play();
+                    titleDisappearOpacityAnimation.play();
                     appContainer.videoTitleVisible = false;
                 }
             }
@@ -81,7 +79,7 @@ Page {
                             videoWindow.translationX = 0;
                             videoWindow.translationY = 0;
                             contentContainer.startingX = 0;
-                            contentContainer.startingY = 0;		
+                            contentContainer.startingY = 0;
                             if (appContainer.touchPositionX > event.localX + 30) {
                                 appContainer.changeVideoPosition = true;
                                 if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
@@ -117,25 +115,24 @@ Page {
                     else {
                         if(myPlayer.mediaState != MediaState.Started) {
                             appContainer.playMediaPlayer();
-                            screenPlayImage.setOpacity(0.5)
-                            screenPauseImage.setOpacity(0)
-                            screenPlayImageTimer.start()
+                            screenPlayImage.setOpacity(0.5);
+                            screenPauseImage.setOpacity(0);
+                            screenPlayImageTimer.start();
                         } else {
                             appContainer.pauseMediaPlayer();
-                            screenPauseImage.setOpacity(0.5)
-                            screenPlayImage.setOpacity(0)
-                            screenPauseImageTimer.start()
+                            screenPauseImage.setOpacity(0.5);
+                            screenPlayImage.setOpacity(0);
+                            screenPauseImageTimer.start();
                         }
                     }
-            }
-            else if (event.touchType == TouchType.Move) {
-                if (videoWindow.scaleX > 1.0) { 
-                    appContainer.moveX(event.localX);	
+            } else if (event.touchType == TouchType.Move) {
+                if (videoWindow.scaleX > 1.0) {
+                    appContainer.moveX(event.localX);
                     appContainer.moveY(event.localY);
-                }	
+                }
             }
         }// onTouch
-        
+
         VideoListScrollBar {
             id: videoListScrollBar
             horizontalAlignment: HorizontalAlignment.Center
@@ -584,6 +581,10 @@ Page {
                        // Application is maximized. Started playing the stopped video
                        appContainer.playMediaPlayer();
                    }
+               }
+
+               onShowVideoScrollBar: {
+                   videoListScrollBar.visible = true;
                }
            },
 

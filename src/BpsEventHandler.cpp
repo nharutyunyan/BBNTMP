@@ -19,6 +19,7 @@ BpsEventHandler::BpsEventHandler(QObject* parent)
     subscribe(audiomixer_get_domain());
     bps_initialize();
     navigator_request_events(0);
+    navigator_stop_swipe_start();
     audiomixer_request_events(0);
 }
 
@@ -33,6 +34,11 @@ void BpsEventHandler::event( bps_event_t *event )
     // handle navigator events
     if (domain == navigator_get_domain())
     {
+    	if(NAVIGATOR_SWIPE_DOWN == bps_event_get_code(event))
+    	{
+    		emit showVideoScrollBar();
+    	}
+
     	int code = navigator_event_get_window_state(event);
     	switch(code)
     	{
