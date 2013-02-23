@@ -72,16 +72,13 @@ Page {
             else if (event.touchType == TouchType.Up)
             {
                 if ((appContainer.touchPositionX  > event.localX + 30) ||
-                    (appContainer.touchPositionX + 30  < event.localX) && 
-                    ((appContainer.touchPositionY - event.localY <= 10) ||
-                    (event.localY - appContainer.touchPositionY <= 10))) { 
-                        if (videoWindow.scaleX <= 1.0) 
-                        {
+                    (appContainer.touchPositionX + 30  < event.localX)) {
+                        if (videoWindow.scaleX <= 1.0) {
                             videoWindow.translationX = 0;
                             videoWindow.translationY = 0;
                             contentContainer.startingX = 0;
                             contentContainer.startingY = 0;
-                            if (appContainer.touchPositionX > event.localX + 30) {
+                            if (appContainer.touchPositionX >= event.localX + 500) {
                                 appContainer.changeVideoPosition = true;
                                 if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
                                     appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
@@ -90,7 +87,7 @@ Page {
                                     myPlayer.pause();
                                 }
                             }
-                            else if (appContainer.touchPositionX + 30  < event.localX) {
+                            else if (appContainer.touchPositionX + 500  < event.localX) {
                                 appContainer.changeVideoPosition = true;
                                 appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
                             }
@@ -248,12 +245,11 @@ Page {
                             onEnded: {
                                 if (myPlayer.mediaState == MediaState.Paused) {
                                     appContainer.videoTitleVisible = true;
-                                    
                                 } else {
                                     titleDisappearOpacityAnimation.play()
                                     titleDisappearAnimation.play()
                                 }
-                            } 
+                            }
                         },
                         TranslateTransition {
                             id: titleDisappearAnimation
