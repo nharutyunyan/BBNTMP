@@ -47,6 +47,9 @@ Page {
         property double curVolume: bpsEventHandler.getVolume();
 
         property bool videoTitleVisible : false
+        property int touchDistanceAgainstMode: 0;    // This is used to have 2 different distances between the point tounched
+                                                     // and the point released. This is needed for differentiation of 
+                                                     // gestures handling for "zoom out" and "seek 5 seconds" 
 
         onTouch: {
             if (event.touchType == TouchType.Down)
@@ -71,26 +74,35 @@ Page {
             }
             else if (event.touchType == TouchType.Up)
             {
-                if ((appContainer.touchPositionX  > event.localX + 30) ||
-                    (appContainer.touchPositionX + 30  < event.localX)) {
+                if ((appContainer.touchPositionX > event.localX + 30) ||
+                    (appContainer.touchPositionX + 30 < event.localX)) {
                         if (videoWindow.scaleX <= 1.0) {
                             videoWindow.translationX = 0;
                             videoWindow.translationY = 0;
                             contentContainer.startingX = 0;
                             contentContainer.startingY = 0;
-                            if (appContainer.touchPositionX >= event.localX + 500) {
+                            // TODO: probably we could use the application container size
+                            // to calculate the magic numbers below by the percentage
+                            if(OrientationSupport.orientation == UIOrientation.Portrait){
+                                touchDistanceAgainstMode = 500;
+                            }
+                            else {
+                                touchDistanceAgainstMode = 900;
+                            }
+                            if (appContainer.touchPositionX >= event.localX + touchDistanceAgainstMode) {
                                 appContainer.changeVideoPosition = true;
-                                if (durationSlider.immediateValue + (5 * 1000)  < durationSlider.toValue) {
+                                if (durationSlider.immediateValue + (5 * 1000) < durationSlider.toValue) {
                                     appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
                                 } else {
                                     appContainer.seekPlayer(durationSlider.toValue);
                                     myPlayer.pause();
                                 }
                             }
-                            else if (appContainer.touchPositionX + 500  < event.localX) {
+                            else if (appContainer.touchPositionX + touchDistanceAgainstMode < event.localX) {
                                 appContainer.changeVideoPosition = true;
                                 appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
-                            }
+                           }
+
                             appContainer.changeVideoPosition = false;
                         }
                     }
@@ -350,7 +362,8 @@ Page {
                         if (videoWindow.newScaleVal < 1) {
                             videoWindow.newScaleVal = 1;
                         }
-                        if (videoWindow.newScaleVal < appContainer.maxScreenScale && videoWindow.newScaleVal > appContainer.minScreenScale) {
+                        if (videoWindow.newScaleVal < appContainer.maxScreenScale &&
+                            videoWindow.newScaleVal > appContainer.minScreenScale) {
                             videoWindow.scaleX = videoWindow.newScaleVal;
                             videoWindow.scaleY = videoWindow.newScaleVal;
                             videoWindow.translationX = 0;
@@ -358,19 +371,28 @@ Page {
                         }
                     } // onPinchUpdate
                     onPinchEnded: {
-                        appContainer.endPinchDistance = event.distance;
-                        appContainer.endMidPointXPinch = event.midPointX;
-                        if ((appContainer.startPinchDistance / appContainer.endPinchDistance > appContainer.minPinchPercentFactor) && (appContainer.startPinchDistance / appContainer.endPinchDistance < appContainer.maxPinchPercentFactor)) {
-                            if (appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
-                                myPlayer.setSourceUrl(infoListModel.getNextVideoPath());
-                                myPlayer.play();
-                            } else {
-                                myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath());
-                                myPlayer.play();
+                        appContainer.pinchEnded = true;
+                        if(videoWindow.initialScale <= appContainer.initialScreenScale + 0.1)
+                        {
+                            appContainer.endPinchDistance = event.distance;
+                            appContainer.endMidPointXPinch = event.midPointX;
+                            if ((appContainer.startPinchDistance / appContainer.endPinchDistance > appContainer.minPinchPercentFactor) &&
+                                (appContainer.startPinchDistance / appContainer.endPinchDistance < appContainer.maxPinchPercentFactor)) {
+                                console.log("need this value: " + appContainer.startMidPointXPinch + "another value: " + event.midPointX);
+                                if (appContainer.startMidPointXPinch > event.midPointX + 200 ||
+                                    appContainer.startMidPointXPinch + 200 < event.midPointX) {
+                                        if(appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
+                                            myPlayer.setSourceUrl(infoListModel.getNextVideoPath());
+                                            myPlayer.play();
+                                        } else if (event.midPointX - appContainer.startMidPointXPinch > 50){
+                                            myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath());
+                                            myPlayer.play();
+                                        }
+                                }
                             }
                         }
-                    } // PinchHandler
-                }
+                    } // onPinchEnded
+                } // PinchHandler
             ] // attachedObjects
 
             // Play image is transparent. It will become visible when the video
