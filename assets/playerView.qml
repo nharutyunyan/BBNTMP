@@ -371,7 +371,6 @@ Page {
                         }
                     } // onPinchUpdate
                     onPinchEnded: {
-                        appContainer.pinchEnded = true;
                         if(videoWindow.initialScale <= appContainer.initialScreenScale + 0.1)
                         {
                             appContainer.endPinchDistance = event.distance;
@@ -384,7 +383,7 @@ Page {
                                         if(appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
                                             myPlayer.setSourceUrl(infoListModel.getNextVideoPath());
                                             myPlayer.play();
-                                        } else if (event.midPointX - appContainer.startMidPointXPinch > 50){
+                                        } else {
                                             myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath());
                                             myPlayer.play();
                                         }
