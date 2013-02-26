@@ -29,7 +29,6 @@ Page {
 
         property int touchPositionX: 0
         property int touchPositionY: 0
-        property bool playerStarted: false
 
         property double minScreenScale: 0.5        //THIS IS THE MINIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
         property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
@@ -38,13 +37,12 @@ Page {
                                                    // They both start with the same value but the "initialScale" value is different for every new pinch 
         property double currentTranslation;
         property double startPinchDistance:0.0;
-
         property double endPinchDistance:0.0;
 
         property double startMidPointXPinch:0.0;
         property double endMidPointXPinch:0.0;
 
-        property double curVolume: bpsEventHandler.getVolume();
+        property double curVolume: bpsEventHandler.getVolume();    // system speaker volume current value
 
         property bool videoTitleVisible : false
         property int touchDistanceAgainstMode: 0;    // This is used to have 2 different distances between the point tounched
@@ -52,25 +50,23 @@ Page {
                                                      // gestures handling for "zoom out" and "seek 5 seconds" 
 
         onTouch: {
-            if (event.touchType == TouchType.Down)
-            {
-                if(event.localY > 100) {
+            if (event.touchType == TouchType.Down) {
+                if(event.localY > 180) {
                     videoListScrollBar.visible = false;
-                    videoListScrollBarLandscape.visible = false;
+                    videoTitleContainer.visible = false;
+                    if (! appContainer.videoTitleVisible) {
+                        titleAppearAnimation.play();
+                        titleAppearOpacityAnimation.play();
+                    } else {
+                        titleDisappearAnimation.play();
+                        titleDisappearOpacityAnimation.play();
+                        appContainer.videoTitleVisible = false;
+                    }
                 }
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
                 contentContainer.startingX = videoWindow.translationX;
                 contentContainer.startingY = videoWindow.translationY;
-                
-                if (! appContainer.videoTitleVisible) {
-                    titleAppearAnimation.play();
-                    titleAppearOpacityAnimation.play();
-                } else {
-                    titleDisappearAnimation.play();
-                    titleDisappearOpacityAnimation.play();
-                    appContainer.videoTitleVisible = false;
-                }
             }
             else if (event.touchType == TouchType.Up)
             {
@@ -102,7 +98,6 @@ Page {
                                 appContainer.changeVideoPosition = true;
                                 appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
                            }
-
                             appContainer.changeVideoPosition = false;
                         }
                     }
@@ -143,27 +138,6 @@ Page {
             }
         }// onTouch
 
-        // Video list scroll bar for Portrait mode
-        VideoListScrollBar {
-            id: videoListScrollBar
-            horizontalAlignment: HorizontalAlignment.Center
-            overlapTouchPolicy: OverlapTouchPolicy.Allow
-            visible: false
-            onVideoSelected: {
-                console.log("selected item PATH == " + item.path);
-                myPlayer.stop()
-                myPlayer.setSourceUrl(item.path);
-                if (appContainer.playMediaPlayer() == MediaError.None) {
-                    videoWindow.visible = true;
-                    contentContainer.visible = true;
-                    durationSlider.resetValue();
-                    durationSlider.setEnabled(true)
-                    subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-                    trackTimer.start();
-                }
-            }
-        }// videoListScrollBar
-
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -171,140 +145,50 @@ Page {
 
             layout: DockLayout {}
 
-	        preferredWidth:  appContainer.width
-	        preferredHeight: appContainer.height 
+            preferredWidth:  appContainer.width
+            preferredHeight: appContainer.height 
 
-	        property int startingX
-	        property int startingY  
+            property int startingX
+            property int startingY  
 
            Container {
                layout: AbsoluteLayout {
                            }
-	       ForeignWindowControl {
+           ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
                 windowId: "VideoWindow"
 
-	            layoutProperties: AbsoluteLayoutProperties {
-	            }
-	            property double initialScale: appContainer.initialScreenScale
+                layoutProperties: AbsoluteLayoutProperties {
+                }
+                property double initialScale: appContainer.initialScreenScale
 
-	           // This custom property determines how quickly the ForeignWindow grows
+               // This custom property determines how quickly the ForeignWindow grows
                // or shrinks in response to the pinch gesture
                property double scaleFactor: 0.5
 
                // Temporary variable, used in computation for pinching everytime
                property double newScaleVal
 
-				gestureHandlers: [
-				]
+                gestureHandlers: [
+                ]
 
-	            preferredWidth:  appContainer.landscapeWidth
-	            preferredHeight: appContainer.landscapeHeight 
+                preferredWidth:  appContainer.landscapeWidth
+                preferredHeight: appContainer.landscapeHeight 
 
-	            visible:  boundToWindow
-	            updatedProperties:// WindowProperty.SourceSize | 
-	                WindowProperty.Size |
-	                WindowProperty.Position |
-	                WindowProperty.Visible
+                visible:  boundToWindow
+                updatedProperties:// WindowProperty.SourceSize | 
+                    WindowProperty.Size |
+                    WindowProperty.Position |
+                    WindowProperty.Visible
 
-	            onVisibleChanged: {
-	                console.log("foreignwindow visible = " + visible);
-	            }
-	            onBoundToWindowChanged: {
-	                console.log("VideoWindow bound to mediaplayer!");
-	            }
-	        } //videoWindow
-
-            // Video list scroll bar for Landscape mode
-            Container {
-                VideoListScrollBar {
-                    id: videoListScrollBarLandscape
-                    horizontalAlignment: HorizontalAlignment.Center
-                    overlapTouchPolicy: OverlapTouchPolicy.Allow
-                    visible: false
-                    onVideoSelected: {
-                        console.log("selected item PATH == " + item.path);
-                        myPlayer.stop()
-                        myPlayer.setSourceUrl(item.path);
-                        if (appContainer.playMediaPlayer() == MediaError.None) {
-                            videoWindow.visible = true;
-                            contentContainer.visible = true;
-                            durationSlider.resetValue();
-                            durationSlider.setEnabled(true)
-                            subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
-                            trackTimer.start();
-                        }
-                    }
-                }// videoListScrollBar
-
-                // title of the video
-                Container {
-                    id: videoTitleContainer
-                    background: backgroundPaint.imagePaint
-                    preferredWidth: contentContainer.preferredWidth
-                    horizontalAlignment: HorizontalAlignment.Center
-                    layout: DockLayout {
-                    }
-                    animations: [
-                        
-                        TranslateTransition {
-                            id: titleAppearAnimation
-                            duration: 800
-                            easingCurve: StockCurve.CubicOut
-                            fromY: -50
-                            toY: 0
-                            onEnded: {
-                                if (myPlayer.mediaState == MediaState.Paused) {
-                                    appContainer.videoTitleVisible = true;
-                                } else {
-                                    titleDisappearOpacityAnimation.play()
-                                    titleDisappearAnimation.play()
-                                }
-                            }
-                        },
-                        TranslateTransition {
-                            id: titleDisappearAnimation
-                            duration: 800
-                            delay: 2000
-                            easingCurve: StockCurve.CubicOut
-                            toY: -50
-                        },
-                        FadeTransition {
-                            id: titleDisappearOpacityAnimation
-                            duration: 800
-                            delay: 2000
-                            easingCurve: StockCurve.CubicOut
-                            toOpacity: 0.0
-                        },
-                        FadeTransition {
-                            id: titleAppearOpacityAnimation
-                            duration: 800
-                            easingCurve: StockCurve.CubicOut
-                            toOpacity: 1.0
-                        }
-                    ]
-                    Label {
-                        id: videoTitle
-                        text: infoListModel.getVideoTitle()
-                        textStyle.color: Color.White
-                        textStyle.textAlign: TextAlign.Center
-                        maxWidth: handler.layoutFrame.width * 0.8
-                        verticalAlignment: VerticalAlignment.Center
-                        horizontalAlignment: HorizontalAlignment.Center
-                        textStyle.fontStyle: FontStyle.Italic
-                    }
-                    attachedObjects: [
-                        ImagePaintDefinition {
-                            id: backgroundPaint
-                            imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
-                        },
-                        LayoutUpdateHandler {
-                            id: handler
-                        }
-                    ]
-                } // videoTitleContainer
-            }
+                onVisibleChanged: {
+                    console.log("foreignwindow visible = " + visible);
+                }
+                onBoundToWindowChanged: {
+                    console.log("VideoWindow bound to mediaplayer!");
+                }
+            } //videoWindow
 
             //Subtitle area
             Container {
@@ -377,7 +261,6 @@ Page {
                             appContainer.endMidPointXPinch = event.midPointX;
                             if ((appContainer.startPinchDistance / appContainer.endPinchDistance > appContainer.minPinchPercentFactor) &&
                                 (appContainer.startPinchDistance / appContainer.endPinchDistance < appContainer.maxPinchPercentFactor)) {
-                                console.log("need this value: " + appContainer.startMidPointXPinch + "another value: " + event.midPointX);
                                 if (appContainer.startMidPointXPinch > event.midPointX + 200 ||
                                     appContainer.startMidPointXPinch + 200 < event.midPointX) {
                                         if(appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
@@ -418,7 +301,101 @@ Page {
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
             }
 
-        }//contentContainer
+        }//contentContainer
+
+        // Video list scroll bar for Portrait mode
+        Container {
+            layout: StackLayout {
+                orientation: LayoutOrientation.TopToBottom
+            }
+            // Video list scroll bar for Portrait mode
+            VideoListScrollBar {
+                id: videoListScrollBar
+                horizontalAlignment: HorizontalAlignment.Center
+                overlapTouchPolicy: OverlapTouchPolicy.Allow
+                visible: false
+                onVideoSelected: {
+                    console.log("selected item PATH == " + item.path);
+                    myPlayer.stop()
+                    myPlayer.setSourceUrl(item.path);
+                    if (appContainer.playMediaPlayer() == MediaError.None) {
+                        videoWindow.visible = true;
+                        contentContainer.visible = true;
+                        durationSlider.resetValue();
+                        durationSlider.setEnabled(true)
+                        subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                        trackTimer.start();
+                    }
+                }
+            }// videoListScrollBar
+
+            // title of the video
+            Container {
+                id: videoTitleContainer
+                background: backgroundPaint.imagePaint
+                preferredWidth: 500
+                horizontalAlignment: HorizontalAlignment.Center
+                layout: DockLayout {
+                }
+                animations: [
+                    TranslateTransition {
+                        id: titleAppearAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        fromY: -50
+                        toY: 0
+                        onEnded: {
+                            if (myPlayer.mediaState == MediaState.Paused) {
+                                appContainer.videoTitleVisible = true;
+                            } else {
+                                titleDisappearOpacityAnimation.play()
+                                titleDisappearAnimation.play()
+                            }
+                        }
+                    },
+                    TranslateTransition {
+                        id: titleDisappearAnimation
+                        duration: 800
+                        delay: 4000
+                        easingCurve: StockCurve.CubicOut
+                        toY: -50
+                    },
+                    FadeTransition {
+                        id: titleDisappearOpacityAnimation
+                        duration: 800
+                        delay: 4000
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 0.0
+                    },
+                    FadeTransition {
+                        id: titleAppearOpacityAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        toOpacity: 1.0
+                    }
+                ]
+                Label {
+                    id: videoTitle
+                    text: infoListModel.getVideoTitle()
+                    textStyle.color: Color.White
+                    textStyle.textAlign: TextAlign.Center
+                    maxWidth: handler.layoutFrame.width * 0.8
+                    verticalAlignment: VerticalAlignment.Center
+                    horizontalAlignment: HorizontalAlignment.Center
+                    textStyle.fontStyle: FontStyle.Italic
+                }
+                attachedObjects: [
+                    ImagePaintDefinition {
+                        id: backgroundPaint
+                        imageSource: "asset:///images/Untitled.png" //TODO: put the real picture
+                    },
+                    LayoutUpdateHandler {
+                        id: handler
+                    }
+                ]
+            } // videoTitleContainer
+        }
+
         Container {
             id: controlsContainer
             layout: StackLayout {
@@ -623,11 +600,15 @@ Page {
                }
 
                onShowVideoScrollBar: {
-                   if(OrientationSupport.orientation == UIOrientation.Portrait) {
-                       videoListScrollBar.visible = true;
-                   }
-                   else {
-                       videoListScrollBarLandscape.visible = true;
+                   videoListScrollBar.visible = true;
+                   videoTitleContainer.visible = true;
+                   if (! appContainer.videoTitleVisible) {
+                       titleAppearAnimation.play();
+                       titleAppearOpacityAnimation.play();
+                   } else {
+                       titleDisappearAnimation.play();
+                       titleDisappearOpacityAnimation.play();
+                       appContainer.videoTitleVisible = false;
                    }
                }
            },
@@ -640,21 +621,21 @@ Page {
                    if(myPlayer.mediaState == MediaState.Started) {
                        appContainer.pauseMediaPlayer();
                    }
-	               else if(myPlayer.mediaState == MediaState.Paused) {
-	                   appContainer.playMediaPlayer();
-	                   }
-	                   else {
-	                       console.log("CURRENT VIDEO PATH")
-	                       console.log(mycppPlayer.getVideoPath())
-	                       myPlayer.setSourceUrl(mycppPlayer.getVideoPath())
-	                       if (appContainer.playMediaPlayer() == MediaError.None) {
-	                           videoWindow.visible = true;
-	                           contentContainer.visible = true;
-	                           durationSlider.setEnabled(true)
-	                           durationSlider.resetValue()
-	                           trackTimer.start();
-	                        }
-	                    }
+                   else if(myPlayer.mediaState == MediaState.Paused) {
+                       appContainer.playMediaPlayer();
+                       }
+                       else {
+                           console.log("CURRENT VIDEO PATH")
+                           console.log(mycppPlayer.getVideoPath())
+                           myPlayer.setSourceUrl(mycppPlayer.getVideoPath())
+                           if (appContainer.playMediaPlayer() == MediaError.None) {
+                               videoWindow.visible = true;
+                               contentContainer.visible = true;
+                               durationSlider.setEnabled(true)
+                               durationSlider.resetValue()
+                               trackTimer.start();
+                            }
+                        }
                      }
             },
 
@@ -664,10 +645,10 @@ Page {
                property int videoCurrentPos:0 //to track position changes on media player.
                interval: 5
                onTimeout: {
-		           if(myPlayer.mediaState == MediaState.Started) {
-		               appContainer.changeVideoPosition = false;
-		               myPlayer.positionInMsecs += 5;
-		               //Sync every time when myPlayer.position changed: i.e. one time per second
+                   if(myPlayer.mediaState == MediaState.Started) {
+                       appContainer.changeVideoPosition = false;
+                       myPlayer.positionInMsecs += 5;
+                       //Sync every time when myPlayer.position changed: i.e. one time per second
                        if(videoCurrentPos != myPlayer.position) {
                            videoCurrentPos = myPlayer.position;
                            myPlayer.positionInMsecs = myPlayer.position;
@@ -697,7 +678,7 @@ Page {
                onTimeout: {
                    screenPlayImage.setOpacity(0)
                    screenPlayImageTimer.stop()
-		       }
+               }
            },
 
            QTimer {
@@ -707,7 +688,7 @@ Page {
                onTimeout: {
                    screenPauseImage.setOpacity(0)
                    screenPauseImageTimer.stop()
-		       }
+               }
            },
 
            OrientationHandler {
@@ -734,12 +715,12 @@ Page {
 
         ] // Attached objects.
 
-	    onCreationCompleted: {
-	        OrientationSupport.supportedDisplayOrientation =
-	            SupportedDisplayOrientation.All;
-	        // centre the videosurface
-	        videoWindow.translationY = 0;
-	        videoWindow.translationX = 0;
+        onCreationCompleted: {
+            OrientationSupport.supportedDisplayOrientation =
+                SupportedDisplayOrientation.All;
+            // centre the videosurface
+            videoWindow.translationY = 0;
+            videoWindow.translationX = 0;
             if (OrientationSupport.orientation == UIOrientation.Landscape) {
                 videoWindow.preferredWidth = appContainer.landscapeWidth
                 videoWindow.preferredHeight = appContainer.landscapeHeight
@@ -765,6 +746,7 @@ Page {
                 appContainer.changeVideoPosition = true;
                 trackTimer.start();
             }
+            videoTitleContainer.visible = false;
         }
     }//appContainer
 }// Page
