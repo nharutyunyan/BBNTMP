@@ -51,18 +51,6 @@ Page {
 
         onTouch: {
             if (event.touchType == TouchType.Down) {
-                if(event.localY > 180) {
-                    videoListScrollBar.visible = false;
-                    videoTitleContainer.visible = false;
-                    if (! appContainer.videoTitleVisible) {
-                        titleAppearAnimation.play();
-                        titleAppearOpacityAnimation.play();
-                    } else {
-                        titleDisappearAnimation.play();
-                        titleDisappearOpacityAnimation.play();
-                        appContainer.videoTitleVisible = false;
-                    }
-                }
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
                 contentContainer.startingX = videoWindow.translationX;
@@ -129,6 +117,14 @@ Page {
                             screenPlayImage.setOpacity(0);
                             screenPauseImageTimer.start();
                         }
+                    }
+                    if(event.localY > 180 && videoListScrollBar.visible) {
+                        videoListScrollBar.visible = false;
+                    }
+                    else {
+                        videoTitleContainer.setOpacity(1);
+                        controlsContainer.setOpacity(1);
+                        uiControlsShowTimer.start();
                     }
             } else if (event.touchType == TouchType.Move) {
                 if (videoWindow.scaleX > 1.0) {
@@ -333,47 +329,49 @@ Page {
             Container {
                 id: videoTitleContainer
                 background: backgroundPaint.imagePaint
-                preferredWidth: 500
+                preferredWidth: 1500
                 horizontalAlignment: HorizontalAlignment.Center
+                opacity: 0
                 layout: DockLayout {
                 }
-                animations: [
-                    TranslateTransition {
-                        id: titleAppearAnimation
-                        duration: 800
-                        easingCurve: StockCurve.CubicOut
-                        fromY: -50
-                        toY: 0
-                        onEnded: {
-                            if (myPlayer.mediaState == MediaState.Paused) {
-                                appContainer.videoTitleVisible = true;
-                            } else {
-                                titleDisappearOpacityAnimation.play()
-                                titleDisappearAnimation.play()
-                            }
-                        }
-                    },
-                    TranslateTransition {
-                        id: titleDisappearAnimation
-                        duration: 800
-                        delay: 4000
-                        easingCurve: StockCurve.CubicOut
-                        toY: -50
-                    },
-                    FadeTransition {
-                        id: titleDisappearOpacityAnimation
-                        duration: 800
-                        delay: 4000
-                        easingCurve: StockCurve.CubicOut
-                        toOpacity: 0.0
-                    },
-                    FadeTransition {
-                        id: titleAppearOpacityAnimation
-                        duration: 800
-                        easingCurve: StockCurve.CubicOut
-                        toOpacity: 1.0
-                    }
-                ]
+                // This part of code is commented our for now in case we need it in the feature
+//                animations: [
+//                    TranslateTransition {
+//                        id: titleAppearAnimation
+//                        duration: 800
+//                        easingCurve: StockCurve.CubicOut
+//                        fromY: -50
+//                        toY: 0
+//                        onEnded: {
+//                            if (myPlayer.mediaState == MediaState.Paused) {
+//                                appContainer.videoTitleVisible = true;
+//                            } else {
+//                                titleDisappearOpacityAnimation.play()
+//                                titleDisappearAnimation.play()
+//                            }
+//                        }
+//                    },
+//                    TranslateTransition {
+//                        id: titleDisappearAnimation
+//                        duration: 800
+//                        delay: 4000
+//                        easingCurve: StockCurve.CubicOut
+//                        toY: -50
+//                    },
+//                    FadeTransition {
+//                        id: titleDisappearOpacityAnimation
+//                        duration: 800
+//                        delay: 4000
+//                        easingCurve: StockCurve.CubicOut
+//                        toOpacity: 0.0
+//                    },
+//                    FadeTransition {
+//                        id: titleAppearOpacityAnimation
+//                        duration: 800
+//                        easingCurve: StockCurve.CubicOut
+//                        toOpacity: 1.0
+//                    }
+//                ]
                 Label {
                     id: videoTitle
                     text: infoListModel.getVideoTitle()
@@ -398,6 +396,7 @@ Page {
 
         Container {
             id: controlsContainer
+            opacity: 0
             layout: StackLayout {
                 orientation: LayoutOrientation.TopToBottom
             }
@@ -570,6 +569,9 @@ Page {
                }
                onDurationChanged: {
                    durationSlider.toValue = duration;
+                   // If the duration is changes, it means the video to play is changes.
+                   // So update the video title on the UI as well
+                   videoTitle.text = infoListModel.getVideoTitle();
                }
 
                // Investigate how the metadata can be retrieved without playing the video.
@@ -601,15 +603,6 @@ Page {
 
                onShowVideoScrollBar: {
                    videoListScrollBar.visible = true;
-                   videoTitleContainer.visible = true;
-                   if (! appContainer.videoTitleVisible) {
-                       titleAppearAnimation.play();
-                       titleAppearOpacityAnimation.play();
-                   } else {
-                       titleDisappearAnimation.play();
-                       titleDisappearOpacityAnimation.play();
-                       appContainer.videoTitleVisible = false;
-                   }
                }
            },
 
@@ -691,6 +684,17 @@ Page {
                }
            },
 
+           QTimer {
+               id: uiControlsShowTimer
+               singleShot: true
+               interval: 3000
+               onTimeout: {
+                   videoTitleContainer.setOpacity(0);
+                   controlsContainer.setOpacity(0);
+                   uiControlsShowTimer.stop();
+               }
+           },
+
            OrientationHandler {
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
@@ -746,7 +750,9 @@ Page {
                 appContainer.changeVideoPosition = true;
                 trackTimer.start();
             }
-            videoTitleContainer.visible = false;
+            videoTitleContainer.setOpacity(1);
+            controlsContainer.setOpacity(1);
+            uiControlsShowTimer.start();
         }
     }//appContainer
 }// Page
