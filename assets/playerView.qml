@@ -44,10 +44,11 @@ Page {
 
         property double curVolume: bpsEventHandler.getVolume();    // system speaker volume current value
 
-        property bool videoTitleVisible : false
+//        property bool videoTitleVisible : false
         property int touchDistanceAgainstMode: 0;    // This is used to have 2 different distances between the point tounched
                                                      // and the point released. This is needed for differentiation of 
                                                      // gestures handling for "zoom out" and "seek 5 seconds" 
+        property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
 
         onTouch: {
             if (event.touchType == TouchType.Down) {
@@ -118,8 +119,8 @@ Page {
                             }
                         }
                     }
-                    if(event.localY > 180 && videoListScrollBar.visible) {
-                        videoListScrollBar.visible = false;
+                    if(event.localY > 180 && videoListScrollBar.visible && !appContainer.videoScrollBarIsClosing) {
+                        videoListDisappearAnimation.play();
                     }
                     else {
                         videoTitleContainer.setOpacity(1);
@@ -323,6 +324,30 @@ Page {
                         trackTimer.start();
                     }
                 }
+
+                animations: [
+                    TranslateTransition {
+                        id: videoListAppearAnimation
+                        duration: 800
+                        easingCurve: StockCurve.CubicOut
+                        fromY: -100
+                        toY: 0
+                    },
+                    TranslateTransition {
+                        id: videoListDisappearAnimation
+                        duration: 600
+                        easingCurve: StockCurve.ExponentialIn
+                        fromY: 0
+                        toY: -150
+                        onStarted: {
+                            appContainer.videoScrollBarIsClosing = true;
+                            }
+                        onEnded: {
+                            appContainer.videoScrollBarIsClosing = false;
+                            videoListScrollBar.visible = false;
+                        }
+                    }
+                ]
             }// videoListScrollBar
 
             // title of the video
@@ -623,6 +648,7 @@ Page {
                }
 
                onShowVideoScrollBar: {
+                   videoListAppearAnimation.play();
                    videoListScrollBar.visible = true;
                }
            },
@@ -710,9 +736,13 @@ Page {
                singleShot: true
                interval: 3000
                onTimeout: {
+                   if(durationSlider.onSlider) {
+                       uiControlsShowTimer.start();
+                   } else {
                    videoTitleContainer.setOpacity(0);
                    controlsContainer.setOpacity(0);
                    uiControlsShowTimer.stop();
+                   }
                }
            },
 
@@ -722,18 +752,10 @@ Page {
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                       if(videoListScrollBar.visible) {
-                           videoListScrollBarLandscape.visible = true;
-                       }
-                       videoListScrollBar.visible = false;
                    } else {
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                       if(videoListScrollBarLandscape.visible) {
-                           videoListScrollBar.visible = true;
-                       }
-                       videoListScrollBarLandscape.visible = false;
                    }
                }
            }
