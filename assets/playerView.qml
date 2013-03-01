@@ -106,16 +106,16 @@ Page {
                         }
                     }
                     else {
-                        if(myPlayer.mediaState != MediaState.Started) {
-                            appContainer.playMediaPlayer();
-                            screenPlayImage.setOpacity(0.5);
-                            screenPauseImage.setOpacity(0);
-                            screenPlayImageTimer.start();
+                        if(OrientationSupport.orientation == UIOrientation.Portrait) {
+                            if (event.localY > appContainer.landscapeWidth * 0.3 &&
+                                event.localY < appContainer.landscapeWidth * 0.7) {
+                                    appContainer.showPlayPauseButton();
+                            }
                         } else {
-                            appContainer.pauseMediaPlayer();
-                            screenPauseImage.setOpacity(0.5);
-                            screenPlayImage.setOpacity(0);
-                            screenPauseImageTimer.start();
+                            if (event.localY > appContainer.landscapeHeight * 0.3 &&
+                                event.localY < appContainer.landscapeHeight * 0.6) {
+                                    appContainer.showPlayPauseButton();
+                            }
                         }
                     }
                     if(event.localY > 180 && videoListScrollBar.visible) {
@@ -456,10 +456,9 @@ Page {
                 ImageButton {
                     id:backButton
                     defaultImageSource: "asset:///images/back.png"
-                    
+
                     onClicked:{
                         infoListModel.setVideoPosition(myPlayer.position);
-                        myPlayer.stop();
                         appContainer.curVolume = bpsEventHandler.getVolume();
                         navigationPane.pop();
                         pgPlayer.destroy();
@@ -536,6 +535,20 @@ Page {
             appContainer.changeVideoPosition = false;
         }
 
+        function showPlayPauseButton() {
+            if(myPlayer.mediaState != MediaState.Started) {
+                appContainer.playMediaPlayer();
+                screenPlayImage.setOpacity(0.5);
+                screenPauseImage.setOpacity(0);
+                screenPlayImageTimer.start();
+            } else {
+                appContainer.pauseMediaPlayer();
+                screenPauseImage.setOpacity(0.5);
+                screenPlayImage.setOpacity(0);
+                screenPauseImageTimer.start();
+            }
+        }
+
         attachedObjects: [
             Sheet {
                 id: videoSheet
@@ -582,6 +595,14 @@ Page {
                     console.log("-----------------------------sample_rate=" + myPlayer.metaData.sample_rate);
                     console.log("-----------------------------------title=" + myPlayer.metaData.title);
                 }
+
+               onMediaStateChanged: {
+                   if(myPlayer.mediaState == MediaState.Stopped) {
+                       appContainer.curVolume = bpsEventHandler.getVolume();
+                       navigationPane.pop();
+                       pgPlayer.destroy();
+                   }
+               }
            },
 
            SubtitleManager {
