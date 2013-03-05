@@ -9,6 +9,7 @@ Container {
     property real value
     property real fromValue: 0
     property real toValue: 1
+    property bool onSlider : false
 
     preferredWidth: my.width
     horizontalAlignment: HorizontalAlignment.Fill
@@ -53,6 +54,7 @@ Container {
         }
 
         onHandleLongPressed: {
+            onSlider = true;
             if(slider.toValue > my.minTime) {
                 smallStepSlider.visible = true;
                 smallStepSlider.value = slider.value;
@@ -85,6 +87,7 @@ Container {
         }
 
         onHandleReleased: {
+            onSlider = false;
             my.handlLongPressed = false;
             smallStepSlider.visible = false;
         }
@@ -95,6 +98,10 @@ Container {
 
         onValueChanged: {
             slideBar.value = value;
+        }
+
+        onDraggingChanged: {
+            onSlider = dragging;
         }
     }
 
