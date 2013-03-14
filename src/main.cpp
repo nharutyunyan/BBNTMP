@@ -29,14 +29,16 @@ using namespace exceptions;
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     //Lets keep this commented, since it affects the performance.
-  //  fprintf(stdout, "%s\n", msg);
-  //  fflush(stdout);
+    //fprintf(stdout, "%s\n", msg);
+    //fflush(stdout);
 }
 
 int main(int argc, char **argv)
 {
     Application app(argc, argv);
+#ifndef QT_NO_DEBUG
     qInstallMsgHandler(myMessageOutput);
+#endif
     qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
     qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
     qmlRegisterType<BpsEventHandler>("bpsEventHandler", 1, 0, "BpsEventHandler");

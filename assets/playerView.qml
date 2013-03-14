@@ -125,6 +125,7 @@ Page {
                     else {
                         videoTitleContainer.setOpacity(1);
                         controlsContainer.setOpacity(1);
+                        controlsContainer.setVisible(true);
                         uiControlsShowTimer.start();
                     }
             } else if (event.touchType == TouchType.Move) {
@@ -422,6 +423,8 @@ Page {
         Container {
             id: controlsContainer
             opacity: 0
+            visible: true
+            enabled: true
             layout: StackLayout {
                 orientation: LayoutOrientation.TopToBottom
             }
@@ -452,6 +455,7 @@ Page {
                         spaceQuota: 1
                     }
                     onImmediateValueChanged: {
+                        console.log("onImmediateValueChanged");
                         if(myPlayer.mediaState == MediaState.Started ||
                             myPlayer.mediaState == MediaState.Paused) {
                             if(appContainer.changeVideoPosition == true && immediateValue != value) {
@@ -741,6 +745,7 @@ Page {
                    } else {
                    videoTitleContainer.setOpacity(0);
                    controlsContainer.setOpacity(0);
+                   controlsContainer.setVisible(false);
                    uiControlsShowTimer.stop();
                    }
                }
@@ -795,6 +800,7 @@ Page {
             }
             videoTitleContainer.setOpacity(1);
             controlsContainer.setOpacity(1);
+            controlsContainer.setVisible(true);
             uiControlsShowTimer.start();
         }
     }//appContainer
