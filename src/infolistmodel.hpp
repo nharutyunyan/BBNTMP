@@ -83,6 +83,8 @@ public:
 
     Q_INVOKABLE QString getVideoTitle();
 
+    Q_INVOKABLE InfoListModel* get();
+
     void refresh();
 
 public:

@@ -1,5 +1,5 @@
-#ifndef NewListProject_HPP_
-#define NewListProject_HPP_
+#ifndef NuttyPlayer_HPP_
+#define NuttyPlayer_HPP_
 
 #include <QObject>
 
@@ -10,13 +10,13 @@ namespace bb { namespace cascades { class Application; }}
  *
  * Use this object to create and init app UI, to create context objects, to register the new meta types etc.
  */
-class NewListProject : public QObject
+class NuttyPlayer : public QObject
 {
     Q_OBJECT
 
 public:
-    NewListProject(bb::cascades::Application *app);
-    virtual ~NewListProject() {}
+    NuttyPlayer(bb::cascades::Application *app);
+    virtual ~NuttyPlayer() {}
 };
 
-#endif /* NewListProject_HPP_ */
+#endif /* NuttyPlayer_HPP_ */

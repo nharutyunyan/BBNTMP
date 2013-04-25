@@ -275,24 +275,11 @@ Page {
                 } // PinchHandler
             ] // attachedObjects
 
-            // Play image is transparent. It will become visible when the video
-            // is played using tap event. It will be visible 1 sec.
+            // Play/pause image is transparent. It will become visible when the video
+            // is played/paused using tap event. It will be visible 1 sec.
             ImageView {
-                id: screenPlayImage
+                id: screenPlayPauseImage
                 opacity: 0
-                imageSource: "asset:///images/screenPlay.jpg"
-                horizontalAlignment: HorizontalAlignment.Center
-                verticalAlignment: VerticalAlignment.Center
-                touchPropagationMode: TouchPropagationMode.PassThrough
-                overlapTouchPolicy: OverlapTouchPolicy.Allow
-            }
-
-            // Pause image is transparent. It will become visible when the video
-            // is paused using tap event. It will be visible 1 sec.
-            ImageView {
-                id: screenPauseImage
-                opacity: 0
-                imageSource: "asset:///images/screenPause.jpg"
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Center
                 touchPropagationMode: TouchPropagationMode.PassThrough
@@ -554,7 +541,6 @@ Page {
                 appContainer.currentTranslation = - appContainer.currentTranslation;
             }
             if (appContainer.currentTranslation < (videoWindow.preferredHeight * videoWindow.scaleY - videoWindow.preferredHeight) / 2) {
-                console.log("Trans YYYY = ", appContainer.currentTranslation)
                 videoWindow.translationY = localY - appContainer.touchPositionY + contentContainer.startingY;
             }
         }
@@ -567,15 +553,13 @@ Page {
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayImage.setOpacity(0.5);
-                screenPauseImage.setOpacity(0);
-                screenPlayImageTimer.start();
+                screenPlayPauseImage.imageSource = "asset:///images/screenPlay.jpg"
             } else {
                 appContainer.pauseMediaPlayer();
-                screenPauseImage.setOpacity(0.5);
-                screenPlayImage.setOpacity(0);
-                screenPauseImageTimer.start();
+                screenPlayPauseImage.imageSource = "asset:///images/screenPause.jpg"
             }
+            screenPlayPauseImage.setOpacity(0.5);
+            screenPlayPauseImageTimer.start();
         }
 
         attachedObjects: [
@@ -700,7 +684,7 @@ Page {
                        //Duration is 0 for first several time outs.
                        //TODO: Figure out that, though seems it is a MediaPlayer issue.
                        //'if' is used as workaround
-                       if (myPlayer.duration) {
+                       if (myPlayer.duration && myPlayer.positionInMsecs <= myPlayer.duration) {
                            durationSlider.setValue(myPlayer.positionInMsecs)
                        }
                        appContainer.changeVideoPosition = true;
@@ -716,22 +700,12 @@ Page {
            },
 
            QTimer {
-               id: screenPlayImageTimer
+               id: screenPlayPauseImageTimer
                singleShot: true
                interval: 1000
                onTimeout: {
-                   screenPlayImage.setOpacity(0)
-                   screenPlayImageTimer.stop()
-               }
-           },
-
-           QTimer {
-               id: screenPauseImageTimer
-               singleShot: true
-               interval: 1000
-               onTimeout: {
-                   screenPauseImage.setOpacity(0)
-                   screenPauseImageTimer.stop()
+                   screenPlayPauseImage.setOpacity(0)
+                   screenPlayPauseImageTimer.stop()
                }
            },
 

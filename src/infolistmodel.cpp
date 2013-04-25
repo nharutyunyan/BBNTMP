@@ -382,3 +382,8 @@ QString InfoListModel::getVideoTitle()
 	std::cout << "\n\nSelected Index = " << m_selectedIndex << "\n";
 	return v.toString();
 }
+
+InfoListModel* InfoListModel::get()
+{
+	return this;
+}

@@ -1,4 +1,5 @@
-#include "NewListProject.hpp"
+#include "NuttyPlayer.hpp"
+#include "InfoListModel.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
@@ -6,7 +7,7 @@
 
 using namespace bb::cascades;
 
-NewListProject::NewListProject(bb::cascades::Application *app)
+NuttyPlayer::NuttyPlayer(bb::cascades::Application *app)
 : QObject(app)
 {
     // create scene document from main.qml asset
@@ -14,6 +15,9 @@ NewListProject::NewListProject(bb::cascades::Application *app)
     QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
 
     qml->setContextProperty("application", app);
+
+    InfoListModel* model = new InfoListModel(this);
+    qml->setContextProperty("infoListModel", model);
 
     // create root object for the UI
     AbstractPane *root = qml->createRootObject<AbstractPane>();
