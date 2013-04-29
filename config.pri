@@ -8,7 +8,7 @@ INCLUDEPATH +=  \
 
 SOURCES +=  \
     $$BASEDIR/src/BpsEventHandler.cpp \
-    $$BASEDIR/src/NewListProject.cpp \
+    $$BASEDIR/src/NuttyPlayer.cpp \
     $$BASEDIR/src/exceptions.cpp \
     $$BASEDIR/src/main.cpp \
     $$BASEDIR/src/moviedecoder.cpp \
@@ -20,7 +20,7 @@ SOURCES +=  \
 
 HEADERS +=  \
     $$BASEDIR/src/BpsEventHandler.hpp \
-    $$BASEDIR/src/NewListProject.hpp \
+    $$BASEDIR/src/NuttyPlayer.hpp \
     $$BASEDIR/src/exceptions.hpp \
     $$BASEDIR/src/moviedecoder.hpp \
     $$BASEDIR/src/mylistmodel.hpp \

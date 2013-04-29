@@ -13,7 +13,7 @@
 
 #include "BpsEventHandler.hpp"
 #include "exceptions.hpp"
-#include "NewListProject.hpp"
+#include "NuttyPlayer.hpp"
 #include "utility.hpp"
 #include "subtitleManager.hpp"
 #include "infolistmodel.hpp"
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     }
 
   	// Create and load the QML file, using build patterns.
-    new NewListProject(&app);
+    new NuttyPlayer(&app);
     app.setAutoExit(false);
 
     return Application::exec();
