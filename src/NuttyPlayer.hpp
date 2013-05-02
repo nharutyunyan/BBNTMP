@@ -3,8 +3,12 @@
 
 #include <QObject>
 
-namespace bb { namespace cascades { class Application; }}
-
+namespace bb {
+    namespace cascades {
+        class Application;
+        class AbstractPane;
+    }
+}
 /*
  * Application pane object
  *
@@ -17,6 +21,16 @@ class NuttyPlayer : public QObject
 public:
     NuttyPlayer(bb::cascades::Application *app);
     virtual ~NuttyPlayer() {}
+
+public slots:
+    void onSplashscreenMinimalIntervalElapsed();
+    void onSplashscreenMaximalIntervalElapsed();
+    void onThumbnailsGenerationFinished();
+
+private:
+    bb::cascades::AbstractPane *root;
+    bool splashScreenMinimalIntervalElapsed;
+    bool thumbnailsGenerationFinished;
 };
 
 #endif /* NuttyPlayer_HPP_ */
