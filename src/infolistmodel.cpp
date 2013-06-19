@@ -30,6 +30,7 @@ InfoListModel::InfoListModel(QObject* parent)
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
 
+
     int start = 0;
     getVideoFiles(start);
 
@@ -39,7 +40,7 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(m_producer, SIGNAL(produced(QString, int)), this,
 			SLOT(consume(QString, int)));
 
-	m_producerThread  = new QThread();
+    m_producerThread  = new QThread();
 	m_producer->moveToThread(m_producerThread);
 
 	//when producer thread is started, start to produce
