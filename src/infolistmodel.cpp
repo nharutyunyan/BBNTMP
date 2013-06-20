@@ -378,6 +378,11 @@ int InfoListModel::getVideoPosition()
 	return retValue;
 }
 
+int InfoListModel::getVideoPosition(QVariant item)
+{
+	return indexOf(item);
+}
+
 QString InfoListModel::getVideoTitle()
 {
 	const QString flagName("title");
