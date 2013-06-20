@@ -2,7 +2,6 @@ import bb.cascades 1.0
 import nuttyPlayer 1.0
 
 Container {
-    id: subtitleArea
     layout: StackLayout {
         orientation: LayoutOrientation.TopToBottom
     }
