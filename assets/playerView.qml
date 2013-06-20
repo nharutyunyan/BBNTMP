@@ -189,8 +189,7 @@ Page {
             } //videoWindow
 
             //Subtitle area
-            Container {
-                id: subtitleArea
+            SubtitleArea {
                 layoutProperties: AbsoluteLayoutProperties {
                     positionX: 0
                     positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
@@ -224,7 +223,7 @@ Page {
                     }
                 }
             }
-        }
+       }
             gestureHandlers: [
                 // Add a handler for pinch gestures
                 PinchHandler {
