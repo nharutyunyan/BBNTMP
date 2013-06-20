@@ -191,38 +191,11 @@ Page {
             //Subtitle area
             SubtitleArea {
                 layoutProperties: AbsoluteLayoutProperties {
+                    id: subtitleArea
                     positionX: 0
                     positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                }
-
-                layout: StackLayout {
-                    orientation: LayoutOrientation.TopToBottom
-                }
-                preferredHeight: 200
-                Container {
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: 1.0
-                    }
-
-                }
-                TextArea {
-                    text: subtitleManager.text
-                    textFormat: TextFormat.Html
-                    backgroundVisible: false
-                    textStyle.color: Color.White
-                    textStyle.textAlign: TextAlign.Center
-                    editable: false
-                    overlapTouchPolicy: OverlapTouchPolicy.Allow
-                    verticalAlignment: VerticalAlignment.Bottom
-                    horizontalAlignment: HorizontalAlignment.Center
-                    inputMode: TextAreaInputMode.Text
-                    input.flags: TextInputFlag.SpellCheckOff
-                    
-                    onCreationCompleted: {
-                        setImplicitLayoutAnimationsEnabled(false);
-                    }
-                }
-            }
+               }
+           }
        }
             gestureHandlers: [
                 // Add a handler for pinch gestures
