@@ -11,15 +11,19 @@ NavigationPane {
     Page {
         content: Container {
            id: movieGridContainer
-            background: Color.create("#ff262626")
             layout: DockLayout {
             }
             attachedObjects: [
                 ComponentDefinition {
                     id: movieGrid
                     source: "movieGrid.qml"
+                },
+                ImagePaintDefinition {
+                    id: backgroundImage
+                    imageSource: "asset:///images/bg.png"
                 }
             ]
+            background: backgroundImage.imagePaint
         } //Container
         property variant movieGridObj;
         onCreationCompleted: {

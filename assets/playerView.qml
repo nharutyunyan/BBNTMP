@@ -9,7 +9,7 @@ Page {
 
     Container {
         id: appContainer
-        background: Color.create("#ff262626")
+         background: backgroundImage.imagePaint
 
         layout: DockLayout {
         }
@@ -544,8 +544,11 @@ Page {
 
                 }
             },
-
-           MediaPlayer {
+            ImagePaintDefinition {
+                id: backgroundImage
+                imageSource: "asset:///images/bg.png"
+            },
+            MediaPlayer {
                id: myPlayer
                // Use the device's primary display to
                // show the video.

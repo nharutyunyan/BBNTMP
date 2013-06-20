@@ -49,6 +49,8 @@ InfoListModel::InfoListModel(QObject* parent)
 
 	QObject::connect(m_producer, SIGNAL(finished()), m_producerThread,
 			SLOT(quit()));
+	QObject::connect(m_producer, SIGNAL(finished()), parent,
+				SLOT(onThumbnailsGenerationFinished()));
 }
 
 void InfoListModel::consume(QString data, int index)
