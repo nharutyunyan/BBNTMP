@@ -217,6 +217,8 @@ Page {
                     verticalAlignment: VerticalAlignment.Bottom
                     horizontalAlignment: HorizontalAlignment.Center
                     inputMode: TextAreaInputMode.Text
+                    input.flags: TextInputFlag.SpellCheckOff
+                    
                     onCreationCompleted: {
                         setImplicitLayoutAnimationsEnabled(false);
                     }
