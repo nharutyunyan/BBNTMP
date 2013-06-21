@@ -149,7 +149,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	QString thumbnailDir = dir.homePath() + "/thumbnails/";
 	dir.cd(thumbnailDir);
 	QVariantList index;
-	for (int ix = 0; ix < m_list.size(); ++ix) {
+	for (int ix = m_list.size()-1; ix>= 0; --ix) {
 		bool videoExist = false;
 		QVariantMap v = m_list[ix].toMap();
 		for (int i = 0; i < result.size(); ++i) {
@@ -161,13 +161,10 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 		if (!videoExist) {
 			// if the video does not exist any more remote its thumbnail as well
 			dir.remove(v["thumbURL"].toString());
-			index.append(ix);
+			m_list.erase(m_list.begin() + ix);
 		}
 	}
-	for (int j = 0; j < index.size(); ++j) {
-		//remove deleted video from json data
-		m_list.erase(m_list.begin() + index[j].toInt());
-	}
+
 }
 
 void InfoListModel::updateVideoList()
