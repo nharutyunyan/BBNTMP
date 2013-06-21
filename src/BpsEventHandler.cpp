@@ -30,6 +30,7 @@ BpsEventHandler::~BpsEventHandler()
 
 void BpsEventHandler::event( bps_event_t *event )
 {
+
     int domain = bps_event_get_domain(event);
     // handle navigator events
     if (domain == navigator_get_domain())
@@ -40,6 +41,8 @@ void BpsEventHandler::event( bps_event_t *event )
     	}
 
     	int code = navigator_event_get_window_state(event);
+    	int lock = navigator_event_get_device_lock_state(event);
+
     	switch(code)
     	{
     	case NAVIGATOR_WINDOW_THUMBNAIL:
@@ -53,6 +56,23 @@ void BpsEventHandler::event( bps_event_t *event )
     		emit videoWindowStateChanged(false);
     		break;
     	}
+
+    	switch(lock)
+    	{
+    	    	case NAVIGATOR_DEVICE_LOCK_STATE_SCREEN_LOCKED:
+    	    			// The  device has been locked.
+    	    			// Notify to stop the video if it is playing
+    	    	   		emit deviceLockStateChanged(true);
+    	    		 	break;
+    	    	case NAVIGATOR_DEVICE_LOCK_STATE_PASSWORD_LOCKED:
+    	    			// The  device has been locked and require password.
+    	    			// Notify to stop the video if it is playing
+    	    			emit deviceLockStateChanged(true);
+    	    			break;
+
+    	}
+
+
     }
 
     // handle audiomixer events

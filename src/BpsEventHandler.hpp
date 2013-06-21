@@ -29,6 +29,8 @@ signals:
   	void speakerVolumeChanged(float speakerVolume);
   	void videoWindowStateChanged(bool isMinimized); // pass isMinimized true if the app is minimized
   	                                                // if it is fullscreen pass false
+  	void deviceLockStateChanged(bool isLocked); // pass isLocked true if the device is locked
+      	  	  	  	  	  	  	  	  	  	   // if it is unlocked pass false
   	void showVideoScrollBar();
 };
 
