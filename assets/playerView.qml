@@ -6,7 +6,7 @@ import nutty.slider 1.0
 
 Page {
     id: pgPlayer
-
+    
     Container {
         id: appContainer
          background: backgroundImage.imagePaint
@@ -275,7 +275,6 @@ Page {
                 visible: false
                 onVideoSelected: {
                     console.log("selected item PATH == " + item.path);
-                    myPlayer.stop()
                     myPlayer.setSourceUrl(item.path);
                     if (appContainer.playMediaPlayer() == MediaError.None) {
                         videoWindow.visible = true;
@@ -283,7 +282,9 @@ Page {
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
                         subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
                         trackTimer.start();
+                        myPlayer.play();
                     }
                 }
 

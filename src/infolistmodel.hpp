@@ -81,6 +81,8 @@ public:
 
     Q_INVOKABLE int getVideoPosition();
 
+    Q_INVOKABLE int getVideoPosition(QVariant item);
+
     Q_INVOKABLE QString getVideoTitle();
 
     Q_INVOKABLE InfoListModel* get();
