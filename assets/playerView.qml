@@ -611,8 +611,12 @@ Page {
                        appContainer.playMediaPlayer();
                    }
                }
+               
+                onSpeakerVolumeChanged: {
+                    appContainer.curVolume = bpsEventHandler.getVolume();
+                }
 
-               onShowVideoScrollBar: {
+                onShowVideoScrollBar: {
                    videoListAppearAnimation.play();
                    videoListScrollBar.visible = true;
                }
