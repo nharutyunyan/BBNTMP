@@ -52,8 +52,8 @@
     <!-- <copyright></copyright> -->
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
-    <author>Individual</author>
-    <authorId>gYAAgJRy7AorOKKqThOiX1-sQwQ</authorId>
+    <author>Macadamian</author>
+    <authorId>gYAAgP5hDCK1pzQEjK25hypc4Kg</authorId>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -110,9 +110,7 @@
     <asset path="translations" dest="qm">
         <include name="*.qm"/>
     </asset>
-    <asset path="C:/Users/Akela/Desktop/Nutty Player Assets/24.06.13/1.png">1.png</asset>
-    <asset path="C:/Users/Akela/Desktop/Nutty Player Assets/24.06.13/2.png">2.png</asset>
-    <asset path="C:/Users/Akela/Desktop/Nutty Player Assets/24.06.13/3.png">3.png</asset>
+
     <asset path="assets/images/SplashScreenLandscape.png">SplashScreenLandscape.png</asset>
     <asset path="assets/images/SplashScreenPortrait.png">SplashScreenPortrait.png</asset>
     
