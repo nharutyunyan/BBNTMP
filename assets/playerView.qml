@@ -416,14 +416,24 @@ Page {
                         opacity: 0.5
                         verticalAlignment: VerticalAlignment.Center
                         rightPadding: 10
+                        property bool subtitleEnabled
 
                         ImageButton {
                             id: subtitleButton
                             defaultImageSource: "asset:///images/Player/SubtitlesButton.png"
                             onClicked: {
-                                if (subtitleAreaContainer.opacity == 1) subtitleAreaContainer.setOpacity(0);
-                                else subtitleAreaContainer.setOpacity(1);
+                                subtitleButtonContainer.subtitleEnabled = !subtitleButtonContainer.subtitleEnabled;
+                                settings.setValue("subtitleEnabled" ,subtitleButtonContainer.subtitleEnabled);
                             }
+                        }
+                        onCreationCompleted: {
+                            subtitleEnabled = settings.value("subtitleEnabled");
+                            if (subtitleEnabled) subtitleAreaContainer.setOpacity(1);
+                            else subtitleAreaContainer.setOpacity(0);
+                        }
+                        onSubtitleEnabledChanged: {
+                            if (subtitleEnabled) subtitleAreaContainer.setOpacity(1);
+                            else subtitleAreaContainer.setOpacity(0);
                         }
                     } //subtitleButtonContainer
                     Container {
@@ -606,6 +616,10 @@ Page {
 
            SubtitleManager {
                id: subtitleManager;
+           },
+
+           Settings {
+               id: settings;
            },
 
            BpsEventHandler {
