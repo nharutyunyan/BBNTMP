@@ -96,7 +96,14 @@ Page {
                             if (appContainer.curVolume > 100) 
                                 appContainer.curVolume = 100;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        }
+                            
+	                        volume.visible = true;
+	                        if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+	                        else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+	                        if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+	                        else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+
+                    	}
                     }
                     else if (event.localY - appContainer.touchPositionY > 10) {
                         if (videoWindow.scaleX <= 1.0) {
@@ -104,7 +111,14 @@ Page {
                             if (appContainer.curVolume < 0) 
                                 appContainer.curVolume = 0;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        }
+
+	                        volume.visible = true;
+	                        if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+	                        else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+	                        if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+	                        else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+
+                    	}
                     }
                     else {
                         if(OrientationSupport.orientation == UIOrientation.Portrait) {
@@ -135,6 +149,8 @@ Page {
                 }
             }
         }// onTouch
+
+        
 
         Container {
             id: contentContainer
@@ -197,7 +213,100 @@ Page {
                     positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                }
            }
-       }
+
+                Container {
+                    id: volume
+                    layout: AbsoluteLayout {
+                    }
+                    visible: false
+
+                    property int positionY: 225
+
+                    Container {
+                        layout: AbsoluteLayout {
+                        }
+
+                        preferredHeight: volume.positionY + 80
+
+                        Label {
+                            text: appContainer.curVolume
+                            horizontalAlignment: HorizontalAlignment.Center
+                            verticalAlignment: VerticalAlignment.Center
+                            textStyle {
+                                color: Color.White
+                                fontWeight: FontWeight.Normal
+                            }
+                        }
+
+                        ImageView {
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 40
+                                positionY: volume.positionY - 80
+                            }
+                            imageSource: "asset:///images/Player/VolumeInactive.png"
+                        }
+                        ImageView {
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 40
+                                positionY: volume.positionY
+                            }
+                            imageSource: "asset:///images/Player/VolumeInactive.png"
+                        }
+
+                        ImageView {
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 40
+                                positionY: volume.positionY + 80 - appContainer.curVolume * (160 / 100)
+                            }
+                            imageSource: "asset:///images/Player/VolumeActive.png"
+                        }
+                        ImageView {
+
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 40
+                                positionY: volume.positionY + 80 + 80 - appContainer.curVolume * (160 / 100)
+                            }
+                            imageSource: "asset:///images/Player/VolumeActive.png"
+
+                        }
+                    }
+
+                    Container {
+                        layout: AbsoluteLayout {
+                        }
+                        ImageView {
+                            id: volumeFull
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 30
+                                positionY: volume.positionY - 85 - 50
+                            }
+                            imageSource: "asset:///images/Player/Volume Full.png"
+                            horizontalAlignment: HorizontalAlignment.Left
+                            onTouch: {
+                                appContainer.curVolume = 100;
+                                volumeFull.imageSource = "asset:///images/back.png"
+                                volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
+                            }
+                        }
+                        ImageView {
+                            id: volumeMute
+                            layoutProperties: AbsoluteLayoutProperties {
+                                positionX: 30
+                                positionY: volume.positionY + 85
+                            }
+                            imageSource: "asset:///images/Player/VolumeMute.png"
+                            horizontalAlignment: HorizontalAlignment.Left
+                            onTouch: {
+                                appContainer.curVolume = 0;
+                                volumeMute.imageSource = "asset:///images/back.png"
+                                volumeFull.imageSource = "asset:///images/Player/Volume Full.png"
+                            }
+                        }
+                    }
+                }
+
+            }
+       
             gestureHandlers: [
                 // Add a handler for pinch gestures
                 PinchHandler {
@@ -536,10 +645,10 @@ Page {
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/screenPlay.jpg"
+                screenPlayPauseImage.imageSource = "asset:///images/play.png"
             } else {
                 appContainer.pauseMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/screenPause.jpg"
+                screenPlayPauseImage.imageSource = "asset:///images/pause.png"
             }
             screenPlayPauseImage.setOpacity(0.5);
             screenPlayPauseImageTimer.start();
@@ -622,7 +731,12 @@ Page {
                }
                
                 onSpeakerVolumeChanged: {
+                    volume.visible = true;
                     appContainer.curVolume = bpsEventHandler.getVolume();
+                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+                    else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+                    else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
                 }
 
                 onShowVideoScrollBar: {
@@ -711,6 +825,7 @@ Page {
                    controlsContainer.setOpacity(0);
                    controlsContainer.setVisible(false);
                    uiControlsShowTimer.stop();
+                   volume.visible = false;
                    }
                }
            },
@@ -718,16 +833,18 @@ Page {
            OrientationHandler {
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
+                       volume.positionY = 384;
                        upperMenu.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                   } else {
+                    } else {
+                       volume.positionY = 225;
                        upperMenu.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
-                       subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                   }
+                       subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;                       
+                    }
                }
            }
 
