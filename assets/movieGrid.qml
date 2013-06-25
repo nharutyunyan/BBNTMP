@@ -12,29 +12,13 @@ ListView {
     listItemComponents: [
         // define component which will represent list item GUI appearence
         ListItemComponent {
-            Container {
-                //Custom item for Grid view - can be modified later
-                verticalAlignment: VerticalAlignment.Fill
-                horizontalAlignment: HorizontalAlignment.Fill
-                // show image
-                ImageView {
-                    imageSource: ListItemData.thumbURL
-                    scalingMethod: ScalingMethod.AspectFit
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: 1.0
-                    }
-                    horizontalAlignment: HorizontalAlignment.Center
-                    verticalAlignment: VerticalAlignment.Center
-                }
-                //and text below
-                Label {
-                    text: ListItemData.title
-                    maxWidth: 200 //might be changed in future- to be get dinamically
-                    textStyle.color: Color.White
-                    textStyle.base: SystemDefaults.TextStyles.SmallText
-                    horizontalAlignment: HorizontalAlignment.Center
-                }
-            }
+            Container{
+	            ThumbnailItem {
+	                imageSource: ListItemData.thumbURL
+	                movieTitle: ListItemData.title
+	                movieLength: ListItemData.duration
+	            }
+	        }
         }
     ]
     onTriggered: {
