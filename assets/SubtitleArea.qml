@@ -11,18 +11,16 @@ Container {
             spaceQuota: 1.0
         }
     }
-    TextArea {
+    
+    Label {
+        multiline: true
         text: subtitleManager.text
         textFormat: TextFormat.Html
-        backgroundVisible: false
         textStyle.color: Color.White
         textStyle.textAlign: TextAlign.Center
-        editable: false
         overlapTouchPolicy: OverlapTouchPolicy.Allow
         verticalAlignment: VerticalAlignment.Bottom
         horizontalAlignment: HorizontalAlignment.Center
-        inputMode: TextAreaInputMode.Text
-        input.flags: TextInputFlag.SpellCheckOff
         
         onCreationCompleted: {
             

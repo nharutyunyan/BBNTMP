@@ -22,7 +22,7 @@ Page {
         property int landscapeWidth : 1280
         property int landscapeHeight : 768
 
-        property int subtitleAreaBottomPadding : 150
+        property int subtitleAreaBottomPadding : 200
 
         property double maxPinchPercentFactor :1.2 //120 percent
         property double minPinchPercentFactor :0.8 //80 percent
@@ -206,6 +206,7 @@ Page {
 
             //Subtitle area
             SubtitleArea {
+                preferredWidth: videoWindow.preferredWidth
                 id: subtitleAreaContainer
                 layoutProperties: AbsoluteLayoutProperties {
                     id: subtitleArea
