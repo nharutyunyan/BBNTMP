@@ -13,7 +13,16 @@ Page {
 
         layout: DockLayout {
         }
-
+        
+        property int counterForDetectDirection : 5
+        property int previousPositionX : 0
+        property int previousPositionY: 0
+        property int offsetX : 0
+        property int offsetY : 0
+        property bool directionIsDetect : false
+        property bool volumeChange : false
+        property bool volumeFullorMute : false
+            
         //This variable is used to control video duration logic. 
         //Indicates whether to change the video position, when the slider's value is changed.
         property bool changeVideoPosition : false
@@ -57,91 +66,112 @@ Page {
                 touchDistanceAgainstMode = 300;
             }
             if (event.touchType == TouchType.Down) {
+                appContainer.previousPositionX = event.localX;
+                appContainer.previousPositionY = event.localY;
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
                 contentContainer.startingX = videoWindow.translationX;
                 contentContainer.startingY = videoWindow.translationY;
-            }
-            else if (event.touchType == TouchType.Up)
-            {
+                appContainer.directionIsDetect = false;
+                appContainer.volumeChange = false;
+                appContainer.volumeFullorMute = false;
+                appContainer.counterForDetectDirection = 5;
+                appContainer.offsetX = 0;
+                appContainer.offsetY = 0;
+                     
+            } else if (event.touchType == TouchType.Up && !appContainer.volumeChange) {
                 if (Math.abs(appContainer.touchPositionX - event.localX) > touchDistanceAgainstMode) {
-                        if (videoWindow.scaleX <= 1.0) {
-                            videoWindow.translationX = 0;
-                            videoWindow.translationY = 0;
-                            contentContainer.startingX = 0;
-                            contentContainer.startingY = 0;
-                            // TODO: probably we could use the application container size
-                            // to calculate the magic numbers below by the percentage
-                            
-                            if (appContainer.touchPositionX >= event.localX + touchDistanceAgainstMode) {
-                                appContainer.changeVideoPosition = true;
-                                if (durationSlider.immediateValue + (5 * 1000) < durationSlider.toValue) {
-                                    appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
-                                } else {
-                                    appContainer.seekPlayer(durationSlider.toValue);
-                                    myPlayer.pause();
-                                }
+                    if (videoWindow.scaleX <= 1.0) {
+                        videoWindow.translationX = 0;
+                        videoWindow.translationY = 0;
+                        contentContainer.startingX = 0;
+                        contentContainer.startingY = 0;
+                        // TODO: probably we could use the application container size
+                        // to calculate the magic numbers below by the percentage
+
+                        if (appContainer.touchPositionX >= event.localX + touchDistanceAgainstMode) {
+                            appContainer.changeVideoPosition = true;
+                            if (durationSlider.immediateValue + (5 * 1000) < durationSlider.toValue) {
+                                appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
+                            } else {
+                                appContainer.seekPlayer(durationSlider.toValue);
+                                myPlayer.pause();
                             }
-                            else if (appContainer.touchPositionX + touchDistanceAgainstMode < event.localX) {
-                                appContainer.changeVideoPosition = true;
-                                appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
-                           }
-                            appContainer.changeVideoPosition = false;
+                        } else if (appContainer.touchPositionX + touchDistanceAgainstMode < event.localX) {
+                            appContainer.changeVideoPosition = true;
+                            appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
                         }
+                        appContainer.changeVideoPosition = false;
                     }
-                    else if (appContainer.touchPositionY - event.localY > touchDistanceAgainstMode/3) {
-                        if (videoWindow.scaleX <= 1.0) {
-                            appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
-                            if (appContainer.curVolume > 100) 
-                                appContainer.curVolume = 100;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            
-	                        volume.visible = true;
-	                        if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
-	                        else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-	                        if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-	                        else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
-
-                    	}
+                } else {
+                    if (Math.abs(appContainer.touchPositionX - event.localX) < 100 && ! videoListScrollBar.visible 
+                                                                              && !appContainer.volumeFullorMute) {
+                        appContainer.showPlayPauseButton();
                     }
-                    else if (event.localY - appContainer.touchPositionY > touchDistanceAgainstMode / 3) {
-                        if (videoWindow.scaleX <= 1.0) {
-                            appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
-                            if (appContainer.curVolume < 0) 
-                                appContainer.curVolume = 0;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-
-	                        volume.visible = true;
-	                        if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
-	                        else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-	                        if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-	                        else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
-
-                    	}
-                    }
-                    else {
-                        if(Math.abs(appContainer.touchPositionX - event.localX) < 150 && ! videoListScrollBar.visible) {
-                                    appContainer.showPlayPauseButton();
-                        }
-                    }
-                    if(event.localY > 180 && videoListScrollBar.visible && !appContainer.videoScrollBarIsClosing) {
-                        videoListDisappearAnimation.play();
-                    }
-                    else {
-                        upperMenu.setOpacity(1);
-                        controlsContainer.setOpacity(1);
-                        controlsContainer.setVisible(true);
-                        uiControlsShowTimer.start();
-                    }
-            } else if (event.touchType == TouchType.Move) {
-                if (videoWindow.scaleX > 1.0) {
+                }
+                if (event.localY > 180 && videoListScrollBar.visible && ! appContainer.videoScrollBarIsClosing) {
+                    videoListDisappearAnimation.play();
+                } else {
+                    upperMenu.setOpacity(1);
+                    controlsContainer.setOpacity(1);
+                    controlsContainer.setVisible(true);
+                    uiControlsShowTimer.start();
+                }
+            } 
+            else if(event.touchType == TouchType.Move ){
+                	if (videoWindow.scaleX > 1.0) {
                     appContainer.moveX(event.localX);
                     appContainer.moveY(event.localY);
                 }
-            }
-        }// onTouch
+                if(!appContainer.directionIsDetect){	
+                	 
+                    if (appContainer.counterForDetectDirection != 0) {
+                    	appContainer.offsetX += Math.abs(appContainer.previousPositionX - event.localX);
+                    	appContainer.offsetY += Math.abs(appContainer.previousPositionY - event.localY);
+                    	--appContainer.counterForDetectDirection;
+                    }
+                    else {
+                    if(offsetX > offsetY){
+                        appContainer.directionIsDetect = true;
+                        }
+                        else{
+                            appContainer.volumeChange = true;
+                         if (appContainer.previousPositionY - event.localY > 0) {
+                         	if (videoWindow.scaleX <= 1.0) {
+                         	    if(appContainer.previousPositionY - event.localY > 30){
+                         	    }
+                            	appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
+                            	if (appContainer.curVolume > 100) 
+                                appContainer.curVolume = 100;
+                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                            
+	                             volume.visible = true;
+	                             if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+	                             else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+	                             if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+	                             else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+                    		}
+                     	}
+                        if ( appContainer.previousPositionY - event.localY  < 0) {
+                            if (videoWindow.scaleX <= 1.0) {
+                                appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
+                                if (appContainer.curVolume < 0) appContainer.curVolume = 0;
+                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 
-        
+                                volume.visible = true;
+                                if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+                                else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+                                if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+                                else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+                            }
+                        }
+                    }
+                    }
+                appContainer.previousPositionX = event.localX;
+                appContainer.previousPositionY = event.localY;    
+            }   
+            }    
+        }// onTouch
 
         Container {
             id: contentContainer
@@ -274,6 +304,7 @@ Page {
                             imageSource: "asset:///images/Player/Volume Full.png"
                             horizontalAlignment: HorizontalAlignment.Left
                             onTouch: {
+                                appContainer.volumeFullorMute = true
                                 appContainer.curVolume = 100;
                                 volumeFull.imageSource = "asset:///images/back.png"
                                 volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
@@ -288,6 +319,7 @@ Page {
                             imageSource: "asset:///images/Player/VolumeMute.png"
                             horizontalAlignment: HorizontalAlignment.Left
                             onTouch: {
+                                appContainer.volumeFullorMute = true
                                 appContainer.curVolume = 0;
                                 volumeMute.imageSource = "asset:///images/back.png"
                                 volumeFull.imageSource = "asset:///images/Player/Volume Full.png"
