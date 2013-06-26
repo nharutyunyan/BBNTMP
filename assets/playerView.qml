@@ -7,6 +7,8 @@ import nutty.slider 1.0
 Page {
     id: pgPlayer
     
+    property variant currentPath: ""
+
     Container {
         id: appContainer
          background: backgroundImage.imagePaint
@@ -382,9 +384,11 @@ Page {
                 id: videoListScrollBar
                 horizontalAlignment: HorizontalAlignment.Center
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
+                currentPath: pgPlayer.currentPath
                 visible: false
                 onVideoSelected: {
                     console.log("selected item PATH == " + item.path);
+                    pgPlayer.currentPath= item.path;
                     myPlayer.setSourceUrl(item.path);
                     if (appContainer.playMediaPlayer() == MediaError.None) {
                         videoWindow.visible = true;
@@ -397,7 +401,6 @@ Page {
                         myPlayer.play();
                     }
                 }
-
                 animations: [
                     TranslateTransition {
                         id: videoListAppearAnimation
