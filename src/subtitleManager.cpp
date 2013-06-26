@@ -41,6 +41,9 @@ void SubtitleManager::handlePositionChanged(uint pos)
 	{
 	     QString newText = m_textEntries.mid(m_entries[m_currentEntryIndex].textStartPos,
 		 	                              m_entries[m_currentEntryIndex].textEndPos - m_entries[m_currentEntryIndex].textStartPos);
+	     if(newText.mid(newText.size()-1) == "\n"){
+	     	newText = newText.mid(0, newText.size() - sizeof("\n"));
+	     }
 	     if(m_currentText != newText)
 	     {
 	    	 m_currentText = newText;
