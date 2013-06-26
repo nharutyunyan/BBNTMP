@@ -444,7 +444,7 @@ Page {
                     background: backgroundPaint.imagePaint
                     horizontalAlignment: HorizontalAlignment.Center
                     verticalAlignment: VerticalAlignment.Fill
-                    maxWidth: upperMenu.preferredWidth - 300
+                    maxWidth: upperMenu.preferredWidth - 400
                     opacity: 1
                     // This part of code is commented our for now in case we need it in the feature
                     //                animations: [
