@@ -18,11 +18,14 @@ Container {
                     background: Color.Black
                     verticalAlignment: VerticalAlignment.Bottom
                     maxWidth: 200
-                    id: listItemtDef                    
-                    ImageView {
+                    id: listItemtDef
+                    ThumbnailItem {
                         imageSource: ListItemData.thumbURL
+                        movieTitle: ListItemData.title
+                        movieLength: ListItemData.duration
                     }
-                    leftMargin: 50
+
+                    leftMargin: 7
                 }
             }
         ]
