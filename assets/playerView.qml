@@ -22,6 +22,8 @@ Page {
         property bool directionIsDetect : false
         property bool volumeChange : false
         property bool volumeFullorMute : false
+
+        property int heightOfScreen : 0
             
         //This variable is used to control video duration logic. 
         //Indicates whether to change the video position, when the slider's value is changed.
@@ -61,8 +63,10 @@ Page {
 
         onTouch: {
             if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                heightOfScreen = landscapeWidth;
                 touchDistanceAgainstMode = 150;
             } else {
+                heightOfScreen = landscapeHeight;
                 touchDistanceAgainstMode = 300;
             }
             if (event.touchType == TouchType.Down) {
@@ -106,7 +110,9 @@ Page {
                 } else {
                     if (Math.abs(appContainer.touchPositionX - event.localX) < 100 && ! videoListScrollBar.visible 
                                                                               && !appContainer.volumeFullorMute) {
-                        appContainer.showPlayPauseButton();
+                        if (event.localY < heightOfScreen - durationSlider.height) {
+                            appContainer.showPlayPauseButton();
+                        }
                     }
                 }
                 if (event.localY > 180 && videoListScrollBar.visible && ! appContainer.videoScrollBarIsClosing) {
