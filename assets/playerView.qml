@@ -726,8 +726,8 @@ Page {
                    }
                    if(!isMinimized && myPlayer.mediaState == MediaState.Paused) {
                        // Application is maximized. Started playing the stopped video
-                       appContainer.playMediaPlayer();
-                   }
+                       appContainer.pauseMediaPlayer();
+                    }
                }
                
                 onSpeakerVolumeChanged: {
@@ -743,7 +743,13 @@ Page {
                    videoListAppearAnimation.play();
                    videoListScrollBar.visible = true;
                }
-           },
+               
+                onDeviceLockStateChanged: {
+               	  	if (isLocked && myPlayer.mediaState == MediaState.Started) {
+                    	appContainer.pauseMediaPlayer();
+                    }
+                }
+            },
 
            MediaKeyWatcher {
                id: keyWatcher
