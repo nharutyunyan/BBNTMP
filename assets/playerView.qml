@@ -51,6 +51,11 @@ Page {
         property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
 
         onTouch: {
+            if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                touchDistanceAgainstMode = 150;
+            } else {
+                touchDistanceAgainstMode = 300;
+            }
             if (event.touchType == TouchType.Down) {
                 appContainer.touchPositionX =  event.localX;
                 appContainer.touchPositionY =  event.localY;
@@ -59,8 +64,7 @@ Page {
             }
             else if (event.touchType == TouchType.Up)
             {
-                if ((appContainer.touchPositionX > event.localX + 30) ||
-                    (appContainer.touchPositionX + 30 < event.localX)) {
+                if (Math.abs(appContainer.touchPositionX - event.localX) > touchDistanceAgainstMode) {
                         if (videoWindow.scaleX <= 1.0) {
                             videoWindow.translationX = 0;
                             videoWindow.translationY = 0;
@@ -68,12 +72,7 @@ Page {
                             contentContainer.startingY = 0;
                             // TODO: probably we could use the application container size
                             // to calculate the magic numbers below by the percentage
-                            if(OrientationSupport.orientation == UIOrientation.Portrait){
-                                touchDistanceAgainstMode = 500;
-                            }
-                            else {
-                                touchDistanceAgainstMode = 900;
-                            }
+                            
                             if (appContainer.touchPositionX >= event.localX + touchDistanceAgainstMode) {
                                 appContainer.changeVideoPosition = true;
                                 if (durationSlider.immediateValue + (5 * 1000) < durationSlider.toValue) {
@@ -90,7 +89,7 @@ Page {
                             appContainer.changeVideoPosition = false;
                         }
                     }
-                    else if (appContainer.touchPositionY - event.localY > 10) {
+                    else if (appContainer.touchPositionY - event.localY > touchDistanceAgainstMode/3) {
                         if (videoWindow.scaleX <= 1.0) {
                             appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
                             if (appContainer.curVolume > 100) 
@@ -105,7 +104,7 @@ Page {
 
                     	}
                     }
-                    else if (event.localY - appContainer.touchPositionY > 10) {
+                    else if (event.localY - appContainer.touchPositionY > touchDistanceAgainstMode / 3) {
                         if (videoWindow.scaleX <= 1.0) {
                             appContainer.curVolume = appContainer.curVolume + (appContainer.touchPositionY - event.localY) / 10;
                             if (appContainer.curVolume < 0) 
@@ -121,16 +120,8 @@ Page {
                     	}
                     }
                     else {
-                        if(OrientationSupport.orientation == UIOrientation.Portrait) {
-                            if (event.localY > appContainer.landscapeWidth * 0.3 &&
-                                event.localY < appContainer.landscapeWidth * 0.7) {
+                        if(Math.abs(appContainer.touchPositionX - event.localX) < 150 && ! videoListScrollBar.visible) {
                                     appContainer.showPlayPauseButton();
-                            }
-                        } else {
-                            if (event.localY > appContainer.landscapeHeight * 0.3 &&
-                                event.localY < appContainer.landscapeHeight * 0.6) {
-                                    appContainer.showPlayPauseButton();
-                            }
                         }
                     }
                     if(event.localY > 180 && videoListScrollBar.visible && !appContainer.videoScrollBarIsClosing) {
