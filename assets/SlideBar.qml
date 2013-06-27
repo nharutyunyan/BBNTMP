@@ -10,6 +10,7 @@ Container {
     property real fromValue: 0
     property real toValue: 1
     property bool onSlider : false
+    property int height: 100
 
     preferredWidth: my.width
     horizontalAlignment: HorizontalAlignment.Fill
@@ -21,14 +22,14 @@ Container {
         id: currentTimeLabel
         timeInMsc: slideBar.immediateValue
         preferredWidth: my.timeAreaWidth
-        preferredHeight: my.height
+        preferredHeight: height
     }
 
     TimeArea {
         id: timeArea
         timeInMsc: slideBar.toValue
         preferredWidth: my.timeAreaWidth
-        preferredHeight: my.height
+        preferredHeight: height
         layoutProperties: AbsoluteLayoutProperties {
             positionX: my.width - my.timeAreaWidth
         }
@@ -118,7 +119,6 @@ Container {
         ComponentDefinition {
             id: my
             property int width: 700
-            property int height: 100
             property int timeAreaWidth: 200
             property int smallStepSliderWidth: 300
             property int dt: 10 * 1000 // delta time in seconds
