@@ -388,6 +388,7 @@ Page {
             ImageView {
                 id: screenPlayPauseImage
                 opacity: 0
+                implicitLayoutAnimationsEnabled: false
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Center
                 touchPropagationMode: TouchPropagationMode.PassThrough
