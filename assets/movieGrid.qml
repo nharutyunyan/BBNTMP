@@ -31,7 +31,10 @@ ListView {
         if (selected) {
             infoListModel.setSelectedIndex(listView.selectionList())
             var page = getSecondPage();
-            console.debug("pushing detail " + page)
+            console.log("pushing detail " + page)
+            //variable for passing selected video path to videoScrollList
+            var currentPath = listView.dataModel.data(indexPath).path;
+            page.currentPath = currentPath;
             navigationPane.push(page);
         }
     } // onSelectionChanged
