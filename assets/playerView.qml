@@ -417,10 +417,13 @@ Page {
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
                 currentPath: pgPlayer.currentPath
                 visible: false
+                
                 onVideoSelected: {
                     console.log("selected item PATH == " + item.path);
+
                     pgPlayer.currentPath= item.path;
                     myPlayer.setSourceUrl(item.path);
+
                     if (appContainer.playMediaPlayer() == MediaError.None) {
                         videoWindow.visible = true;
                         contentContainer.visible = true;
@@ -430,7 +433,9 @@ Page {
                         infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
                         trackTimer.start();
                         myPlayer.play();
+                        videoListDisappearAnimation.play();
                     }
+                    
                 }
                 animations: [
                     TranslateTransition {
@@ -456,6 +461,7 @@ Page {
                     }
                 ]
             }// videoListScrollBar
+
 
             Container {
                 id: upperMenu
