@@ -48,9 +48,8 @@ MetaDataReader::~MetaDataReader()
 	m_mediaPlayer.reset();
 }
 
-void MetaDataReader::addMetadataReadRequest(QStringList videoFiles)
+void MetaDataReader::addMetadataReadRequest()
 {
-    m_queue.append(videoFiles);
     if(!m_started)
     {
     	m_started = true;
@@ -58,11 +57,21 @@ void MetaDataReader::addMetadataReadRequest(QStringList videoFiles)
     }
 }
 
+void MetaDataReader::setData(QStringList videoFiles)
+{
+    m_queue.append(videoFiles);
+}
+
 void MetaDataReader::readNextMetadata()
 {
 	// if there is no video files, there is no need to exit the program
-    if (m_queue.isEmpty())
-    	return;
+    if (m_queue.isEmpty()) {
+        //added to start thread
+        m_started = false;
+        m_mediaPlayer.reset();
+        emit allMetadataRead();
+        return;
+    }
 
     m_currentVideoUrl = m_queue.dequeue();
     m_retryCount = 0;
