@@ -600,6 +600,24 @@ Page {
             verticalAlignment: VerticalAlignment.Bottom
 
             Container {
+                id: bookmark
+                implicitLayoutAnimationsEnabled: false
+                layout: AbsoluteLayout {
+                }
+                //bookmark Icone
+                ImageView {
+                    implicitLayoutAnimationsEnabled: false
+                    id: bookmarkIcon
+                    layoutProperties: AbsoluteLayoutProperties {
+                              positionX: durationSlider.x + 200 + 20
+                    }
+                    imageSource: "asset:///images/Player/BookmarkIcon.png"
+                    visible: true
+
+                } //bookmark Icon
+            } //bookmark
+
+            Container {
                 id: sliderContainer
                 objectName: sliderContainer
                 
@@ -623,7 +641,7 @@ Page {
                         spaceQuota: 1
                     }
                     onImmediateValueChanged: {
-                        console.log("onImmediateValueChanged");
+                        //console.log("onImmediateValueChanged");
                         if(myPlayer.mediaState == MediaState.Started ||
                             myPlayer.mediaState == MediaState.Paused) {
                             if(appContainer.changeVideoPosition == true && immediateValue != value) {

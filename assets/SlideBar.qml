@@ -11,6 +11,7 @@ Container {
     property real toValue: 1
     property bool onSlider : false
     property int height: 100
+    property real x
 
     preferredWidth: my.width
     horizontalAlignment: HorizontalAlignment.Fill
@@ -103,6 +104,10 @@ Container {
 
         onDraggingChanged: {
             onSlider = dragging;
+        }
+
+        onXChanged: {
+            slideBar.x = x;
         }
     }
 
