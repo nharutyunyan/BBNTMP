@@ -47,7 +47,8 @@ public:
 	 * @details If the reading process is not started, this function also starts it
 	 * @param videoFiles  List of video file paths
 	 */
-	void addMetadataReadRequest(QStringList videoFiles);
+	void addMetadataReadRequest();
+	void setData(QStringList videoFiles);
 
 signals:
 	void metadataReady(const QVariantMap&);

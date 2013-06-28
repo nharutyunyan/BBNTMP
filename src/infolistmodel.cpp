@@ -24,15 +24,13 @@ using namespace utility;
 
 InfoListModel::InfoListModel(QObject* parent)
 : bb::cascades::QVariantListDataModel()
-, m_selectedIndex(0)
+, m_selectedIndex(0), start(0)
 {
 	m_file = QDir::home().absoluteFilePath("videoInfoList.json");
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
 
-
-    int start = 0;
-    getVideoFiles(start);
+    getVideoFiles();
 
     m_producer = new Producer(m_list, start);
 
@@ -62,7 +60,7 @@ void InfoListModel::consume(QString data, int index)
 	emit consumed();
 }
 
-void InfoListModel::getVideoFiles(int& startIndex)
+void InfoListModel::getVideoFiles()
 {
 	// need to create the folder for thumbnails here
 	QDir dir;
@@ -105,7 +103,7 @@ void InfoListModel::getVideoFiles(int& startIndex)
 		else
 		{
 			load();
-			startIndex = m_list.size();
+			start = m_list.size();
 			updateVideoList();
 			readMetadatas(result);
 		}
@@ -162,6 +160,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 			// if the video does not exist any more remote its thumbnail as well
 			dir.remove(v["thumbURL"].toString());
 			m_list.erase(m_list.begin() + ix);
+			start--;
 		}
 	}
 
@@ -175,8 +174,8 @@ void InfoListModel::updateVideoList()
 	filters << "*.mp4";
 	filters << "*.avi";
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
+	updateListWithAddedVideos(result);
 	append(m_list);
 }
 
@@ -229,9 +228,11 @@ void InfoListModel::readMetadatas(QStringList videoFiles)
 		return;
 	}
 
+	reader->setData(videoFiles);
 	connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
 	connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
-	reader->addMetadataReadRequest(videoFiles);
+	if(!videoFiles.isEmpty())
+	    reader->addMetadataReadRequest();
 }
 
 void InfoListModel::onMetadataReady(const QVariantMap& data)

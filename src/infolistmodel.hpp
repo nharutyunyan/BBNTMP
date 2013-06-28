@@ -108,11 +108,12 @@ private:
     QString m_file;
     Producer* m_producer;
     QThread* m_producerThread;
+    int start;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
-    void getVideoFiles(int&);
+    void getVideoFiles();
     void readMetadatas(QStringList videoFiles);
 };
 
