@@ -690,6 +690,7 @@ Page {
 
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
+                myPlayer.seekTime(durationSlider.immediateValue);
                 appContainer.playMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/play.png"
             } else {
