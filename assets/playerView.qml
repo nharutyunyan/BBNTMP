@@ -154,10 +154,10 @@ Page {
                                 bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                             
 	                             volume.visible = true;
-	                             if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+	                             if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
 	                             else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-	                             if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-	                             else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+	                       /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+	                             else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
                     		}
                      	}
                         if ( appContainer.previousPositionY - event.localY  < 0) {
@@ -166,11 +166,11 @@ Page {
                                 if (appContainer.curVolume < 0) appContainer.curVolume = 0;
                                 bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 
-                                volume.visible = true;
-                                if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
-                                else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                                if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-                                else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+                                  volume.visible = true;
+                                  if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
+                                  else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+                            /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+                                  else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
                             }
                         }
                     }
@@ -244,101 +244,79 @@ Page {
                }
            }
 
+            }
+
+            Container {
+                id: volume
+                layout: AbsoluteLayout {
+                }
+                visible: false
+
+                property int positionY: 225
+
                 Container {
-                    id: volume
                     layout: AbsoluteLayout {
                     }
-                    visible: false
 
-                    property int positionY: 225
+                    preferredHeight: volume.positionY + 140
 
-                    Container {
-                        layout: AbsoluteLayout {
+
+                    ImageView {
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 60
+                            positionY: volume.positionY - 140
                         }
-
-                        preferredHeight: volume.positionY + 80
-
-                        Label {
-                            text: appContainer.curVolume
-                            horizontalAlignment: HorizontalAlignment.Center
-                            verticalAlignment: VerticalAlignment.Center
-                            textStyle {
-                                color: Color.White
-                                fontWeight: FontWeight.Normal
-                            }
-                        }
-
-                        ImageView {
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 40
-                                positionY: volume.positionY - 80
-                            }
-                            imageSource: "asset:///images/Player/VolumeInactive.png"
-                        }
-                        ImageView {
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 40
-                                positionY: volume.positionY
-                            }
-                            imageSource: "asset:///images/Player/VolumeInactive.png"
-                        }
-
-                        ImageView {
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 40
-                                positionY: volume.positionY + 80 - appContainer.curVolume * (160 / 100)
-                            }
-                            imageSource: "asset:///images/Player/VolumeActive.png"
-                        }
-                        ImageView {
-
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 40
-                                positionY: volume.positionY + 80 + 80 - appContainer.curVolume * (160 / 100)
-                            }
-                            imageSource: "asset:///images/Player/VolumeActive.png"
-
-                        }
+                        imageSource: "asset:///images/Player/VolumeInactive.png"
                     }
 
-                    Container {
-                        layout: AbsoluteLayout {
+                    ImageView {
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 60
+                            positionY: volume.positionY + 140 - appContainer.curVolume * (280 / 100)
                         }
-                        ImageView {
-                            id: volumeFull
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 30
-                                positionY: volume.positionY - 85 - 50
-                            }
-                            imageSource: "asset:///images/Player/Volume Full.png"
-                            horizontalAlignment: HorizontalAlignment.Left
-                            onTouch: {
-                                appContainer.volumeFullorMute = true
-                                appContainer.curVolume = 100;
-                                volumeFull.imageSource = "asset:///images/back.png"
-                                volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
-                            }
+                        imageSource: "asset:///images/Player/VolumeActive.png"
+                    }
+
+                }
+
+                Container {
+                    layout: AbsoluteLayout {
+                    }
+                    ImageView {
+                        id: volumeFull
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 50
+                            positionY: volume.positionY - 145 - 70
                         }
-                        ImageView {
-                            id: volumeMute
-                            layoutProperties: AbsoluteLayoutProperties {
-                                positionX: 30
-                                positionY: volume.positionY + 85
-                            }
-                            imageSource: "asset:///images/Player/VolumeMute.png"
-                            horizontalAlignment: HorizontalAlignment.Left
-                            onTouch: {
-                                appContainer.volumeFullorMute = true
-                                appContainer.curVolume = 0;
-                                volumeMute.imageSource = "asset:///images/back.png"
-                                volumeFull.imageSource = "asset:///images/Player/Volume Full.png"
-                            }
+                        imageSource: "asset:///images/Player/VolumeFull.png"
+                        horizontalAlignment: HorizontalAlignment.Left
+                        onTouch: {
+                            appContainer.volumeFullorMute = true
+                            appContainer.curVolume = 100;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        //  volumeFull.imageSource = "asset:///images/back.png"   
+                            volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
+                        }
+                    }
+                    ImageView {
+                        id: volumeMute
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 50
+                            positionY: volume.positionY + 145
+                        }
+                        imageSource: "asset:///images/Player/VolumeMute.png"
+                        horizontalAlignment: HorizontalAlignment.Left
+                        onTouch: {
+                            appContainer.volumeFullorMute = true
+                            appContainer.curVolume = 0;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                            volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png"  
+                        //  volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"
                         }
                     }
                 }
-
             }
-       
+
             gestureHandlers: [
                 // Add a handler for pinch gestures
                 PinchHandler {
@@ -787,10 +765,10 @@ Page {
                 onSpeakerVolumeChanged: {
                     volume.visible = true;
                     appContainer.curVolume = bpsEventHandler.getVolume();
-                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/back.png";
+                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-                    else volumeFull.imageSource = "asset:///images/Player/Volume Full.png";
+                /*  if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
+                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";  */
                 }
 
                 onShowVideoScrollBar: {
