@@ -21,8 +21,8 @@
 
 CustomSlider::CustomSlider(Container* parent)
     :CustomControl(parent),
-     m_rootContainerHeight(100),
-     m_progressBarContainerHeight(25),
+     m_rootContainerHeight(105),
+     m_progressBarContainerHeight(15),
      m_fromValue(0.0),
      m_toValue(1.0)
 {
@@ -218,9 +218,9 @@ void CustomSlider::createProgressBar()
 void CustomSlider::createHandle()
 {
     m_handleOnImg = bb::cascades
-                 ::Image(QUrl("asset:///images/handle_pressed.png"));
+                 ::Image(QUrl("asset:///images/Player/SliderPointerPrecision.png"));
     m_handleOffImg = bb::cascades
-                  ::Image(QUrl("asset:///images/handle_inactive.png"));
+                  ::Image(QUrl("asset:///images/Player/SliderPointer.png"));
 
     m_handle = ImageView::create()
                .preferredWidth(m_rootContainerHeight)

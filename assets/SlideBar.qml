@@ -16,7 +16,7 @@ Container {
     horizontalAlignment: HorizontalAlignment.Fill
 
     layout: AbsoluteLayout {}
-    background: Color.create("#0088cc")
+    background: backgroundImage.imagePaint
 
     TimeArea {
         id: currentTimeLabel
@@ -105,11 +105,11 @@ Container {
             onSlider = dragging;
         }
     }
-
+    
     CustomSlider {
         id: smallStepSlider
         preferredWidth: my.smallStepSliderWidth
-        visible: false
+        visible: false        
         layoutProperties: AbsoluteLayoutProperties {
         }
     }
@@ -131,6 +131,14 @@ Container {
             onLayoutFrameChanged: {
                 my.width = layoutFrame.width;
             }
+        },
+        ImagePaintDefinition {
+            id: backgroundImage
+            imageSource: "asset:///images/Player/SliderBackground.png"
+        },
+        ImagePaintDefinition {
+            id: zoomImage
+            imageSource: "asset:///images/Player/SliderPrecisionFill.png"
         }
     ]
 

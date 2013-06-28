@@ -5,7 +5,7 @@ Container {
     property int timeInMsc
     layout: DockLayout {}
 
-    background: Color.create("#0088cc")
+    // background: Color.create("#0088cc")
     Label {
         text: Helpers.formatTime(timeInMsc)
         horizontalAlignment: HorizontalAlignment.Center
