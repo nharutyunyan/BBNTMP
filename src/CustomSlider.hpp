@@ -36,6 +36,7 @@ class CustomSlider : public bb::cascades::CustomControl {
     Q_PROPERTY(float fromValue READ fromValue WRITE setFromValue NOTIFY fromValueChanged FINAL)
     Q_PROPERTY(float toValue READ toValue WRITE setToValue NOTIFY toValueChanged FINAL)
     Q_PROPERTY(float immediateValue READ immediateValue NOTIFY immediateValueChanged FINAL)
+    Q_PROPERTY(float x READ x NOTIFY xChanged FINAL)
     Q_PROPERTY(bool dragging READ dragging WRITE setDragging NOTIFY draggingChanged FINAL)
     Q_PROPERTY(QSize handleSize READ handleSize NOTIFY handleSizeChanged FINAL)
 
@@ -47,6 +48,7 @@ public:
     float fromValue() const;
     float toValue() const;
     float immediateValue() const;
+    float x() const;
     bool dragging() const;
     Q_INVOKABLE float handleLocalX() const;
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
@@ -70,6 +72,7 @@ Q_SIGNALS:
     void fromValueChanged(float value);
     void toValueChanged(float value);
     void immediateValueChanged(float value);
+    void xChanged(float x);
     void draggingChanged(bool draggingState);
     void handleLongPressed(float positionX);
     void handleReleased();
@@ -120,6 +123,7 @@ private:
     float m_fromValue;
     float m_toValue;
     float m_immediateValue;
+    float m_coordinateX;
     bool m_dragging;
 
     float m_touchEventInitX;

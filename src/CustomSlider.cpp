@@ -24,6 +24,7 @@ CustomSlider::CustomSlider(Container* parent)
      m_rootContainerHeight(100),
      m_progressBarContainerHeight(25),
      m_fromValue(0.0),
+     m_coordinateX(0.0),
      m_toValue(1.0)
 {
     setUpdateInterval(0);
@@ -117,6 +118,11 @@ float CustomSlider::immediateValue() const
     return m_immediateValue;
 }
 
+float CustomSlider::x() const
+{
+	return m_coordinateX;
+}
+
 void CustomSlider::setImmediateValue(float value, bool fireEvent)
 {
     if(m_immediateValue == value)
@@ -127,7 +133,10 @@ void CustomSlider::setImmediateValue(float value, bool fireEvent)
     updateHandlePositionX();
 
     if(fireEvent)
+    {
         emit immediateValueChanged(m_immediateValue);
+        emit xChanged(m_coordinateX);
+    }
 }
 
 bool CustomSlider::dragging() const
@@ -343,16 +352,16 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
 
 void CustomSlider::updateHandlePositionX()
 {
-    float x = fromValueToPosX(m_immediateValue);
+	m_coordinateX = fromValueToPosX(m_immediateValue);
 
 //    Q_ASSERT(static_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
-    m_handleLayoutProperties->setPositionX(x);
-    if(x == 0) {
+    m_handleLayoutProperties->setPositionX(m_coordinateX);
+    if(m_coordinateX == 0) {
         m_progressBarImageView->setVisible(false);
     }
     else {
         m_progressBarImageView->setVisible(true);
-        m_progressBarImageView->setPreferredWidth(x);
+        m_progressBarImageView->setPreferredWidth(m_coordinateX);
     }
 }
 
@@ -380,6 +389,7 @@ float CustomSlider::fromPosXToValue(float positionX) const
 void CustomSlider::onDragUpdateTimerTimeout()
 {
     emit immediateValueChanged(m_immediateValue);
+    emit xChanged(m_coordinateX);
 }
 
 void CustomSlider::setUpdateInterval(int interval)
