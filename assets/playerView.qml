@@ -253,6 +253,21 @@ Page {
                 visible: false
 
                 property int positionY: 225
+                property int indicator_length: 280
+                property int indicator_count: 16
+                property int indicators_length: 10
+                property int indicators_space: 8
+
+                function coord(vol) {
+                    var pos = vol * (indicator_length / 100);
+                    for (var i = 1; i < indicator_count; i ++) {
+                        var begin = indicators_length * i + indicators_space * (i - 1);
+                        var end = indicators_length * (i + 1) + indicators_space * i;
+                        if (pos >= begin && pos < (end - begin) / 2 + begin) return begin;
+                        if (pos <= end && pos >= (end - begin) / 2 + begin) return end;
+                    }
+                    return 0;
+                }
 
                 Container {
                     layout: AbsoluteLayout {
@@ -272,7 +287,7 @@ Page {
                     ImageView {
                         layoutProperties: AbsoluteLayoutProperties {
                             positionX: 60
-                            positionY: volume.positionY + 140 - appContainer.curVolume * (280 / 100)
+                            positionY: volume.positionY + 140 - volume.coord(appContainer.curVolume)
                         }
                         imageSource: "asset:///images/Player/VolumeActive.png"
                     }
