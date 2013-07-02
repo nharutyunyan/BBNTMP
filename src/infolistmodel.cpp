@@ -179,6 +179,71 @@ void InfoListModel::updateVideoList()
 	append(m_list);
 }
 
+//begin: refresh block
+void InfoListModel::updateVideoList2()
+ {
+	start= m_list.size();
+	QStringList result;
+	QStringList filters;
+	QVariantList videos;
+	filters << "*.mp4";
+	filters << "*.avi";
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+	updateListWithAddedVideos(result);
+	updateListWithDeletedVideos(result);
+
+	MetaDataReader* reader = new MetaDataReader(this);
+	if (!reader)
+	{
+		refresh();
+		return;
+	}
+	else
+	{
+		reader->setData(result);
+		connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady2(const QVariantMap&)));
+		connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
+		if(!result.isEmpty())
+			reader->addMetadataReadRequest();
+	}
+
+	m_producer = new Producer(m_list, start);
+
+	clear();
+	append(m_list);
+ }
+
+void InfoListModel::onMetadataReady2(const QVariantMap& data)
+{
+	//Update the appropriate video info entry
+	QString path = data[bb::multimedia::MetaData::Uri].toString();
+	if(path.isEmpty())
+			return;
+
+	int index = 0;
+	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
+	{
+		if(path == (*it).toMap()["path"].toString())
+		{
+			QVariantMap infoMap = (*it).toMap();
+			QString duration = data.value(bb::multimedia::MetaData::Duration).toString();
+			if (!duration.isEmpty() && infoMap.value("duration").toString() != duration)
+				infoMap["duration"] = duration;
+
+			//Update the list
+			(*it) = infoMap;
+			break;
+		}
+		index++;
+	}
+		saveData();
+     	replace(index, m_list.at(index));
+}
+
+
+
+//end:refresh block
+
 void InfoListModel::refresh()
 {
 	clear();

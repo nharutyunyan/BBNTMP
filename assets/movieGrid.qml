@@ -9,6 +9,23 @@ ListView {
         id: videoGridView
     }
     horizontalAlignment: HorizontalAlignment.Center
+
+    property bool released: true
+    leadingVisualSnapThreshold: 0
+
+    leadingVisual: PullToRefresh {
+        id: refreshHandler
+        released: listView.released
+        
+        onRefreshTriggered: {
+            if(refreshing)
+            {
+	            infoListModel.updateVideoList2();
+	            refreshHandler.refreshing= false;
+	        }
+        }
+    }
+
     listItemComponents: [
         // define component which will represent list item GUI appearence
         ListItemComponent {
@@ -18,9 +35,38 @@ ListView {
 	                movieTitle: ListItemData.title
 	                movieLength: ListItemData.duration
 	            }
-	        }
+                opacity: 0.0
+
+                onCreationCompleted: {
+                    appear.play();
+                }
+
+                animations: [
+                    FadeTransition {
+                        id: appear
+                        duration: 3000
+                        easingCurve: StockCurve.CubicOut
+                        fromOpacity: 0.0
+                        toOpacity: 1.0
+                    }
+                ]
+            }
         }
     ]
+
+    onTouch: {
+        if (event.touchType == TouchType.Down) {
+            released = false;
+        } else if (event.touchType == TouchType.Up) {
+            released = true;
+            if(refreshHandler.refreshMode)
+            {
+            	scrollToPosition(ScrollPosition.Beginning, ScrollAnimation.Smooth);
+                refreshHandler.refreshMode= false;
+            }
+        }
+    }
+
     onTriggered: {
         clearSelection();
         select(indexPath);
