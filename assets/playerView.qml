@@ -25,8 +25,8 @@ Page {
         property bool volumeChange : false
         property bool volumeFullorMute : false
 
-        property int heightOfScreen : 0
-            
+        property int heightOfScreen 
+        property int widthOfScreen
         //This variable is used to control video duration logic. 
         //Indicates whether to change the video position, when the slider's value is changed.
         property bool changeVideoPosition : false
@@ -47,13 +47,14 @@ Page {
         property double maxScreenScale: 2.0        //THIS IS THE MAXIMUM SCALE FACTOR THAT WILL BE APPLIED TO THE SCREEN SIZE
         property double initialScreenScale: 1.0    // Starts the video with original dimensions (that is, scale factor 1.0)
                                                    // NOTE: this is not to be confused with the "initialScale" property of the ForeignWindow below
-                                                   // They both start with the same value but the "initialScale" value is different for every new pinch 
-        property double currentTranslation;
-        property double startPinchDistance:0.0;
-        property double endPinchDistance:0.0;
-
-        property double startMidPointXPinch:0.0;
-        property double endMidPointXPinch:0.0;
+                                                   // They both start with the same value but the "initialScale" value is different for every new pinch
+        property double startPinchDistance: 0.0
+        property double startTranslationX: 0.0
+        property double startTranslationY: 0.0
+        property double startMidPointX: 0.0
+        property double startMidPointY: 0.0
+        property double coefficientOfZoom: 0
+        property bool isPinchZoom
 
         property double curVolume: bpsEventHandler.getVolume();    // system speaker volume current value
 
@@ -64,12 +65,15 @@ Page {
         property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
 
         onTouch: {
+            if(!isPinchZoom){
             if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                heightOfScreen = landscapeWidth;
-                touchDistanceAgainstMode = 150;
+                 heightOfScreen = landscapeWidth;
+                widthOfScreen = landscapeHeight;
+                touchDistanceAgainstMode = landscapeHeight / 5;
             } else {
-                heightOfScreen = landscapeHeight;
-                touchDistanceAgainstMode = 300;
+                 heightOfScreen = landscapeHeight;
+                widthOfScreen = landscapeWidth;
+                touchDistanceAgainstMode = landscapeWidth / 5;
             }
             if (event.touchType == TouchType.Down) {
                 appContainer.previousPositionX = event.localX;
@@ -87,11 +91,6 @@ Page {
                      
             } else if (event.touchType == TouchType.Up && !appContainer.volumeChange) {
                 if (Math.abs(appContainer.touchPositionX - event.localX) > touchDistanceAgainstMode) {
-                    if (videoWindow.scaleX <= 1.0) {
-                        videoWindow.translationX = 0;
-                        videoWindow.translationY = 0;
-                        contentContainer.startingX = 0;
-                        contentContainer.startingY = 0;
                         // TODO: probably we could use the application container size
                         // to calculate the magic numbers below by the percentage
 
@@ -108,15 +107,7 @@ Page {
                             appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
                         }
                         appContainer.changeVideoPosition = false;
-                    }
-                } else {
-                    if (Math.abs(appContainer.touchPositionX - event.localX) < 100 && ! videoListScrollBar.visible 
-                                                                              && !appContainer.volumeFullorMute) {
-                        if (event.localY < heightOfScreen - durationSlider.height) {
-                            appContainer.showPlayPauseButton();
-                        }
-                    }
-                }
+                } 
                 if (event.localY > 180 && videoListScrollBar.visible && ! appContainer.videoScrollBarIsClosing) {
                     videoListDisappearAnimation.play();
                 } else {
@@ -127,10 +118,6 @@ Page {
                 }
             } 
             else if(event.touchType == TouchType.Move ){
-                	if (videoWindow.scaleX > 1.0) {
-                    appContainer.moveX(event.localX);
-                    appContainer.moveY(event.localY);
-                }
                 if(!appContainer.directionIsDetect){	
                 	 
                     if (appContainer.counterForDetectDirection != 0) {
@@ -145,9 +132,6 @@ Page {
                         else{
                             appContainer.volumeChange = true;
                          if (appContainer.previousPositionY - event.localY > 0) {
-                         	if (videoWindow.scaleX <= 1.0) {
-                         	    if(appContainer.previousPositionY - event.localY > 30){
-                         	    }
                             	appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
                             	if (appContainer.curVolume > 100) 
                                 appContainer.curVolume = 100;
@@ -158,10 +142,8 @@ Page {
 	                             else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
 	                       /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
 	                             else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
-                    		}
                      	}
                         if ( appContainer.previousPositionY - event.localY  < 0) {
-                            if (videoWindow.scaleX <= 1.0) {
                                 appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
                                 if (appContainer.curVolume < 0) appContainer.curVolume = 0;
                                 bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
@@ -171,14 +153,17 @@ Page {
                                   else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
                             /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
                                   else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
-                            }
                         }
                     }
                     }
                 appContainer.previousPositionX = event.localX;
                 appContainer.previousPositionY = event.localY;    
             }   
-            }    
+            }
+        }
+        if (event.touchType == TouchType.Up && isPinchZoom) {
+            isPinchZoom = false;
+        }
         }// onTouch
 
         Container {
@@ -204,7 +189,7 @@ Page {
 
                 layoutProperties: AbsoluteLayoutProperties {
                 }
-                property double initialScale: appContainer.initialScreenScale
+                property double startScale: appContainer.initialScreenScale
 
                // This custom property determines how quickly the ForeignWindow grows
                // or shrinks in response to the pinch gesture
@@ -215,7 +200,14 @@ Page {
 
                 gestureHandlers: [
                 ]
-
+                animations: [
+                    ScaleTransition {
+                        id: scaleAnimation
+                        toX: 1.0
+                        toY: 1.0
+                        duration: 200
+                    }
+                ]
                 preferredWidth:  appContainer.landscapeWidth
                 preferredHeight: appContainer.landscapeHeight 
 
@@ -333,57 +325,61 @@ Page {
             }
 
             gestureHandlers: [
+                TapHandler {
+                    onTapped: {
+                        if (event.y < appContainer.heightOfScreen - durationSlider.height) {
+                            appContainer.showPlayPauseButton();
+                        }
+                    }
+                },
                 // Add a handler for pinch gestures
                 PinchHandler {
-                    // When the pinch gesture starts, save the initial scale
-                    // of the window
                     onPinchStarted: {
-                        console.log("onPinchStart: videoWindow.scaleX = " + videoWindow.scaleX);
-                        videoWindow.initialScale = videoWindow.scaleX;
+                        videoWindow.startScale = videoWindow.scaleX;
+                        appContainer.startTranslationX = videoWindow.translationX;
+                        appContainer.startTranslationY = videoWindow.translationY;
                         appContainer.startPinchDistance = event.distance;
-                        appContainer.startMidPointXPinch = event.midPointX;
+                        appContainer.startMidPointX = event.midPointX;
+                        appContainer.startMidPointY = event.midPointY;
+                        appContainer.isPinchZoom = true;
+
                     }
 
                     // As the pinch expands or contracts, change the scale of
                     // the image
                     onPinchUpdated: {
-                        console.log("onPinchUpdate");
-                        videoWindow.newScaleVal = videoWindow.initialScale + ((event.pinchRatio - 1) * videoWindow.scaleFactor);
-                        console.log("onPinchUpdate: videoWindow.initialScale = " + videoWindow.initialScale + ": event.pinchRatio-1= " + event.pinchRatio - 1 + " : newScaleVal = " + videoWindow.newScaleVal);
-                        if (videoWindow.newScaleVal < 1) {
-                            videoWindow.newScaleVal = 1;
-                        }
-                        if (videoWindow.newScaleVal < appContainer.maxScreenScale &&
-                            videoWindow.newScaleVal > appContainer.minScreenScale) {
-                            videoWindow.scaleX = videoWindow.newScaleVal;
-                            videoWindow.scaleY = videoWindow.newScaleVal;
-                            videoWindow.translationX = 0;
-                            videoWindow.translationY = 0;
-                        }
+                        appContainer.coefficientOfZoom = event.distance / appContainer.startPinchDistance;
+                        videoWindow.scaleX = videoWindow.scaleY = videoWindow.startScale * appContainer.coefficientOfZoom;
+                        videoWindow.translationX = appContainer.startTranslationX // start translation 
+                        + (appContainer.startTranslationX + videoWindow.preferredWidth / 2 - appContainer.startMidPointX) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointX isn't changed 
+                        + (event.midPointX - appContainer.startMidPointX); // translation in time of move
+
+                        videoWindow.translationY = appContainer.startTranslationY // start translation 
+                        + (appContainer.startTranslationY + videoWindow.preferredHeight / 2 - appContainer.startMidPointY) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointY isn't changed
+                        + (event.midPointY - appContainer.startMidPointY); // translation in time of move
+
                     } // onPinchUpdate
                     onPinchEnded: {
-                        if(videoWindow.initialScale <= appContainer.initialScreenScale + 0.1)
-                        {
-                            appContainer.endPinchDistance = event.distance;
-                            appContainer.endMidPointXPinch = event.midPointX;
-                            if ((appContainer.startPinchDistance / appContainer.endPinchDistance > appContainer.minPinchPercentFactor) &&
-                                (appContainer.startPinchDistance / appContainer.endPinchDistance < appContainer.maxPinchPercentFactor)) {
-                                if (appContainer.startMidPointXPinch > event.midPointX + 200 ||
-                                    appContainer.startMidPointXPinch + 200 < event.midPointX) {
-                                        if(appContainer.startMidPointXPinch > appContainer.endMidPointXPinch) {
-                                            myPlayer.setSourceUrl(infoListModel.getNextVideoPath());
-                                            myPlayer.play();
-                                        } else {
-                                            myPlayer.setSourceUrl(infoListModel.getPreviousVideoPath());
-                                            myPlayer.play();
-                                        }
-                                }
-                            }
+                        if (videoWindow.translationX >= (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2)) {
+                            videoWindow.translationX = (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2);
+                        }
+                        if (videoWindow.translationX <= - ((((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2) )) {
+                            videoWindow.translationX = - (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2);
+                        }
+                        if (videoWindow.translationY >= (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2)) {
+                            videoWindow.translationY = (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2);
+                        }
+                        if (videoWindow.translationY <= - ((((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2) )) {
+                            videoWindow.translationY = - (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2);
+                        }
+                        if (videoWindow.scaleX < 1) {
+                            scaleAnimation.play();
+                            videoWindow.translationX = 0;
+                            videoWindow.translationY = 0;
                         }
                     } // onPinchEnded
                 } // PinchHandler
             ] // attachedObjects
-
             // Play/pause image is transparent. It will become visible when the video
             // is played/paused using tap event. It will be visible 1 sec.
             ImageView {
@@ -677,25 +673,6 @@ Page {
 
         function pauseMediaPlayer() {
             return myPlayer.pause();
-        }
-        function moveX(localX) {
-            appContainer.currentTranslation = localX - appContainer.touchPositionX + contentContainer.startingX;
-            if (appContainer.currentTranslation < 0) {
-                appContainer.currentTranslation = - appContainer.currentTranslation;
-            }
-            if (appContainer.currentTranslation < (videoWindow.preferredWidth * videoWindow.scaleX - videoWindow.preferredWidth) / 2) {
-                console.log("Trans XXXX = ", appContainer.currentTranslation);
-                videoWindow.translationX = localX - appContainer.touchPositionX + contentContainer.startingX;
-            }
-        }
-        function moveY(localY) {
-            appContainer.currentTranslation = localY - appContainer.touchPositionY + contentContainer.startingY;
-            if (appContainer.currentTranslation < 0) {
-                appContainer.currentTranslation = - appContainer.currentTranslation;
-            }
-            if (appContainer.currentTranslation < (videoWindow.preferredHeight * videoWindow.scaleY - videoWindow.preferredHeight) / 2) {
-                videoWindow.translationY = localY - appContainer.touchPositionY + contentContainer.startingY;
-            }
         }
         function seekPlayer(time) {
             myPlayer.seekTime(time);
