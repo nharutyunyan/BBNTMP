@@ -13,8 +13,8 @@ Container {
     property alias movieTitle: title.text
     property variant movieLength: ""
 
-    property int height: 320
-    property int width: 240
+    property int height: orientationHandler.orientation == UIOrientation.Portrait ? 320 : 240
+    property int width: orientationHandler.orientation == UIOrientation.Portrait ? 240 : 320
     property int sub: 60
 
     ImageView {
@@ -38,6 +38,8 @@ Container {
 
         maxHeight: sub
         preferredHeight: sub
+        maxWidth: width
+        preferredWidth: width
 
         Container {
             verticalAlignment: VerticalAlignment.Center
@@ -66,16 +68,6 @@ Container {
     attachedObjects: [
         OrientationHandler {
             id: orientationHandler
-            onOrientationAboutToChange: {
-                if (orientation == UIOrientation.Portrait) {
-                    height = 320;
-                    width = 240;
-                } else if (orientation == UIOrientation.Landscape) {
-                    height = 240;
-                    width = 320;
-                }
-
-            }
         },
 
         ImagePaintDefinition {
