@@ -8,6 +8,7 @@ Page {
     id: pgPlayer
     
     property variant currentPath: ""
+    property variant currentLenght: 0
 
     Container {
         id: appContainer
@@ -653,7 +654,6 @@ Page {
 
             Container {
                 id: bookmark
-                implicitLayoutAnimationsEnabled: false
                 layout: AbsoluteLayout {
                 }
                 //bookmark Icone
@@ -661,10 +661,21 @@ Page {
                     implicitLayoutAnimationsEnabled: false
                     id: bookmarkIcon
                     layoutProperties: AbsoluteLayoutProperties {
-                              positionX: durationSlider.x + 200 + 20
+                        positionX: OrientationSupport.orientation == UIOrientation.Landscape 
+                        ? 220 + infoListModel.getVideoPosition() * ((appContainer.landscapeWidth - 505) / pgPlayer.currentLenght) + 5 
+                        : 220 + infoListModel.getVideoPosition() * ((appContainer.landscapeHeight - 505) / pgPlayer.currentLenght) + 5
+
                     }
                     imageSource: "asset:///images/Player/BookmarkIcon.png"
                     visible: true
+
+                    
+                    onTouch: {
+                        myPlayer.seekTime(infoListModel.getVideoPosition());
+                        durationSlider.immediateValue= infoListModel.getVideoPosition();
+                        bookmarkIcon.visible= false;
+                        bookmarkTimer.stop();
+                    }
 
                 } //bookmark Icon
             } //bookmark
@@ -927,7 +938,16 @@ Page {
                }
            },
 
-           OrientationHandler {
+            QTimer {
+                id: bookmarkTimer
+                singleShot: true
+                interval: 7000
+                onTimeout: {
+                    bookmarkIcon.visible= false;
+                }
+            },
+
+            OrientationHandler {
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
                        volume.positionY = 384;
@@ -967,7 +987,18 @@ Page {
             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
             if (appContainer.playMediaPlayer() == MediaError.None) {
 
-                var videoPos = infoListModel.getVideoPosition();
+                var videoPos = 0;
+                bookmarkTimer.start();
+                
+                if(!bookmarkIcon.visible) 
+                	bookmarkIcon.visible= true;
+                	
+                if(infoListModel.getVideoPosition()==0) 
+                {
+                	bookmarkIcon.visible = false;
+                	bookmarkTimer.stop();
+                }
+
                 videoWindow.visible = true;
                 contentContainer.visible = true;
                 subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
