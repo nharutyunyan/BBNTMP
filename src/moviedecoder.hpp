@@ -37,6 +37,8 @@ public:
     void seek(int timeInSeconds);
     int getDuration(const std::string& videoFile);
     void getScaledVideoFrame(VideoFrame& videoFrame);
+    int getWidth();
+    int getHeight();
 
 private:
     void initializeVideo();

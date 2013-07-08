@@ -12,7 +12,7 @@
 #include "utility.hpp"
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
-
+#include "moviedecoder.hpp"
 
 #include <bb/data/JsonDataAccess>
 
@@ -91,6 +91,10 @@ void InfoListModel::getVideoFiles()
 					// Add the thumbnail URL to the JSON file
 					val["thumbURL"] = "asset:///images/picture_base.png";//finalFileName;
 
+					MovieDecoder movie(result[i].toStdString());
+					val["width"] = movie.getWidth();
+					val["height"] = movie.getHeight();
+
 					m_list.append(val);
 				}
 				file.close();
@@ -135,6 +139,9 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/picture_base.png";
 
+			MovieDecoder movie(result[i].toStdString());
+			val["width"] = movie.getWidth();
+			val["height"] = movie.getHeight();
 			videos.append(val);
 		}
 	}
@@ -331,6 +338,18 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 				infoMap["duration"] = duration;
 				changed = true;
 			}
+			QString width = data.value(bb::multimedia::MetaData::Width).toString();
+			if (!width.isEmpty() && infoMap.value("width").toString() != width)
+			{
+				infoMap["width"] = width;
+				changed = true;
+			}
+			QString height = data.value(bb::multimedia::MetaData::Height).toString();
+			if (!height.isEmpty() && infoMap.value("height").toString() != height)
+			{
+				infoMap["height"] = height;
+				changed = true;
+			}
 			//Update the list
 			(*it) = infoMap;
 			break;
@@ -425,6 +444,22 @@ QString InfoListModel::getFormattedTime(int msecs)
                          QString( "%1" ).arg(milliseconds, 3, 10, QLatin1Char('0')));
 
     return formattedTime;
+}
+
+int InfoListModel::getWidth()
+{
+	const QString flagName("width");
+	QVariant v = value(m_selectedIndex, flagName);
+	int retValue =  v.toInt();
+	return retValue;
+}
+
+int InfoListModel::getHeight()
+{
+	const QString flagName("height");
+	QVariant v = value(m_selectedIndex, flagName);
+	int retValue =  v.toInt();
+	return retValue;
 }
 
 void InfoListModel::setVideoPosition(int pos)

@@ -200,6 +200,16 @@ int MovieDecoder::getDuration(const std::string& videoFile)
     return 0;
 }
 
+int MovieDecoder::getWidth()
+{
+	return pVideoCodecContext_->width;
+}
+
+int MovieDecoder::getHeight()
+{
+	return pVideoCodecContext_->height;
+}
+
 void MovieDecoder::getScaledVideoFrame(VideoFrame& videoFrame)
 {
     if (pFrame_->interlaced_frame)
