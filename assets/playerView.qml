@@ -166,7 +166,7 @@ Page {
                                 }
                                 appContainer.changeVideoPosition = false;
                             }
-                            if (event.localY > 180 && videoListScrollBar.visible && ! appContainer.videoScrollBarIsClosing) {
+                            if (event.localY > 180 && videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 videoListDisappearAnimation.play();
                             } else {
                                 upperMenu.setOpacity(1);
@@ -401,7 +401,8 @@ Page {
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
                 currentPath: pgPlayer.currentPath
                 visible: false
-                
+                isVisible: false
+
                 onVideoSelected: {
                     console.log("selected item PATH == " + item.path);
 
@@ -418,30 +419,11 @@ Page {
                         trackTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
-                    }
-                    
+                    }  
                 }
-                animations: [
-                    TranslateTransition {
-                        id: videoListAppearAnimation
-                        duration: 800
-                        easingCurve: StockCurve.CubicOut
-                        fromY: -100
-                        toY: 0
-                    },
-                    TranslateTransition {
-                        id: videoListDisappearAnimation
-                        duration: 600
-                        easingCurve: StockCurve.ExponentialIn
-                        fromY: 0
-                        toY: -150
-                        onStarted: {
-                            appContainer.videoScrollBarIsClosing = true;
-                            }
-                        onEnded: {
-                            appContainer.videoScrollBarIsClosing = false;
-                            videoListScrollBar.visible = false;
-                        }
+                attachedObjects: [
+                    LayoutUpdateHandler {
+                        id: videoListScrollLayout
                     }
                 ]
             }// videoListScrollBar
@@ -586,12 +568,43 @@ Page {
                         }
                     } //subtitleButtonContainer
                 }
+                implicitLayoutAnimationsEnabled: false
+                
+                attachedObjects: [
+                    LayoutUpdateHandler {
+                        id:upperMenuLayout
+                    }
+                ]
             }
             onCreationCompleted: {
                 if (OrientationSupport.orientation == UIOrientation.Landscape)
                     upperMenu.preferredWidth = appContainer.landscapeWidth
                 else upperMenu.preferredWidth = appContainer.landscapeHeight
             }
+
+            animations: [
+                TranslateTransition {
+                    id: videoListAppearAnimation
+                    duration: 800
+                    easingCurve: StockCurve.CubicOut
+                    fromY: - videoListScrollLayout.layoutFrame.height
+                    toY: 0
+                },
+                TranslateTransition {
+                    id: videoListDisappearAnimation
+                    duration: 600
+                    easingCurve: StockCurve.ExponentialIn
+                    fromY: 0 
+                    toY:  - videoListScrollLayout.layoutFrame.height
+                    onStarted: {
+                        appContainer.videoScrollBarIsClosing = true;
+                    }
+                    onEnded: {
+                        appContainer.videoScrollBarIsClosing = false;
+                        videoListScrollBar.isVisible = false;
+                    }
+                }
+            ]
         }
 
         Container {
@@ -778,8 +791,15 @@ Page {
                 }
 
                 onShowVideoScrollBar: {
-                   videoListAppearAnimation.play();
-                   videoListScrollBar.visible = true;
+                   if(!videoListScrollBar.visible)
+                      videoListScrollBar.visible = true;
+                      
+                    if(!videoListScrollBar.isVisible && !appContainer.videoScrollBarIsClosing){
+                         videoListAppearAnimation.play();
+                         videoListScrollBar.isVisible = true;
+                    }
+                    else
+                         videoListDisappearAnimation.play(); 
                }
                
                 onDeviceLockStateChanged: {
