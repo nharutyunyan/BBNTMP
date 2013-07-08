@@ -7,6 +7,7 @@ Container {
     preferredHeight: 150
     signal videoSelected(variant item)
     property variant currentPath:""
+    property bool isVisible: false
 
     ListView {
         id: videoListView
