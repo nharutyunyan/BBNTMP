@@ -446,10 +446,12 @@ Page {
                         defaultImageSource: "asset:///images/Player/BackButton.png"
 
                         onClicked: {
-                            infoListModel.setVideoPosition(myPlayer.position);
-                            appContainer.curVolume = bpsEventHandler.getVolume();
-                            navigationPane.pop();
-                            pgPlayer.destroy();
+                            if(upperMenu.opacity != 0) {
+                                infoListModel.setVideoPosition(myPlayer.position);
+                                appContainer.curVolume = bpsEventHandler.getVolume();
+                                navigationPane.pop();
+                                pgPlayer.destroy();
+                            }
                         }
                     }
                 } //backButtonContainer
@@ -457,7 +459,7 @@ Page {
                     id: videoTitleContainer
                     background: backgroundPaint.imagePaint
                     horizontalAlignment: HorizontalAlignment.Center
-                    verticalAlignment: VerticalAlignment.Fill
+                    verticalAlignment: VerticalAlignment.Center
                     maxWidth: upperMenu.preferredWidth - 400
                     opacity: 1
                     // This part of code is commented our for now in case we need it in the feature
@@ -511,7 +513,7 @@ Page {
                     attachedObjects: [
                         ImagePaintDefinition {
                             id: backgroundPaint
-                            imageSource: "asset:///images/Player/BoxMovieListItemTitle.png"
+                            imageSource: "asset:///images/Player/MovieTitleBG.png"
                             repeatPattern: RepeatPattern.Fill
                         },
                         LayoutUpdateHandler {
@@ -521,53 +523,84 @@ Page {
                 } // videoTitleContainer
                 Container {
                     layout: StackLayout {
-                        orientation: LayoutOrientation.LeftToRight
+                        orientation: LayoutOrientation.TopToBottom
                     }
                     horizontalAlignment: HorizontalAlignment.Right
                     verticalAlignment: VerticalAlignment.Center
-                    Container {
-                        id: subtitleButtonContainer
-                        objectName: subtitleButtonContainer
-                        opacity: 0.5
-                        verticalAlignment: VerticalAlignment.Center
-                        rightPadding: 10
-                        property bool subtitleEnabled
-
-                        ImageButton {
-                            id: subtitleButton
-                            defaultImageSource: "asset:///images/Player/SubtitlesButton.png"
-                            onClicked: {
-                                subtitleButtonContainer.subtitleEnabled = !subtitleButtonContainer.subtitleEnabled;
-                                settings.setValue("subtitleEnabled" ,subtitleButtonContainer.subtitleEnabled);
-                            }
-                        }
-                        onCreationCompleted: {
-                            subtitleEnabled = settings.value("subtitleEnabled");
-                            if (subtitleEnabled) subtitleAreaContainer.setOpacity(1);
-                            else subtitleAreaContainer.setOpacity(0);
-                        }
-                        onSubtitleEnabledChanged: {
-                            if (subtitleEnabled) subtitleAreaContainer.setOpacity(1);
-                            else subtitleAreaContainer.setOpacity(0);
-                        }
-                    } //subtitleButtonContainer
                     Container {
                         id: hdmiButtonContainer
                         objectName: hdmiButtonContainer
                         opacity: 0.5
                         verticalAlignment: VerticalAlignment.Center
                         rightPadding: 10
+                        topPadding: 10
+                        property bool hdmiEnabled: false
 
                         ImageButton {
                             id: hdmiButton
-                            defaultImageSource: "asset:///images/Player/HDMI Button.png"
+                            defaultImageSource: "asset:///images/Player/HDMIButtonInactive.png"
 
                             onClicked: {
-                            // enable or disable hdmi
+                                if (upperMenu.opacity != 0) hdmiButtonContainer.hdmiEnabled = ! hdmiButtonContainer.hdmiEnabled;
+                            }
+                        }
+                        onCreationCompleted: {
+                            if (hdmiEnabled) {
+                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
+                            } else {
+                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
+                            }
+                        }
+                        onHdmiEnabledChanged: {
+                            if (hdmiEnabled) {
+                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
+                            } else {
+                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
+                            }
+                        }
+                    } //hdmiButtonContainer
+                    Container {
+                        id: subtitleButtonContainer
+                        objectName: subtitleButtonContainer
+                        opacity: 0.5
+                        verticalAlignment: VerticalAlignment.Center
+                        horizontalAlignment: HorizontalAlignment.Right
+                        rightPadding: 15
+                        topPadding: 20
+                        property bool subtitleEnabled
+
+                        ImageButton {
+                            id: subtitleButton
+                            defaultImageSource: "asset:///images/Player/SubtitleButton.png"
+                            onClicked: {
+                                if (upperMenu.opacity != 0) {
+                                    subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
+                                    settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
+                                }
+                            }
+                        }
+                        onCreationCompleted: {
+                            subtitleEnabled = settings.value("subtitleEnabled");
+                            if (subtitleEnabled) {
+                                subtitleAreaContainer.setOpacity(1);
+                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
+                            } else {
+                                subtitleAreaContainer.setOpacity(0);
+                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
+                            }
+                        }
+                        onSubtitleEnabledChanged: {
+                            if (subtitleEnabled) {
+                                subtitleAreaContainer.setOpacity(1);
+                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
+                            } else {
+                                subtitleAreaContainer.setOpacity(0);
+                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
                             }
                         }
                     } //subtitleButtonContainer
                 }
+
                 implicitLayoutAnimationsEnabled: false
                 
                 attachedObjects: [
@@ -576,9 +609,9 @@ Page {
                     }
                 ]
             }
+
             onCreationCompleted: {
-                if (OrientationSupport.orientation == UIOrientation.Landscape)
-                    upperMenu.preferredWidth = appContainer.landscapeWidth
+                if (OrientationSupport.orientation == UIOrientation.Landscape) upperMenu.preferredWidth = appContainer.landscapeWidth;
                 else upperMenu.preferredWidth = appContainer.landscapeHeight
             }
 
