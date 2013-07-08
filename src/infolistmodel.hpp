@@ -87,6 +87,8 @@ public:
 
     Q_INVOKABLE InfoListModel* get();
 
+    Q_INVOKABLE void updateVideoList2();
+
     void refresh();
 
 public:
@@ -96,6 +98,7 @@ public:
 public slots:
     void consume(QString data, int index);
     void onMetadataReady(const QVariantMap& data);
+    void onMetadataReady2(const QVariantMap& data);
     void onAllMetadataRead();
 
     signals:
