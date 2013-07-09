@@ -209,6 +209,7 @@ Page {
                                             if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
                                             else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
                                         }
+                                        uiControlsShowTimer.start();
                                     }
                                 }
                                 appContainer.previousPositionX = event.localX;
@@ -240,7 +241,7 @@ Page {
                 }
                 visible: false
 
-                property int positionY: 225
+                property int positionY: orientationHandler.orientation == UIOrientation.Portrait ? 225 : 384
                 property int indicator_length: 280
                 property int indicator_count: 16
                 property int indicators_length: 10
@@ -950,15 +951,14 @@ Page {
             },
 
             OrientationHandler {
+                id: orientationHandler
                onOrientationAboutToChange: {
                    if (orientation == UIOrientation.Landscape) {
-                       volume.positionY = 384;
                        upperMenu.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredWidth = appContainer.landscapeWidth
                        videoWindow.preferredHeight = appContainer.landscapeHeight
                        subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                     } else {
-                       volume.positionY = 225;
                        upperMenu.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredWidth = appContainer.landscapeHeight
                        videoWindow.preferredHeight = (appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
