@@ -27,6 +27,7 @@ Container {
                         imageSource: ListItemData.thumbURL
                         movieTitle: ListItemData.title
                         movieLength: ListItemData.duration
+                        isVideoBarItem: true
                         bottomPadding: 30.0
                         topPadding: 5.0
                     }
