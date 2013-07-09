@@ -600,7 +600,6 @@ Page {
                         }
                     } //subtitleButtonContainer
                 }
-
                 implicitLayoutAnimationsEnabled: false
                 
                 attachedObjects: [
@@ -638,6 +637,9 @@ Page {
                     }
                 }
             ]
+            onTouch: {
+                uiControlsShowTimer.start();
+            }
         }
 
         Container {
@@ -702,6 +704,9 @@ Page {
                                 appContainer.changeVideoPosition = false;
                             }
                         }
+                    }
+                    onTouch: {
+                        uiControlsShowTimer.start();
                     }
                 } //durationSlider
             }//sliderContainer
