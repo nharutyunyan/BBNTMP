@@ -34,8 +34,9 @@ ListView {
             Container{
 	            ThumbnailItem {
 	                imageSource: ListItemData.thumbURL
-	                movieTitle: ListItemData.title
+	                movieTitle: " " + ListItemData.title
 	                movieLength: ListItemData.duration
+	                isVideoBarItem: false
 	            }
                 opacity: 0.0
 

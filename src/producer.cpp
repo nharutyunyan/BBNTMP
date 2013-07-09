@@ -52,10 +52,10 @@ void Producer::produce()
 					finalFileName.toUtf8().constData());
 		} catch (exception& e) {
 			std::cerr << "Error: " << e.what() << endl;
-			//finalFileName = "asset:///images/play.png";
+			//finalFileName = "asset:///images/picture_base.png";
 		} catch (...) {
 			std::cerr << "General error" << endl;
-			//finalFileName = "asset:///images/play.png";
+			//finalFileName = "asset:///images/picture_base.png";
 		}
 		qDebug() << " process data === " << m_index;
 		++m_index;
