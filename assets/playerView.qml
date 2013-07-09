@@ -195,8 +195,8 @@ Page {
                                             volume.visible = true;
                                             if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                                             else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                                            /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-                                             * else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
+                                            if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                                            else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
                                         }
                                         if (appContainer.previousPositionY - event.localY < 0) {
                                             appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
@@ -206,8 +206,8 @@ Page {
                                             volume.visible = true;
                                             if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                                             else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                                            /*    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-                                             * else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; */
+                                            if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                                            else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
                                         }
                                     }
                                 }
@@ -256,13 +256,11 @@ Page {
                     }
                     return 0;
                 }
-
                 Container {
                     layout: AbsoluteLayout {
                     }
 
                     preferredHeight: volume.positionY + 140
-
 
                     ImageView {
                         layoutProperties: AbsoluteLayoutProperties {
@@ -271,17 +269,17 @@ Page {
                         }
                         imageSource: "asset:///images/Player/VolumeInactive.png"
                     }
-
                     ImageView {
+                        id: volumeActive
                         layoutProperties: AbsoluteLayoutProperties {
+                            id: activeVolumeImagelayout
                             positionX: 60
                             positionY: volume.positionY + 140 - volume.coord(appContainer.curVolume)
                         }
+                        implicitLayoutAnimationsEnabled: false
                         imageSource: "asset:///images/Player/VolumeActive.png"
                     }
-
                 }
-
                 Container {
                     layout: AbsoluteLayout {
                     }
@@ -297,7 +295,7 @@ Page {
                             appContainer.volumeFullorMute = true
                             appContainer.curVolume = 100;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        //  volumeFull.imageSource = "asset:///images/back.png"   
+                            volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png"   
                             volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
                         }
                     }
@@ -314,12 +312,11 @@ Page {
                             appContainer.curVolume = 0;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                             volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png"  
-                        //  volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"
+                            volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"
                         }
                     }
                 }
             }
-
             gestureHandlers: [
                 TapHandler {
                     onTapped: {
@@ -835,8 +832,8 @@ Page {
                     appContainer.curVolume = bpsEventHandler.getVolume();
                     if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                /*  if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/back.png";
-                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";  */
+                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";  
                 }
 
                 onShowVideoScrollBar: {
