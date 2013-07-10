@@ -709,7 +709,6 @@ Page {
                             if(appContainer.changeVideoPosition == true && immediateValue != value) {
                                 myPlayer.seekTime(durationSlider.immediateValue);
                                 myPlayer.valueChangedBySeek = true;
-                                appContainer.changeVideoPosition = false;
                             }
                         }
                     }
