@@ -459,6 +459,10 @@ Page {
                     horizontalAlignment: HorizontalAlignment.Center
                     verticalAlignment: VerticalAlignment.Center
                     maxWidth: upperMenu.preferredWidth - 400
+                    leftPadding: 10
+                    rightPadding: 10
+                    topPadding: 3
+                    bottomPadding: 7
                     opacity: 1
                     // This part of code is commented our for now in case we need it in the feature
                     //                animations: [
