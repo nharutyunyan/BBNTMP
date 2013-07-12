@@ -32,6 +32,8 @@ signals:
   	void deviceLockStateChanged(bool isLocked); // pass isLocked true if the device is locked
       	  	  	  	  	  	  	  	  	  	   // if it is unlocked pass false
   	void showVideoScrollBar();
+    void windowInactive();
+    void windowActive();
 };
 
 #endif /* BPSEVENTHANDLER_HPP_ */
