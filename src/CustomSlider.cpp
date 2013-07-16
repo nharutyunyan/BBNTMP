@@ -28,7 +28,6 @@ CustomSlider::CustomSlider(Container* parent)
      m_toValue(1.0)
 {
     setUpdateInterval(0);
-    setValue(m_fromValue);
     setPreferredHeight(m_rootContainerHeight);
     m_rootContainer = Container::create()
                   .layout(new AbsoluteLayout())
@@ -64,6 +63,17 @@ CustomSlider::CustomSlider(Container* parent)
     createConnections();
 }
 
+bool CustomSlider::mediaState()
+{
+	return m_mediastate;
+}
+
+void CustomSlider::setMediaState(bool state)
+{
+	m_mediastate = state;
+	emit mediaStateChanged();
+}
+
 float CustomSlider::value() const
 {
     return m_value;
@@ -71,15 +81,9 @@ float CustomSlider::value() const
 
 void CustomSlider::setValue(float value)
 {
-    if(m_value == value)
-        return;
-
-    m_value = value;
-
-    if(m_immediateValue != m_value)
-        setImmediateValue(m_value);
-
-    emit valueChanged(m_value);
+	 m_value = value;
+	 m_immediateValue = value;
+	 updateHandlePositionX(m_value);
 }
 
 float CustomSlider::fromValue() const
@@ -93,8 +97,6 @@ void CustomSlider::setFromValue(float value)
         return;
 
     m_fromValue = value;
-    emit fromValueChanged(m_fromValue);
-//    setValue(m_fromValue);
 }
 
 float CustomSlider::toValue() const
@@ -108,9 +110,7 @@ void CustomSlider::setToValue(float value)
         return;
 
     m_toValue = value;
-    updateHandlePositionX();
-//    setValue(m_fromValue);
-    emit toValueChanged(m_toValue);
+
 }
 
 float CustomSlider::immediateValue() const
@@ -118,40 +118,17 @@ float CustomSlider::immediateValue() const
     return m_immediateValue;
 }
 
-float CustomSlider::x() const
-{
-	return m_coordinateX;
-}
-
-void CustomSlider::setImmediateValue(float value, bool fireEvent)
+void CustomSlider::setImmediateValue(float value)
 {
     if(m_immediateValue == value)
         return;
 
     m_immediateValue = value;
-
-    updateHandlePositionX();
-
-    if(fireEvent)
-    {
-        emit immediateValueChanged(m_immediateValue);
-        emit xChanged(m_coordinateX);
-    }
+    m_value = value;
+    updateHandlePositionX(m_immediateValue);
+    emit immediateValueChanged();
 }
 
-bool CustomSlider::dragging() const
-{
-    return m_dragging;
-}
-
-void CustomSlider::setDragging(bool draggingState)
-{
-    if(m_dragging == draggingState)
-        return;
-
-    m_dragging = draggingState;
-    emit draggingChanged(m_dragging);
-}
 void CustomSlider::resetValue()
 {
     setValue(m_fromValue);
@@ -165,7 +142,7 @@ void CustomSlider::handleLayoutFrameUpdated(QRectF frame)
     m_rootContainerPositionX = frame.x();
     m_dummyContainer->setPreferredWidth(m_rootContainerWidth);
     m_dummyContainer->setPreferredHeight(m_rootContainerHeight);
-    updateHandlePositionX();
+    updateHandlePositionX(m_value);
 }
 
 void CustomSlider::createConnections()
@@ -175,11 +152,9 @@ void CustomSlider::createConnections()
     connect(m_handle, SIGNAL(touch(bb::cascades::TouchEvent*)),
             this, SLOT(sliderHandleTouched(bb::cascades::TouchEvent*)));
     //connect(this, SIGNAL(immediateValueChanged(float)), this, SLOT(updateHandlePositionX()));
-    connect(this, SIGNAL(fromValueChanged(float)), this, SLOT(updateHandlePositionX()));
     //connect(this, SIGNAL(toValueChanged(float)), this, SLOT(updateHandlePositionX()));
     connect(m_dummyContainer, SIGNAL(touch(bb::cascades::TouchEvent*)),
             this, SLOT(progressBarTouched(bb::cascades::TouchEvent*)));
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(onDragUpdateTimerTimeout()));
     connect(this, SIGNAL(preferredWidthChanged(float)), this, SLOT(updateRootContainerPreferredWidth(float)));
 
 
@@ -262,6 +237,7 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
 
 
         if(TouchType::Down == type) {
+        	setMediaState(true);
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             m_handle->setImage(m_handleOnImg);
             m_touchEventInitX = event->windowX();
@@ -274,13 +250,10 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
 
         if(TouchType::Move == type) {
             if(!m_handleLongPressed) {
-            	setDragging(false);
                 if(!m_timer->isActive()) {
-                    setImmediateValue(fromPosXToValue(handlePosX), true);
+                	setImmediateValue(fromPosXToValue(handlePosX));
                     m_timer->start(m_updateInterval);
                 }
-
-                setDragging(true);
 
                 return;
             }
@@ -289,17 +262,16 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
             }
         }
         else
-            setImmediateValue(fromPosXToValue(handlePosX), false);
 
         if(TouchType::Up == type) {
+        	setMediaState(false);
             m_handle->setImage(m_handleOffImg);
             m_progressBarImageView->setImage(m_progressBarImage);
 
             float handlePosX = m_handleLayoutProperties->positionX();
             if(!m_handleLongPressed)
-                setValue(fromPosXToValue(handlePosX));
+            	setImmediateValue(fromPosXToValue(handlePosX));
             m_handleTouched = false;
-            setDragging(false);
             if(m_timer->isActive())
                 m_timer->stop();
             m_handleLongPressed = false;
@@ -322,27 +294,22 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
             m_handle->setImage(m_handleOnImg);
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             setImmediateValue(fromPosXToValue(handlePosX));
-            setDragging(true);
             return;
         }
 
         if(TouchType::Move == type) {
-            setDragging(false);
             if(!m_timer->isActive()) {
                 setImmediateValue(fromPosXToValue(handlePosX));
                 m_timer->start(m_updateInterval);
             }
-            setDragging(true);
             return;
         }
         else
-            setImmediateValue(fromPosXToValue(handlePosX), false);
 
         if(TouchType::Up == type) {
             m_handle->setImage(m_handleOffImg);
             m_progressBarImageView->setImage(m_progressBarImage);
-            setValue(fromPosXToValue(handlePosX));
-            setDragging(false);
+            setImmediateValue(fromPosXToValue(handlePosX));
             if(m_timer->isActive())
                 m_timer->stop();
             return;
@@ -350,9 +317,9 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
     }
 }
 
-void CustomSlider::updateHandlePositionX()
+void CustomSlider::updateHandlePositionX(float value)
 {
-	m_coordinateX = fromValueToPosX(m_immediateValue);
+	m_coordinateX = fromValueToPosX(value);
 
 //    Q_ASSERT(static_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
     m_handleLayoutProperties->setPositionX(m_coordinateX);
@@ -386,11 +353,6 @@ float CustomSlider::fromPosXToValue(float positionX) const
     return factor * (m_toValue - m_fromValue) + m_fromValue;
 }
 
-void CustomSlider::onDragUpdateTimerTimeout()
-{
-    emit immediateValueChanged(m_immediateValue);
-    emit xChanged(m_coordinateX);
-}
 
 void CustomSlider::setUpdateInterval(int interval)
 {
