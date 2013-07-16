@@ -89,7 +89,7 @@ void InfoListModel::getVideoFiles()
 					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 					val["title"] = pathElements[pathElements.size()-1];
 					// Add the thumbnail URL to the JSON file
-					val["thumbURL"] = "asset:///images/picture_base.png";//finalFileName;
+					val["thumbURL"] = "asset:///images/BlankThumbnail.png";//finalFileName;
 
 					MovieDecoder movie(result[i].toStdString());
 					val["width"] = movie.getWidth();
@@ -137,7 +137,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 			val["title"] = pathElements[pathElements.size()-1];
 			// Add the thumbnail URL to the JSON file
-			val["thumbURL"] = "asset:///images/picture_base.png";
+			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 
 			MovieDecoder movie(result[i].toStdString());
 			val["width"] = movie.getWidth();

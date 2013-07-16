@@ -469,8 +469,10 @@ Page {
                         contentContainer.visible = true;
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
-                        subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                        if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                            subtitleButton.setEnabled(true);
                         infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
+                        trackTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
                     }  
@@ -497,6 +499,7 @@ Page {
                     verticalAlignment: VerticalAlignment.Center
                     ImageButton {
                         id: backButton
+                        pressedImageSource: "asset:///images/Player/BackButtonPressed.png"
                         defaultImageSource: "asset:///images/Player/BackButton.png"
 
                         onClicked: {
@@ -519,7 +522,7 @@ Page {
                     rightPadding: 10
                     topPadding: 3
                     bottomPadding: 7
-                    opacity: 1
+                    opacity: 0.7
                     // This part of code is commented our for now in case we need it in the feature
                     //                animations: [
                     //                    TranslateTransition {
@@ -596,6 +599,8 @@ Page {
 
                         ImageButton {
                             id: hdmiButton
+                            pressedImageSource: "asset:///images/Player/HDMIButtonPressed.png"
+                            disabledImageSource: "asset:///images/Player/HDMIButtonDisabled.png"
                             defaultImageSource: "asset:///images/Player/HDMIButtonInactive.png"
 
                             onClicked: {
@@ -603,6 +608,7 @@ Page {
                             }
                         }
                         onCreationCompleted: {
+                            hdmiButton.setEnabled(false);
                             if (hdmiEnabled) {
                                 hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
                             } else {
@@ -629,6 +635,8 @@ Page {
 
                         ImageButton {
                             id: subtitleButton
+                            disabledImageSource: "asset:///images/Player/SubtitleButtonDisabled.png"
+                            pressedImageSource: "asset:///images/Player/SubtitleButtonPressed.png"
                             defaultImageSource: "asset:///images/Player/SubtitleButton.png"
                             onClicked: {
                                 if (upperMenu.opacity != 0) {
@@ -638,6 +646,7 @@ Page {
                             }
                         }
                         onCreationCompleted: {
+                            subtitleButton.setEnabled(false);
                             subtitleEnabled = settings.value("subtitleEnabled");
                             if (subtitleEnabled) {
                                 subtitleAreaContainer.setOpacity(1);
@@ -805,10 +814,10 @@ Page {
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/play.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
             } else {
                 appContainer.pauseMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/pause.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
             screenPlayPauseImage.setOpacity(0.5);
             screenPlayPauseImageTimer.start();
@@ -824,7 +833,7 @@ Page {
             },
             ImagePaintDefinition {
                 id: backgroundImage
-                imageSource: "asset:///images/bg.png"
+                imageSource: "asset:///images/Player/VideoBG.png"
             },
             MediaPlayer {
                id: myPlayer
@@ -1040,7 +1049,8 @@ Page {
 
                 videoWindow.visible = true;
                 contentContainer.visible = true;
-                subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
+                if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                    subtitleButton.setEnabled(true);
                 appContainer.changeVideoPosition = false;
                 if(myPlayer.seekTime(videoPos) != MediaError.None) {
                     console.log("seekTime ERROR");

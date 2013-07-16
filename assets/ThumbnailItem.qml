@@ -17,9 +17,9 @@ Container {
     property alias movieTitle: title.text
     property variant movieLength: ""
 
-    property int height: orientationHandler.orientation == UIOrientation.Portrait ? 320 : 240
-    property int width: orientationHandler.orientation == UIOrientation.Portrait ? 240 : 320
-    property int sub: isVideoBarItem == true ? 35 : 50
+    property int height: orientationHandler.orientation == UIOrientation.Portrait ? 180 : 200
+    property int width: orientationHandler.orientation == UIOrientation.Portrait ? 288 : 320
+    property int sub: isVideoBarItem == true ? 35 : (orientationHandler.orientation == UIOrientation.Portrait ? 70 : 50)
 
     Container {
 	    layout: DockLayout {
@@ -38,38 +38,15 @@ Container {
 
         Container {
             verticalAlignment: VerticalAlignment.Top
-            horizontalAlignment: HorizontalAlignment.Fill
+            horizontalAlignment: HorizontalAlignment.Left
+            topPadding: 10
+            leftPadding: 20
             Label {
                 id: length
                 text: Helpers.formatTime(movieLength)
                 textStyle.color: Color.White
-                textStyle.base: SystemDefaults.TextStyles.TitleText
                 visible: ! isVideoBarItem
             }
-        }
-
-        Container {
-            verticalAlignment: VerticalAlignment.Bottom
-            horizontalAlignment: HorizontalAlignment.Fill
-            background: background.imagePaint
-
-            maxHeight: sub
-            preferredHeight: sub
-            maxWidth: width
-            preferredWidth: width
-
-            Container {
-                verticalAlignment: VerticalAlignment.Center
-                horizontalAlignment: HorizontalAlignment.Fill
-                Label {
-                    id: title
-                    text: ""
-                    textStyle.color: Color.White
-                    //textStyle.base: SystemDefaults.TextStyles.SubtitleText
-                    textStyle.fontSize: isVideoBarItem == true ? FontSize.XSmall : FontSize.Small
-                }
-            }
-
         }
     }
 
@@ -90,4 +67,30 @@ Container {
 
         }
     ]
+    Container {
+        verticalAlignment: VerticalAlignment.Bottom
+        horizontalAlignment: HorizontalAlignment.Fill
+        background: background.imagePaint
+
+        maxHeight: sub
+        preferredHeight: sub
+        maxWidth: width
+        preferredWidth: width
+        leftPadding: 10
+        rightPadding: 10
+        topPadding: (orientationHandler.orientation == UIOrientation.Portrait && !isVideoBarItem) ? 10 : 0
+
+        Container {
+            verticalAlignment: VerticalAlignment.Center
+            horizontalAlignment: HorizontalAlignment.Fill
+            Label {
+                id: title
+                horizontalAlignment: HorizontalAlignment.Center
+                text: ""
+                textStyle.color: Color.White
+                //textStyle.base: SystemDefaults.TextStyles.SubtitleText
+                textStyle.fontSize: isVideoBarItem == true ? FontSize.XSmall : FontSize.Small
+            }
+        }
+    }
 }
