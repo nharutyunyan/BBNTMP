@@ -693,6 +693,7 @@ Page {
                 }
             ]
             onTouch: {
+                upperMenu.setOpacity(1);
                 uiControlsShowTimer.start();
             }
         }
