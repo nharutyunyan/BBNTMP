@@ -1055,7 +1055,7 @@ Page {
                 if(!bookmarkIcon.visible) 
                 	bookmarkIcon.visible= true;
                 	
-                if(infoListModel.getVideoPosition()==0) 
+                if(infoListModel.getVideoPosition() < 60000)
                 {
                 	bookmarkIcon.visible = false;
                 	bookmarkTimer.stop();
