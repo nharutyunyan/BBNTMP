@@ -31,16 +31,16 @@ using namespace bb::cascades;
 class CustomSlider : public bb::cascades::CustomControl {
     Q_OBJECT
 
-    Q_PROPERTY(float value READ value WRITE setValue NOTIFY valueChanged FINAL)
+    Q_PROPERTY(bool mediaState READ  mediaState WRITE setMediaState NOTIFY mediaStateChanged FINAL)
+    Q_PROPERTY(float value READ value WRITE setValue FINAL)
     Q_PROPERTY(float preferredHeight READ preferredHeight FINAL)
     Q_PROPERTY(float fromValue READ fromValue WRITE setFromValue NOTIFY fromValueChanged FINAL)
     Q_PROPERTY(float toValue READ toValue WRITE setToValue NOTIFY toValueChanged FINAL)
     Q_PROPERTY(float immediateValue READ immediateValue NOTIFY immediateValueChanged FINAL)
-    Q_PROPERTY(float x READ x NOTIFY xChanged FINAL)
-    Q_PROPERTY(bool dragging READ dragging WRITE setDragging NOTIFY draggingChanged FINAL)
     Q_PROPERTY(QSize handleSize READ handleSize NOTIFY handleSizeChanged FINAL)
 
 public:
+    bool mediaState();
     CustomSlider(Container* parent = 0);
     virtual ~CustomSlider(){}
 
@@ -48,16 +48,14 @@ public:
     float fromValue() const;
     float toValue() const;
     float immediateValue() const;
-    float x() const;
-    bool dragging() const;
     Q_INVOKABLE float handleLocalX() const;
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
 
 public Q_SLOTS:
+	void setMediaState(bool);
     void setValue(float value);
     void setFromValue(float value);
     void setToValue(float value);
-    void setDragging(bool draggingState);
     void resetValue();
     void setUpdateInterval(int interval);
     void onHandleLongPressed(bb::cascades::LongPressEvent* event);
@@ -67,13 +65,12 @@ public Q_SLOTS:
     QSize handleSize() const;
 
 Q_SIGNALS:
+	void mediaStateChanged();
     void preferredWidthChanged(float width);
     void valueChanged(float value);
     void fromValueChanged(float value);
     void toValueChanged(float value);
-    void immediateValueChanged(float value);
-    void xChanged(float x);
-    void draggingChanged(bool draggingState);
+    void immediateValueChanged();
     void handleLongPressed(float positionX);
     void handleReleased();
     void move(float windowX);
@@ -84,8 +81,7 @@ private Q_SLOTS:
     void handleLayoutFrameUpdated(QRectF frame);
     void sliderHandleTouched(bb::cascades::TouchEvent* event);
     void progressBarTouched(bb::cascades::TouchEvent* event);
-    void updateHandlePositionX();
-    void onDragUpdateTimerTimeout();
+    void updateHandlePositionX(float);
     void updateRootContainerPreferredWidth(float width);
 
 
@@ -93,7 +89,7 @@ private:
     void createConnections();
     void createProgressBar();
     void createHandle();
-    void setImmediateValue(float value, bool fireEvent = true);
+    void setImmediateValue(float);
 
 
 private:
@@ -124,7 +120,7 @@ private:
     float m_toValue;
     float m_immediateValue;
     float m_coordinateX;
-    bool m_dragging;
+    bool m_mediastate;
 
     float m_touchEventInitX;
     float m_handleInitX;

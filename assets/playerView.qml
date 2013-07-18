@@ -3,6 +3,7 @@ import bb.multimedia 1.0
 import nuttyPlayer 1.0
 import bpsEventHandler 1.0
 import nutty.slider 1.0
+import "helpers.js" as Helpers
 
 Page {
     id: pgPlayer
@@ -183,15 +184,14 @@ Page {
 
                                 if (appContainer.touchPositionX >= event.localX + appContainer.touchDistanceAgainstMode) {
                                     appContainer.changeVideoPosition = true;
-                                    if (durationSlider.immediateValue + (5 * 1000) < durationSlider.toValue) {
-                                        appContainer.seekPlayer(durationSlider.immediateValue + 5 * 1000);
+                                    if (durationSlider.value + Helpers.seekTimeInSlide < durationSlider.toValue) {
+                                        myPlayer.seekTime(durationSlider.value + Helpers.seekTimeInSlide);
                                     } else {
-                                        appContainer.seekPlayer(durationSlider.toValue);
-                                        myPlayer.pause();
+                                        myPlayer.seekTime(durationSlider.toValue);
                                     }
                                 } else if (appContainer.touchPositionX + appContainer.touchDistanceAgainstMode < event.localX) {
                                     appContainer.changeVideoPosition = true;
-                                    appContainer.seekPlayer(durationSlider.immediateValue - 5 * 1000);
+                                    myPlayer.seekTime(durationSlider.value - Helpers.seekTimeInSlide);
                                 }
                                 appContainer.changeVideoPosition = false;
                             }
@@ -471,7 +471,6 @@ Page {
                         durationSlider.setEnabled(true)
                         subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl);
                         infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
-                        trackTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
                     }  
@@ -761,15 +760,24 @@ Page {
                         spaceQuota: 1
                     }
                     onImmediateValueChanged: {
-                        //console.log("onImmediateValueChanged");
                         if(myPlayer.mediaState == MediaState.Started ||
                             myPlayer.mediaState == MediaState.Paused) {
-                            if(appContainer.changeVideoPosition == true && immediateValue != value) {
-                                myPlayer.seekTime(durationSlider.immediateValue);
-                                myPlayer.valueChangedBySeek = true;
-                            }
+                            myPlayer.seekTime(durationSlider.immediateValue);
+                            myPlayer.valueChangedBySeek = true
                         }
                     }
+                    property bool previousState: false
+                    onPauseHandleChanged: {
+
+                        if (myPlayer.mediaState == MediaState.Started && durationSlider.pauseHandle) {
+                            previousState = true;
+                            appContainer.pauseMediaPlayer();
+                        } else if (myPlayer.mediaState == MediaState.Paused && ! durationSlider.pauseHandle && previousState) {
+                            appContainer.playMediaPlayer();
+                            previousState = false;
+                        }
+                    }
+
                     onTouch: {
                         uiControlsShowTimer.start();
                     }
@@ -778,7 +786,6 @@ Page {
         }//controlsContainer
 
         function playMediaPlayer() {
-            trackTimer.start();
             return myPlayer.play();
         }
 
@@ -793,7 +800,6 @@ Page {
 
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
-                myPlayer.seekTime(durationSlider.immediateValue);
                 appContainer.playMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/play.png"
             } else {
@@ -830,10 +836,9 @@ Page {
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
-                   durationSlider.value = position;
-                   //Set correct subtitle positon
+                    durationSlider.setValue(position);
+                    //Set correct subtitle positon
                    if (valueChangedBySeek) {
-                       myPlayer.positionInMsecs = myPlayer.position;
                        subtitleManager.seek(myPlayer.positionInMsecs);
                        valueChangedBySeek = false;
                    }
@@ -932,43 +937,11 @@ Page {
                                contentContainer.visible = true;
                                durationSlider.setEnabled(true)
                                durationSlider.resetValue()
-                               trackTimer.start();
                             }
                         }
                      }
             },
 
-           QTimer {
-               id: trackTimer
-               singleShot: false
-               property int videoCurrentPos:0 //to track position changes on media player.
-               interval: 5
-               onTimeout: {
-                   if(myPlayer.mediaState == MediaState.Started) {
-                       appContainer.changeVideoPosition = false;
-                       myPlayer.positionInMsecs += 5;
-                       //Sync every time when myPlayer.position changed: i.e. one time per second
-                       if(videoCurrentPos != myPlayer.position) {
-                           videoCurrentPos = myPlayer.position;
-                           myPlayer.positionInMsecs = myPlayer.position;
-                       }
-                       //Duration is 0 for first several time outs.
-                       //TODO: Figure out that, though seems it is a MediaPlayer issue.
-                       //'if' is used as workaround
-                       if (myPlayer.duration && myPlayer.positionInMsecs <= myPlayer.duration) {
-                           durationSlider.setValue(myPlayer.positionInMsecs)
-                       }
-                       appContainer.changeVideoPosition = true;
-                       subtitleManager.handlePositionChanged(myPlayer.positionInMsecs);
-                   }
-                   else if(myPlayer.mediaState == MediaState.Stopped) {
-                       appContainer.changeVideoPosition = false;
-                       durationSlider.setValue(durationSlider.toValue)
-                       appContainer.changeVideoPosition = true;
-                       trackTimer.stop();
-                   }
-               }
-           },
 
            QTimer {
                id: screenPlayPauseImageTimer
@@ -1069,7 +1042,6 @@ Page {
                     console.log("seekTime ERROR");
                 }
                 appContainer.changeVideoPosition = true;
-                trackTimer.start();
             }
             upperMenu.setOpacity(1);
             controlsContainer.setOpacity(1);

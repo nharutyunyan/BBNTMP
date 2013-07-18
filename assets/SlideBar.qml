@@ -11,7 +11,7 @@ Container {
     property real toValue: 1
     property bool onSlider : false
     property int height: 100
-    property real x
+    property bool pauseHandle
 
     preferredWidth: my.width
     horizontalAlignment: HorizontalAlignment.Fill
@@ -21,7 +21,7 @@ Container {
 
     TimeArea {
         id: currentTimeLabel
-        timeInMsc: slideBar.immediateValue
+        timeInMsc: slideBar.value
         preferredWidth: my.timeAreaWidth
         preferredHeight: height
     }
@@ -40,15 +40,6 @@ Container {
         id: slider
         fromValue: slideBar.fromValue
         toValue: slideBar.toValue
-        value: if(dragging) {
-            if(my.handlLongPressed)
-                return smallStepSlider.value;
-            else
-                return;
-        } else {
-            return slideBar.value;
-        }
-
         preferredWidth: my.width - 2 * my.timeAreaWidth
 
         layoutProperties: AbsoluteLayoutProperties {
@@ -59,36 +50,46 @@ Container {
             onSlider = true;
             if(slider.toValue > my.minTime) {
                 smallStepSlider.visible = true;
-                smallStepSlider.value = slider.value;
                 if(slider.value - my.dt < slider.fromValue) {
                     smallStepSlider.fromValue = slider.fromValue;
                     smallStepSlider.toValue = slider.value + my.dt;
                     smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                    smallStepSlider.value = slider.value;
                 }
                 else if(slider.value + my.dt > slider.toValue) {
                     smallStepSlider.fromValue = slider.value - my.dt;
                     smallStepSlider.toValue = slider.toValue;
                     smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                    smallStepSlider.value = slider.value;
                 }
                 else {
                     smallStepSlider.fromValue = slider.value - my.dt;
                     smallStepSlider.toValue = slider.value + my.dt;
                     smallStepSlider.preferredWidth = my.smallStepSliderWidth + smallStepSlider.handleSize.width;
+                    smallStepSlider.value = slider.value;
                 }
                 smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.layoutProperties.positionX;
                 my.longPressInitX = positionX;
                 my.handlLongPressed = true;
+                seekInterval.start();
             }
             else
                 slider.setLongPressEnabled(false);
         }
 
+        onMediaStateChanged: {
+
+            slideBar.pauseHandle = mediaState
+        }
+
         onMove: {
             if(slider.toValue > my.minTime)
                 smallStepSlider.value = smallStepSlider.fromPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
+                slider.value = slideBar.value = smallStepSlider.value;
         }
 
         onHandleReleased: {
+            seekInterval.stop();
             onSlider = false;
             my.handlLongPressed = false;
             smallStepSlider.visible = false;
@@ -97,24 +98,12 @@ Container {
         onImmediateValueChanged: {
             slideBar.immediateValue = immediateValue;
         }
-
-        onValueChanged: {
-            slideBar.value = value;
-        }
-
-        onDraggingChanged: {
-            onSlider = dragging;
-        }
-
-        onXChanged: {
-            slideBar.x = x;
-        }
     }
     
     CustomSlider {
         id: smallStepSlider
         preferredWidth: my.smallStepSliderWidth
-        visible: false        
+        visible: false
         layoutProperties: AbsoluteLayoutProperties {
         }
     }
@@ -128,9 +117,18 @@ Container {
             property int smallStepSliderWidth: 300
             property int dt: 10 * 1000 // delta time in seconds
             property real longPressInitX
-            property int minTime: 5 * 60 * 1000 // min time to show small steps slider
+            property int minTime: 2 * 60 * 1000 // min time to show small steps slider
             property bool handlLongPressed: false
         },
+        
+        QTimer {
+            id: seekInterval
+            interval: 200
+            onTimeout: {
+                slideBar.immediateValue = smallStepSlider.value
+            }
+        },
+        
         LayoutUpdateHandler {
             id: layoutHandler
             onLayoutFrameChanged: {
@@ -149,6 +147,7 @@ Container {
 
     function setValue(value) {
         slideBar.value = value;
+        slider.value = value;
     }
 
     function resetValue() {
