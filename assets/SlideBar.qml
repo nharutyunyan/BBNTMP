@@ -14,9 +14,11 @@ Container {
     property bool pauseHandle
 
     preferredWidth: my.width
-    horizontalAlignment: HorizontalAlignment.Fill
-
-    layout: AbsoluteLayout {}
+    preferredHeight: 2 * height
+    
+    layout: DockLayout {
+        
+    }
     background: backgroundImage.imagePaint
 
     TimeArea {
@@ -24,28 +26,25 @@ Container {
         timeInMsc: slideBar.value
         preferredWidth: my.timeAreaWidth
         preferredHeight: height
+        horizontalAlignment: HorizontalAlignment.Left
     }
 
     TimeArea {
         id: timeArea
         timeInMsc: slideBar.toValue
         preferredWidth: my.timeAreaWidth
-        preferredHeight: height
-        layoutProperties: AbsoluteLayoutProperties {
-            positionX: my.width - my.timeAreaWidth
-        }
+        preferredHeight: height  
+        horizontalAlignment: HorizontalAlignment.Right
     }
 
     CustomSlider {
         id: slider
+        verticalAlignment: VerticalAlignment.Bottom
         fromValue: slideBar.fromValue
         toValue: slideBar.toValue
         preferredWidth: my.width - 2 * my.timeAreaWidth
 
-        layoutProperties: AbsoluteLayoutProperties {
-            positionX: my.timeAreaWidth
-        }
-
+        property int positionX
         onHandleLongPressed: {
             onSlider = true;
             if(slider.toValue > my.minTime) {
@@ -68,7 +67,7 @@ Container {
                     smallStepSlider.preferredWidth = my.smallStepSliderWidth + smallStepSlider.handleSize.width;
                     smallStepSlider.value = slider.value;
                 }
-                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.layoutProperties.positionX;
+                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.positionX;
                 my.longPressInitX = positionX;
                 my.handlLongPressed = true;
                 seekInterval.start();
@@ -99,12 +98,19 @@ Container {
             slideBar.immediateValue = immediateValue;
         }
     }
-    
-    CustomSlider {
-        id: smallStepSlider
-        preferredWidth: my.smallStepSliderWidth
-        visible: false
-        layoutProperties: AbsoluteLayoutProperties {
+
+    Container {
+        preferredWidth: my.width
+        implicitLayoutAnimationsEnabled: false
+        verticalAlignment: VerticalAlignment.Bottom
+        layout: AbsoluteLayout {
+        }
+        CustomSlider {
+        	id: smallStepSlider
+        	preferredWidth: my.smallStepSliderWidth
+        	 visible: false        
+        	 layoutProperties: AbsoluteLayoutProperties {
+        	 }
         }
     }
 
@@ -142,6 +148,23 @@ Container {
         ImagePaintDefinition {
             id: zoomImage
             imageSource: "asset:///images/Player/SliderPrecisionFill.png"
+        },
+        OrientationHandler {
+            onOrientationAboutToChange: {
+                if (orientation == UIOrientation.Portrait) {
+                    timeArea.verticalAlignment = VerticalAlignment.Top
+                    currentTimeLabel.verticalAlignment = VerticalAlignment.Top
+                    slider.horizontalAlignment = HorizontalAlignment.Fill
+                    slider.positionX = 0
+                    slideBar.preferredHeight = 2 * height
+                } else {
+                    timeArea.verticalAlignment = VerticalAlignment.Bottom
+                    currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
+                    slider.horizontalAlignment = HorizontalAlignment.Center
+                    slider.positionX = my.timeAreaWidth
+                    slideBar.preferredHeight = height
+                }
+            }
         }
     ]
 
@@ -156,4 +179,21 @@ Container {
 
     function enabled(en) {
     }
+    onCreationCompleted: {
+        if (OrientationSupport.orientation == UIOrientation.Portrait) {
+            timeArea.verticalAlignment = VerticalAlignment.Top
+            currentTimeLabel.verticalAlignment = VerticalAlignment.Top
+            slider.horizontalAlignment = HorizontalAlignment.Fill
+            slider.positionX = 0
+
+        } else {
+            timeArea.verticalAlignment = VerticalAlignment.Bottom
+            currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
+            slider.horizontalAlignment = HorizontalAlignment.Center
+            slideBar.preferredHeight = height
+            slider.positionX = my.timeAreaWidth
+
+        }
+    }
+
 }
