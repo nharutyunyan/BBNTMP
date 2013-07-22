@@ -11,6 +11,7 @@
 #include <QVariant>
 #include <QMetaType>
 #include <bb/cascades/QListDataModel>
+#include "moviedecoder.hpp"
 
 class Producer;
 /*
@@ -116,6 +117,7 @@ private:
     Producer* m_producer;
     QThread* m_producerThread;
     int start;
+    static MovieDecoder movieDecoder;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);

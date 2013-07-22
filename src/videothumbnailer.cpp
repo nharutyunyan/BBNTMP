@@ -17,17 +17,20 @@ using namespace std;
 
 static const int SEEK_PERCENTAGE = 20;
 
+MovieDecoder VideoThumbnailer::movieDecoder;
+
 void VideoThumbnailer::generateThumbnail(const string& videoFile, const string& outputFile, AVFormatContext* pAvContext)
 {
     PngWriter* pngWriter = new PngWriter(outputFile);
-    generateThumbnail(videoFile, *pngWriter, pAvContext);
+    generateThumbnail(videoFile, *pngWriter, outputFile, pAvContext);
     delete pngWriter;
 }
 
-void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter& pngWriter, AVFormatContext* pAvContext)
+void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
 {
-    MovieDecoder movieDecoder(videoFile, pAvContext);
-    movieDecoder.decodeVideoFrame(); //before seeking, a frame has to be decoded
+    movieDecoder.setContext(pAvContext);
+    movieDecoder.initialize(videoFile);
+    movieDecoder.decodeVideoFrame();
 
     try
     {

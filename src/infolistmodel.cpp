@@ -12,7 +12,6 @@
 #include "utility.hpp"
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
-#include "moviedecoder.hpp"
 
 #include <bb/data/JsonDataAccess>
 
@@ -21,6 +20,7 @@ using namespace utility;
 
 //TODO: Move the data handling (storage/loading) into separate module  - DataManager
 //View model should be simple, and just keep the list for Views
+MovieDecoder InfoListModel::movieDecoder;
 
 InfoListModel::InfoListModel(QObject* parent)
 : bb::cascades::QVariantListDataModel()
@@ -55,7 +55,7 @@ void InfoListModel::consume(QString data, int index)
 {
 	//process that data
 	// add generated thumbnail to list model
-	setValue(index, "thumbURL", data);
+	setValue(index, "thumbURL", "file://" + data);
 	//when finished processing emit a consumed signal
 	emit consumed();
 }
@@ -91,9 +91,10 @@ void InfoListModel::getVideoFiles()
 					// Add the thumbnail URL to the JSON file
 					val["thumbURL"] = "asset:///images/BlankThumbnail.png";//finalFileName;
 
-					MovieDecoder movie(result[i].toStdString());
-					val["width"] = movie.getWidth();
-					val["height"] = movie.getHeight();
+					movieDecoder.setContext(0);
+					movieDecoder.initialize(result[i].toStdString());
+					val["width"] = movieDecoder.getWidth();
+					val["height"] = movieDecoder.getHeight();
 
 					m_list.append(val);
 				}
@@ -139,9 +140,10 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 
-			MovieDecoder movie(result[i].toStdString());
-			val["width"] = movie.getWidth();
-			val["height"] = movie.getHeight();
+			movieDecoder.setContext(0);
+			movieDecoder.initialize(result[i].toStdString());
+			val["width"] = movieDecoder.getWidth();
+			val["height"] = movieDecoder.getHeight();
 			videos.append(val);
 		}
 	}
@@ -366,7 +368,10 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 
 void InfoListModel::onAllMetadataRead()
 {
-    m_producerThread->start();
+    if(!m_producerThread->isRunning()) {
+        m_producer->updateVideoList(m_list, 0);
+        m_producerThread->start();
+    }
 }
 
 QVariant InfoListModel::value(int ix, const QString &fld_name)
