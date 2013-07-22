@@ -163,6 +163,7 @@ Page {
                             appContainer.widthOfScreen = appContainer.landscapeWidth;
                             appContainer.touchDistanceAgainstMode = appContainer.landscapeWidth / 5;
                         }
+                        if (event.localY < appContainer.heightOfScreen - Helpers.heightOfSlider) {
                         if (event.touchType == TouchType.Down) {
                             appContainer.previousPositionX = event.localX;
                             appContainer.previousPositionY = event.localY;
@@ -197,12 +198,7 @@ Page {
                             }
                             if (event.localY > 180 && videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 videoListDisappearAnimation.play();
-                            } else {
-                                upperMenu.setOpacity(1);
-                                controlsContainer.setOpacity(1);
-                                controlsContainer.setVisible(true);
-                                uiControlsShowTimer.start();
-                            }
+                            } 
                         } else if (event.touchType == TouchType.Move) {
                             if (! appContainer.directionIsDetect) {
 
@@ -242,6 +238,14 @@ Page {
                                 }
                                 appContainer.previousPositionX = event.localX;
                                 appContainer.previousPositionY = event.localY;
+                            }
+                        }
+                        } else {
+                            if(event.touchType == TouchType.Up && !controlsContainer.visible)
+                            {
+                            	controlsContainer.setOpacity(1);
+                            	controlsContainer.setVisible(true);
+                            	uiControlsShowTimer.start();
                             }
                         }
                     }
@@ -434,12 +438,29 @@ Page {
             // is played/paused using tap event. It will be visible 1 sec.
             ImageView {
                 id: screenPlayPauseImage
-                opacity: 0
                 implicitLayoutAnimationsEnabled: false
                 horizontalAlignment: HorizontalAlignment.Center
                 verticalAlignment: VerticalAlignment.Center
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
+                animations: [ 
+                    SequentialAnimation {
+                        id : fadeInOut
+                      FadeTransition {
+                          toOpacity: 0.8
+                          fromOpacity: 0.0
+                          duration: 800
+                          easingCurve: StockCurve.SineOut
+                        }  
+                    
+                      FadeTransition {
+                          toOpacity: 0.0
+                          fromOpacity: 0.8
+                          duration: 1500
+                          easingCurve: StockCurve.QuarticOut
+                     }
+                }
+                ]
             }
 
         }//contentContainer
@@ -712,7 +733,7 @@ Page {
 
         Container {
             id: controlsContainer
-            opacity: 0
+            //opacity: 0
             visible: true
             enabled: true
             layout: StackLayout {
@@ -819,8 +840,11 @@ Page {
                 appContainer.pauseMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
-            screenPlayPauseImage.setOpacity(0.5);
-            screenPlayPauseImageTimer.start();
+            upperMenu.setOpacity(1);
+            controlsContainer.setVisible(true);
+            controlsContainer.setOpacity(1);
+            uiControlsShowTimer.start();
+            fadeInOut.play();
         }
 
         attachedObjects: [
@@ -955,16 +979,6 @@ Page {
                      }
             },
 
-
-           QTimer {
-               id: screenPlayPauseImageTimer
-               singleShot: true
-               interval: 1000
-               onTimeout: {
-                   screenPlayPauseImage.setOpacity(0)
-                   screenPlayPauseImageTimer.stop()
-               }
-           },
 
            QTimer {
                id: uiControlsShowTimer
