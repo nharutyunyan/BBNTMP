@@ -19,6 +19,7 @@
 #include <bb/cascades/LongPressEvent>
 #include <bb/cascades/ImageTracker>
 
+
 CustomSlider::CustomSlider(Container* parent)
     :CustomControl(parent),
      m_rootContainerHeight(105),
@@ -30,38 +31,34 @@ CustomSlider::CustomSlider(Container* parent)
     setUpdateInterval(0);
     setPreferredHeight(m_rootContainerHeight);
     m_rootContainer = Container::create()
-                  .layout(new AbsoluteLayout())
-                  .preferredHeight(m_rootContainerHeight)
-                  .background(Color::fromARGB(0x10f2eded));
+                  .layout(new DockLayout())
+                  .horizontal(HorizontalAlignment::Fill)
+                  .preferredHeight(m_rootContainerHeight);
 
     m_rootContainer->setMaxHeight(m_rootContainerHeight);
 
     createProgressBar();
     createHandle();
-    m_dummyContainer = Container::create()
-                  .layout(new AbsoluteLayout())
-                  .background(Color::fromARGB(0x000088cc));
-    m_dummyContainer->addTouchBehavior(
-        TouchBehavior::create()
-            .addTouchReaction(TouchType::Down,
-                              PropagationPhase::AtTarget,
-                              TouchResponse::StartTracking));
-//    m_rootContainer->addTouchBehavior(
-//        TouchBehavior::create()
-//            .addTouchReaction(TouchType::Down,
-//                              PropagationPhase::Bubbling,
-//                              TouchResponse::StartTracking));
 
-
+    m_handleContainer = Container::create()
+                         .layout(new AbsoluteLayout())
+                         .horizontal(HorizontalAlignment::Fill)
+                         .vertical(VerticalAlignment::Center);
+    m_handleContainer->addTouchBehavior(
+               TouchBehavior::create()
+                   .addTouchReaction(TouchType::Down,
+                                     PropagationPhase::AtTarget,
+                                     TouchResponse::StartTracking));
+    m_handleContainer->add(m_handle);
     m_rootContainer->add(m_progressBarContainer);
-    m_rootContainer->add(m_dummyContainer);
-    m_rootContainer->add(m_handle);
+    m_rootContainer->add(m_handleContainer);
     setRoot(m_rootContainer);
 
     m_timer = new QTimer(this);
     m_timer->setSingleShot(true);
     createConnections();
 }
+
 
 bool CustomSlider::mediaState()
 {
@@ -134,26 +131,25 @@ void CustomSlider::resetValue()
     setValue(m_fromValue);
 }
 
-void CustomSlider::handleLayoutFrameUpdated(QRectF frame)
+void CustomSlider::setLayoutSize(QSize size)
 {
-    m_progressBarContainer->setPreferredWidth(frame.width() - m_rootContainerHeight);
-    m_rootContainerWidth = frame.width();
-    m_rootContainerHeight = frame.height();
-    m_rootContainerPositionX = frame.x();
-    m_dummyContainer->setPreferredWidth(m_rootContainerWidth);
-    m_dummyContainer->setPreferredHeight(m_rootContainerHeight);
-    updateHandlePositionX(m_value);
+	 m_rootContainerWidth = size.width();
+	 m_rootContainer->setPreferredWidth(size.width());
+	 m_rootContainerHeight = size.height();
+	 m_progressBarContainer->setPreferredWidth(m_rootContainerWidth - 87);
+	 updateHandlePositionX(m_value);
 }
 
 void CustomSlider::createConnections()
 {
-    LayoutUpdateHandler::create(m_rootContainer)
-        .onLayoutFrameChanged(this, SLOT(handleLayoutFrameUpdated(QRectF)));
+
+	connect(OrientationSupport::instance(),
+	          SIGNAL(orientationAboutToChange(bb::cascades::UIOrientation::Type)),
+	          this,
+	          SLOT(onOrientationAboutToChange(bb::cascades::UIOrientation::Type)), Qt::UniqueConnection);
     connect(m_handle, SIGNAL(touch(bb::cascades::TouchEvent*)),
             this, SLOT(sliderHandleTouched(bb::cascades::TouchEvent*)));
-    //connect(this, SIGNAL(immediateValueChanged(float)), this, SLOT(updateHandlePositionX()));
-    //connect(this, SIGNAL(toValueChanged(float)), this, SLOT(updateHandlePositionX()));
-    connect(m_dummyContainer, SIGNAL(touch(bb::cascades::TouchEvent*)),
+    connect(m_handleContainer, SIGNAL(touch(bb::cascades::TouchEvent*)),
             this, SLOT(progressBarTouched(bb::cascades::TouchEvent*)));
     connect(this, SIGNAL(preferredWidthChanged(float)), this, SLOT(updateRootContainerPreferredWidth(float)));
 
@@ -164,18 +160,32 @@ void CustomSlider::createConnections()
     Q_UNUSED(result);
 }
 
+void CustomSlider::onOrientationAboutToChange(bb::cascades::UIOrientation::Type   uiOrientation)
+{
+        	m_handle->setImage(m_handleOffImg);
+        	m_progressBarImageView->setImage(m_progressBarImage);
+        	setMediaState(false);
+            float handlePosX = m_handleLayoutProperties->positionX();
+        	if(!m_handleLongPressed)
+        		setImmediateValue(fromPosXToValue(handlePosX));
+        	m_handleTouched = false;
+        	if(m_timer->isActive())
+        		m_timer->stop();
+        	m_handleLongPressed = false;
+            emit handleReleased();
+
+}
+
 void CustomSlider::createProgressBar()
 {
     AbsoluteLayoutProperties* layoutProperties
                             = AbsoluteLayoutProperties::create();
-    layoutProperties->setPositionX(m_rootContainerHeight / 2);
-    layoutProperties->setPositionY((m_rootContainerHeight
-                                    - m_progressBarContainerHeight) / 2);
 
     m_progressBarContainer = Container::create()
                     .layout(new DockLayout())
                     .layoutProperties(layoutProperties)
-                    .preferredHeight(m_progressBarContainerHeight)
+                    .horizontal(HorizontalAlignment::Center)
+                    .vertical(VerticalAlignment::Center)
                     .background(Color::fromARGB(0xfffddded));
 
     ImageView* barImageView =
@@ -320,8 +330,6 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
 void CustomSlider::updateHandlePositionX(float value)
 {
 	m_coordinateX = fromValueToPosX(value);
-
-//    Q_ASSERT(static_cast<AbsoluteLayoutProperties*>(m_handle->layoutProperties()) != 0);
     m_handleLayoutProperties->setPositionX(m_coordinateX);
     if(m_coordinateX == 0) {
         m_progressBarImageView->setVisible(false);
@@ -370,7 +378,7 @@ void CustomSlider::onHandleLongPressed(bb::cascades::LongPressEvent* event)
 
 float CustomSlider::handleLocalX() const
 {
-    return fromValueToPosX(m_immediateValue);
+    return fromValueToPosX(m_value);
 }
 
 void CustomSlider::onHandleImageSizeChanged(int width, int height)

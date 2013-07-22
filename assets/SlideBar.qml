@@ -1,5 +1,6 @@
 import bb.cascades 1.0
 import nutty.slider 1.0
+import "helpers.js" as Helpers
 
 // TODO Clean up if needed
 
@@ -10,10 +11,10 @@ Container {
     property real fromValue: 0
     property real toValue: 1
     property bool onSlider : false
-    property int height: 100
+    property int height: 105
     property bool pauseHandle
+    property variant layoutSize
 
-    preferredWidth: my.width
     preferredHeight: 2 * height
     
     layout: DockLayout {
@@ -37,14 +38,17 @@ Container {
         horizontalAlignment: HorizontalAlignment.Right
     }
 
-    CustomSlider {
-        id: slider
+    Container {
+        id: sliderContainer
         verticalAlignment: VerticalAlignment.Bottom
+        horizontalAlignment: HorizontalAlignment.Center
+        property int positionOfX
+        CustomSlider {
+        id: slider
+        horizontalAlignment: HorizontalAlignment.Fill
         fromValue: slideBar.fromValue
         toValue: slideBar.toValue
-        preferredWidth: my.width - 2 * my.timeAreaWidth
 
-        property int positionX
         onHandleLongPressed: {
             onSlider = true;
             if(slider.toValue > my.minTime) {
@@ -52,22 +56,22 @@ Container {
                 if(slider.value - my.dt < slider.fromValue) {
                     smallStepSlider.fromValue = slider.fromValue;
                     smallStepSlider.toValue = slider.value + my.dt;
-                    smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                    smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt), slideBar.height)
                     smallStepSlider.value = slider.value;
                 }
                 else if(slider.value + my.dt > slider.toValue) {
                     smallStepSlider.fromValue = slider.value - my.dt;
                     smallStepSlider.toValue = slider.toValue;
-                    smallStepSlider.preferredWidth = my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + smallStepSlider.handleSize.width;
+                    smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) , slideBar.height)
                     smallStepSlider.value = slider.value;
                 }
                 else {
                     smallStepSlider.fromValue = slider.value - my.dt;
                     smallStepSlider.toValue = slider.value + my.dt;
-                    smallStepSlider.preferredWidth = my.smallStepSliderWidth + smallStepSlider.handleSize.width;
+                    smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth , slideBar.height)
                     smallStepSlider.value = slider.value;
                 }
-                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + slider.positionX;
+                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX();
                 my.longPressInitX = positionX;
                 my.handlLongPressed = true;
                 seekInterval.start();
@@ -83,7 +87,7 @@ Container {
 
         onMove: {
             if(slider.toValue > my.minTime)
-                smallStepSlider.value = smallStepSlider.fromPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
+                smallStepSlider.value = smallStepSlider.fromPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX - sliderContainer.positionOfX);
                 slider.value = slideBar.value = smallStepSlider.value;
         }
 
@@ -98,19 +102,19 @@ Container {
             slideBar.immediateValue = immediateValue;
         }
     }
-
+}
     Container {
-        preferredWidth: my.width
+        id : smallSliderContainer
         implicitLayoutAnimationsEnabled: false
         verticalAlignment: VerticalAlignment.Bottom
+        horizontalAlignment: HorizontalAlignment.Center
         layout: AbsoluteLayout {
         }
         CustomSlider {
-        	id: smallStepSlider
-        	preferredWidth: my.smallStepSliderWidth
+            id: smallStepSlider
         	 visible: false        
         	 layoutProperties: AbsoluteLayoutProperties {
-        	 }
+        	 }    	
         }
     }
 
@@ -118,9 +122,8 @@ Container {
         // Dummy component for local variables
         ComponentDefinition {
             id: my
-            property int width: 700
             property int timeAreaWidth: 200
-            property int smallStepSliderWidth: 300
+            property int smallStepSliderWidth: 400
             property int dt: 10 * 1000 // delta time in seconds
             property real longPressInitX
             property int minTime: 2 * 60 * 1000 // min time to show small steps slider
@@ -134,13 +137,7 @@ Container {
                 slideBar.immediateValue = smallStepSlider.value
             }
         },
-        
-        LayoutUpdateHandler {
-            id: layoutHandler
-            onLayoutFrameChanged: {
-                my.width = layoutFrame.width;
-            }
-        },
+
         ImagePaintDefinition {
             id: backgroundImage
             imageSource: "asset:///images/Player/SliderBackground.png"
@@ -154,15 +151,19 @@ Container {
                 if (orientation == UIOrientation.Portrait) {
                     timeArea.verticalAlignment = VerticalAlignment.Top
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Top
-                    slider.horizontalAlignment = HorizontalAlignment.Fill
-                    slider.positionX = 0
                     slideBar.preferredHeight = 2 * height
+                    sliderContainer.positionOfX = 0
+                    sliderContainer.preferredWidth = Helpers.widthOfScreen
+                    slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
+                    smallSliderContainer.preferredWidth = Helpers.widthOfScreen
                 } else {
+                    smallSliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
                     timeArea.verticalAlignment = VerticalAlignment.Bottom
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-                    slider.horizontalAlignment = HorizontalAlignment.Center
-                    slider.positionX = my.timeAreaWidth
                     slideBar.preferredHeight = height
+                    sliderContainer.positionOfX = currentTimeLabel.preferredWidth
+                    sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
+                    slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
                 }
             }
         }
@@ -183,16 +184,19 @@ Container {
         if (OrientationSupport.orientation == UIOrientation.Portrait) {
             timeArea.verticalAlignment = VerticalAlignment.Top
             currentTimeLabel.verticalAlignment = VerticalAlignment.Top
-            slider.horizontalAlignment = HorizontalAlignment.Fill
-            slider.positionX = 0
+            sliderContainer.positionOfX = 0
+            sliderContainer.preferredWidth = Helpers.widthOfScreen
+            slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
+            smallSliderContainer.preferredWidth = Helpers.widthOfScreen
 
         } else {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
             currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-            slider.horizontalAlignment = HorizontalAlignment.Center
             slideBar.preferredHeight = height
-            slider.positionX = my.timeAreaWidth
-
+            sliderContainer.positionOfX = currentTimeLabel.preferredWidth
+            sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
+            slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
+            smallSliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
         }
     }
 
