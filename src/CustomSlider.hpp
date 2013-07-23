@@ -13,7 +13,7 @@
 #include <bb/cascades/CustomControl>
 #include <bb/cascades/Image>
 #include <QSize>
-
+#include <bb/cascades/OrientationSupport>
 namespace bb {
     namespace cascades {
         class Container;
@@ -31,9 +31,9 @@ using namespace bb::cascades;
 class CustomSlider : public bb::cascades::CustomControl {
     Q_OBJECT
 
+    Q_PROPERTY(QSize layoutSize  WRITE setLayoutSize FINAL)
     Q_PROPERTY(bool mediaState READ  mediaState WRITE setMediaState NOTIFY mediaStateChanged FINAL)
     Q_PROPERTY(float value READ value WRITE setValue FINAL)
-    Q_PROPERTY(float preferredHeight READ preferredHeight FINAL)
     Q_PROPERTY(float fromValue READ fromValue WRITE setFromValue NOTIFY fromValueChanged FINAL)
     Q_PROPERTY(float toValue READ toValue WRITE setToValue NOTIFY toValueChanged FINAL)
     Q_PROPERTY(float immediateValue READ immediateValue NOTIFY immediateValueChanged FINAL)
@@ -52,6 +52,8 @@ public:
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
 
 public Q_SLOTS:
+	void onOrientationAboutToChange(bb::cascades::UIOrientation::Type uiOrientation);
+	void setLayoutSize(QSize);
 	void setMediaState(bool);
     void setValue(float value);
     void setFromValue(float value);
@@ -66,7 +68,6 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 	void mediaStateChanged();
-    void preferredWidthChanged(float width);
     void valueChanged(float value);
     void fromValueChanged(float value);
     void toValueChanged(float value);
@@ -78,7 +79,6 @@ Q_SIGNALS:
     void handleSizeChanged(QSize size);
 
 private Q_SLOTS:
-    void handleLayoutFrameUpdated(QRectF frame);
     void sliderHandleTouched(bb::cascades::TouchEvent* event);
     void progressBarTouched(bb::cascades::TouchEvent* event);
     void updateHandlePositionX(float);
@@ -108,6 +108,7 @@ private:
     Image m_progressBarImagePressed;
 
     // handle
+    Container* m_handleContainer;
     ImageView* m_handle;
     Image m_handleOnImg;
     Image m_handleOffImg;
@@ -133,7 +134,6 @@ private:
     int m_updateInterval;
 
     bool m_handleLongPressed;
-    Container* m_dummyContainer;
 
     AbsoluteLayoutProperties* m_handleLayoutProperties;
 };

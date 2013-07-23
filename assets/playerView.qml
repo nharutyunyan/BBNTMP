@@ -777,15 +777,11 @@ Page {
                     orientation: LayoutOrientation.LeftToRight
                 }
                 
-                leftPadding: 5
-                rightPadding: 5
                 horizontalAlignment: HorizontalAlignment.Fill
                 verticalAlignment: VerticalAlignment.Bottom
 
                 SlideBar {
                     id: durationSlider
-                    leftMargin: 5
-                    rightMargin: 5
                     horizontalAlignment: HorizontalAlignment.Fill
                     verticalAlignment: VerticalAlignment.Center
 
