@@ -14,8 +14,14 @@ Container {
     property int height: 105
     property bool pauseHandle
     property variant layoutSize
+    property int bookmarkPositionX
+    property bool bookmarkTouched: false 
+    property bool bookmarkVisible: true
+    property int timeAreaWidth: 200 
+    property int timeAreaHeight: 70
+    property int sliderHandleWidth: 87
 
-    preferredHeight: 2 * height
+    preferredHeight: 150
     
     layout: DockLayout {
         
@@ -25,18 +31,41 @@ Container {
     TimeArea {
         id: currentTimeLabel
         timeInMsc: slideBar.value
-        preferredWidth: my.timeAreaWidth
-        preferredHeight: height
+        preferredWidth: timeAreaWidth
+        preferredHeight: timeAreaHeight
         horizontalAlignment: HorizontalAlignment.Left
     }
 
     TimeArea {
         id: timeArea
         timeInMsc: slideBar.toValue
-        preferredWidth: my.timeAreaWidth
-        preferredHeight: height  
+        preferredWidth: timeAreaWidth
+        preferredHeight: timeAreaHeight
         horizontalAlignment: HorizontalAlignment.Right
     }
+
+    Container {
+        id: bookmark
+        verticalAlignment: VerticalAlignment.Top
+        layout: AbsoluteLayout {
+        }
+
+        ImageView {
+            id: bookmarkIcon
+            visible: bookmarkVisible
+            imageSource: "asset:///images/Player/BookmarkIcon.png"
+            implicitLayoutAnimationsEnabled: false
+            layoutProperties: AbsoluteLayoutProperties {
+                positionX: bookmarkPositionX
+
+            }
+            onTouch: {
+                if (! bookmarkTouched) 
+                  bookmarkTouched = true
+            }
+
+        } //bookmark Icon
+    } //bookmark
 
     Container {
         id: sliderContainer
@@ -114,7 +143,7 @@ Container {
             id: smallStepSlider
         	 visible: false        
         	 layoutProperties: AbsoluteLayoutProperties {
-        	 }    	
+        	 }
         }
     }
 
@@ -122,7 +151,6 @@ Container {
         // Dummy component for local variables
         ComponentDefinition {
             id: my
-            property int timeAreaWidth: 200
             property int smallStepSliderWidth: 400
             property int dt: 10 * 1000 // delta time in seconds
             property real longPressInitX
@@ -151,19 +179,21 @@ Container {
                 if (orientation == UIOrientation.Portrait) {
                     timeArea.verticalAlignment = VerticalAlignment.Top
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Top
-                    slideBar.preferredHeight = 2 * height
                     sliderContainer.positionOfX = 0
                     sliderContainer.preferredWidth = Helpers.widthOfScreen
                     slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
                     smallSliderContainer.preferredWidth = Helpers.widthOfScreen
+                    timeArea.bottomPadding = 0
+                    currentTimeLabel.bottomPadding = 0
                 } else {
                     smallSliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
                     timeArea.verticalAlignment = VerticalAlignment.Bottom
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-                    slideBar.preferredHeight = height
                     sliderContainer.positionOfX = currentTimeLabel.preferredWidth
                     sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
                     slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
+                    timeArea.bottomPadding = 40
+                    currentTimeLabel.bottomPadding = 40
                 }
             }
         }
@@ -188,15 +218,16 @@ Container {
             sliderContainer.preferredWidth = Helpers.widthOfScreen
             slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
             smallSliderContainer.preferredWidth = Helpers.widthOfScreen
-
+            
         } else {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
             currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-            slideBar.preferredHeight = height
             sliderContainer.positionOfX = currentTimeLabel.preferredWidth
             sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
             slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
             smallSliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
+            timeArea.bottomPadding = 40
+            currentTimeLabel.bottomPadding = 40
         }
     }
 
