@@ -34,9 +34,26 @@ MovieDecoder::MovieDecoder(const std::string& filename, AVFormatContext* pavCont
     initialize(filename);
 }
 
+MovieDecoder::MovieDecoder()
+: videoStream_(-1)
+, pFormatContext_(0)
+, pVideoCodecContext_(0)
+, pVideoCodec_(0)
+, pVideoStream_(0)
+, pFrame_(0)
+, pFrameBuffer_(0)
+, pPacket_(0)
+, allowSeek_(true)
+{}
+
 MovieDecoder::~MovieDecoder()
 {
 	destroy();
+}
+
+void MovieDecoder::setContext(AVFormatContext *pavContext)
+{
+    pFormatContext_ = pavContext;
 }
 
 void MovieDecoder::initialize(const std::string& filename)

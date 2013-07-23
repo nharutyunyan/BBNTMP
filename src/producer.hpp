@@ -11,6 +11,7 @@ class Producer: public QObject
 
 public:
     Producer(const QVariantList& videoFiles, int);
+    void updateVideoList(const QVariantList& videoFiles, int start);
 
 public slots:
     void produce();

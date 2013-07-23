@@ -15,19 +15,29 @@
 #include "producer.hpp"
 
 Producer::Producer(const QVariantList& videoFiles, int start)
-    : m_index(start)
- {
-	m_filepath = QDir::home().absoluteFilePath("thumbnails/");
-	qDebug() << "m_filepath " << m_filepath;
-	m_thumbPng = "-thumb.png";
+{
+    updateVideoList(videoFiles, start);
+}
 
-	m_result.clear();
-	for (int i = 0; i < videoFiles.size(); ++ i)
-	{
-		QVariantMap v = videoFiles[i].toMap();
-		m_result.append(v["path"].toString());
-	}
-	qDebug() << "m_result size() " << m_result.size();
+void Producer::updateVideoList(const QVariantList& videoFiles, int start)
+{
+    m_result.clear();
+    qDebug() << "m_result ==  " << m_result;
+    m_index = start;
+    m_filepath = QDir::home().absoluteFilePath("thumbnails/");
+        qDebug() << "m_filepath " << m_filepath;
+        m_thumbPng = "-thumb.png";
+
+        m_result.clear();
+        for (int i = 0; i < videoFiles.size(); ++ i)
+        {
+            QVariantMap v = videoFiles[i].toMap();
+            qDebug() << "==  " << v["thumbURL"].value<QString>();
+            if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png")
+                m_result.append(v["path"].toString());
+        }
+        qDebug() << "m_result size() " << m_result.size();
+        qDebug() << "m_result ==  " << m_result;
 }
 
 void Producer::produce()

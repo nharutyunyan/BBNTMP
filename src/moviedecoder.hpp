@@ -30,6 +30,7 @@ class MovieDecoder
 public:
     MovieDecoder(const std::string& filename, AVFormatContext* pavContext = 0);
     ~MovieDecoder();
+    MovieDecoder();
 
     void initialize(const std::string& filename);
     void destroy();
@@ -39,6 +40,7 @@ public:
     void getScaledVideoFrame(VideoFrame& videoFrame);
     int getWidth();
     int getHeight();
+    void setContext(AVFormatContext* pavContext);
 
 private:
     void initializeVideo();
