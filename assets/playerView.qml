@@ -742,34 +742,6 @@ Page {
             verticalAlignment: VerticalAlignment.Bottom
 
             Container {
-                id: bookmark
-                layout: AbsoluteLayout {
-                }
-                //bookmark Icone
-                ImageView {
-                    implicitLayoutAnimationsEnabled: false
-                    id: bookmarkIcon
-                    layoutProperties: AbsoluteLayoutProperties {
-                        positionX: OrientationSupport.orientation == UIOrientation.Landscape 
-                        ? 220 + infoListModel.getVideoPosition() * ((appContainer.landscapeWidth - 505) / pgPlayer.currentLenght) + 5 
-                        : 220 + infoListModel.getVideoPosition() * ((appContainer.landscapeHeight - 505) / pgPlayer.currentLenght) + 5
-
-                    }
-                    imageSource: "asset:///images/Player/BookmarkIcon.png"
-                    visible: true
-
-                    
-                    onTouch: {
-                        myPlayer.seekTime(infoListModel.getVideoPosition());
-                        durationSlider.immediateValue= infoListModel.getVideoPosition();
-                        bookmarkIcon.visible= false;
-                        bookmarkTimer.stop();
-                    }
-
-                } //bookmark Icon
-            } //bookmark
-
-            Container {
                 id: sliderContainer
                 objectName: sliderContainer
                 
@@ -784,6 +756,9 @@ Page {
                     id: durationSlider
                     horizontalAlignment: HorizontalAlignment.Fill
                     verticalAlignment: VerticalAlignment.Center
+                    bookmarkPositionX: OrientationSupport.orientation == UIOrientation.Landscape 
+                                       ? timeAreaWidth + sliderHandleWidth /2 +  (infoListModel.getVideoPosition()  / pgPlayer.currentLenght) * (appContainer.landscapeWidth - 2 * timeAreaWidth - sliderHandleWidth) -30 
+                                       : sliderHandleWidth /2 + (infoListModel.getVideoPosition()  / pgPlayer.currentLenght) * (appContainer.landscapeHeight - sliderHandleWidth) - 30
 
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1
@@ -810,6 +785,12 @@ Page {
                     onTouch: {
                         uiControlsShowTimer.start();
                     }
+                    onBookmarkTouchedChanged: {
+                        myPlayer.seekTime(infoListModel.getVideoPosition());
+                        durationSlider.immediateValue= infoListModel.getVideoPosition();
+                        bookmarkVisible = false;
+                        bookmarkTimer.stop();
+                     }
                 } //durationSlider
             }//sliderContainer
         }//controlsContainer
@@ -1014,7 +995,7 @@ Page {
                 singleShot: true
                 interval: 7000
                 onTimeout: {
-                    bookmarkIcon.visible= false;
+                    durationSlider.bookmarkVisible = false;
                 }
             },
 
