@@ -493,7 +493,6 @@ Page {
                         if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
                             subtitleButton.setEnabled(true);
                         infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
-                        trackTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
                     }  
@@ -823,7 +822,6 @@ Page {
             if(bpsEventHandler.locked)
                 return; // Video does not play if phone is locked
 
-            trackTimer.start();
             return myPlayer.play();
         }
 
