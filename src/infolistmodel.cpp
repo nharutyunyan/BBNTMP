@@ -58,6 +58,7 @@ void InfoListModel::consume(QString data, int index)
 	setValue(index, "thumbURL", "file://" + data);
 	//when finished processing emit a consumed signal
 	emit consumed();
+	saveData();
 }
 
 void InfoListModel::getVideoFiles()
