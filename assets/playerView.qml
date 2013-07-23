@@ -820,6 +820,10 @@ Page {
         }//controlsContainer
 
         function playMediaPlayer() {
+            if(bpsEventHandler.locked)
+                return; // Video does not play if phone is locked
+
+            trackTimer.start();
             return myPlayer.play();
         }
 
@@ -915,6 +919,7 @@ Page {
 
            BpsEventHandler {
                id: bpsEventHandler
+               property bool locked: false
                onVideoWindowStateChanged: {
                    if(isMinimized && myPlayer.mediaState == MediaState.Started) {
                        // Application is minimized. Pause the video
@@ -925,7 +930,18 @@ Page {
                        appContainer.pauseMediaPlayer();
                     }
                }
-               
+
+                onWindowInactive: {
+                    bpsEventHandler.locked = true;
+                    if (myPlayer.mediaState == MediaState.Started) {
+                        appContainer.pauseMediaPlayer();
+                    }
+                }
+
+                onWindowActive: {
+                    bpsEventHandler.locked = false;
+                }
+
                 onSpeakerVolumeChanged: {
                     volume.visible = true;
                     appContainer.curVolume = bpsEventHandler.getVolume();
@@ -948,7 +964,8 @@ Page {
                }
                
                 onDeviceLockStateChanged: {
-               	  	if (isLocked && myPlayer.mediaState == MediaState.Started) {
+                    bpsEventHandler.locked = true;
+                    if (myPlayer.mediaState == MediaState.Started) {
                     	appContainer.pauseMediaPlayer();
                     }
                 }

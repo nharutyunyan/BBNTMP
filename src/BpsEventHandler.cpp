@@ -39,6 +39,15 @@ void BpsEventHandler::event( bps_event_t *event )
     	{
     		emit showVideoScrollBar();
     	}
+        if(NAVIGATOR_WINDOW_INACTIVE == bps_event_get_code(event))
+        {
+            emit windowInactive();
+        }
+
+        if(NAVIGATOR_WINDOW_ACTIVE == bps_event_get_code(event))
+        {
+            emit windowActive();
+        }
 
     	int code = navigator_event_get_window_state(event);
     	int lock = navigator_event_get_device_lock_state(event);
