@@ -18,6 +18,9 @@
 #include <bb/cascades/LongPressHandler>
 #include <bb/cascades/LongPressEvent>
 #include <bb/cascades/ImageTracker>
+#include <bb/cascades/ImagePaint>
+#include <bb/cascades/animation/stockcurve.h>
+#include <bb/cascades/ScalingMethod>
 
 
 CustomSlider::CustomSlider(Container* parent)
@@ -26,19 +29,21 @@ CustomSlider::CustomSlider(Container* parent)
      m_progressBarContainerHeight(15),
      m_fromValue(0.0),
      m_coordinateX(0.0),
-     m_toValue(1.0)
+     m_toValue(1.0),
+     m_objectName("")
 {
     setUpdateInterval(0);
     setPreferredHeight(m_rootContainerHeight);
     m_rootContainer = Container::create()
                   .layout(new DockLayout())
-                  .horizontal(HorizontalAlignment::Fill)
+                  .horizontal(HorizontalAlignment::Center)
                   .preferredHeight(m_rootContainerHeight);
 
     m_rootContainer->setMaxHeight(m_rootContainerHeight);
 
     createProgressBar();
     createHandle();
+    createAnimation();
 
     m_handleContainer = Container::create()
                          .layout(new AbsoluteLayout())
@@ -49,8 +54,13 @@ CustomSlider::CustomSlider(Container* parent)
                    .addTouchReaction(TouchType::Down,
                                      PropagationPhase::AtTarget,
                                      TouchResponse::StartTracking));
+    m_handleContainer->setImplicitLayoutAnimationsEnabled(false);
+     LongPressHandler* longPressHandler = LongPressHandler::create()
+                .onLongPressed(this, SLOT(onHandleContainerLongPressed()));
+    m_handleContainer->addGestureHandler(longPressHandler);
     m_handleContainer->add(m_handle);
     m_rootContainer->add(m_progressBarContainer);
+    m_rootContainer->add(m_animationContainer);
     m_rootContainer->add(m_handleContainer);
     setRoot(m_rootContainer);
 
@@ -59,6 +69,78 @@ CustomSlider::CustomSlider(Container* parent)
     createConnections();
 }
 
+void CustomSlider::createAnimation()
+{
+	 m_animationContainer = Container::create()
+	    						.horizontal(HorizontalAlignment::Fill)
+	    						.vertical(VerticalAlignment::Center);
+	 pStackLayout = new StackLayout();
+	 pStackLayout->setOrientation( LayoutOrientation::LeftToRight );
+	 m_animationContainer->setLayout(pStackLayout);
+
+	 m_leftAnimationContainer =  Container::create()
+	  	  	  	  	  	  	  	  	  .layout(new DockLayout())
+	  	  	  	  	  	  	  	  	  .horizontal(HorizontalAlignment::Left)
+	  	  	  	  	  	  	  	  	  .vertical(VerticalAlignment::Center);
+
+	 m_rightAnimationContainer = Container::create()
+	  	  	  	  	  	  	  	  	  .layout(new DockLayout())
+	  	  	  	  	  	  	  	  	  .horizontal(HorizontalAlignment::Right)
+	  	  	  	  	  	  		  	  .vertical(VerticalAlignment::Center);
+	 m_leftContainer = Container::create()
+	  	  	  	  .horizontal(HorizontalAlignment::Left)
+	  		  	  .vertical(VerticalAlignment::Center);
+	 m_rightContainer = Container::create()
+	 	  	  	  	  .horizontal(HorizontalAlignment::Right)
+	 	  		  	  .vertical(VerticalAlignment::Center);
+
+	 m_leftAnimationContainer->add(m_leftContainer);
+	 m_rightAnimationContainer->add(m_rightContainer);
+	 m_animationContainer->add(m_leftAnimationContainer);
+	 m_animationContainer->add(m_rightAnimationContainer);
+
+	 m_animation = ParallelAnimation::create()
+	 	 	 	   .add( TranslateTransition::create(m_leftContainer)
+	 	 	 	   	   	 .toX(19)
+	 	 	 	   	   	 .duration(200)
+	 	 	 	   		 .easingCurve(StockCurve::BackOut))
+	 	 	 	   .add( TranslateTransition::create(m_rightContainer)
+	 	 	 	   		 .toX(-19)
+	 	 	 	   		 .duration(200)
+	 	 	 	   		 .easingCurve(StockCurve::BackOut));
+}
+
+void CustomSlider::setSmallSliderMaxWidth(float maxWidth)
+{
+	m_smallSliderMaxWidth = maxWidth;
+}
+
+void CustomSlider::setObjectName(QString name)
+{
+	m_objectName = name;
+}
+
+void CustomSlider::setAnimation(bool state)
+{
+	m_progressBarContainer->setVisible(false);
+	m_leftContainer->setTranslationX(m_leftAnimationContainerWidth);
+	m_rightContainer->setTranslationX(-m_rightAnimationContainerWidth);
+	m_animation->play();
+}
+
+void CustomSlider::setBackground(QString path)
+{
+	  leftBackground =
+	            ImageView::create(path);
+	  leftBackground->setScalingMethod(bb::cascades::ScalingMethod::AspectFill);
+	  rightBackground =
+	 	        ImageView::create(path);
+
+	  rightBackground->setScaleX(-1);
+	  rightBackground->setScalingMethod(bb::cascades::ScalingMethod::AspectFill);
+	  m_leftContainer->add(leftBackground);
+	  m_rightContainer->add(rightBackground);
+}
 
 bool CustomSlider::mediaState()
 {
@@ -80,7 +162,8 @@ void CustomSlider::setValue(float value)
 {
 	 m_value = value;
 	 m_immediateValue = value;
-	 updateHandlePositionX(m_value);
+	 if(this->m_objectName == "slider")
+		 updateHandlePositionX(m_value);
 }
 
 float CustomSlider::fromValue() const
@@ -131,13 +214,111 @@ void CustomSlider::resetValue()
     setValue(m_fromValue);
 }
 
+void CustomSlider::setSmallCurrentValue(float currentValue)
+{
+	m_smallSliderValue = currentValue;
+}
+
+void CustomSlider::setSmallCordX(float cordX)
+{
+	if(cordX < -20)
+	{
+	 	 m_rootContainerWidth += cordX + 20;
+		 m_rootContainer->setPreferredWidth(m_rootContainerWidth);
+		 m_leftAnimationContainer->setRightPadding(m_leftAnimationContainer->rightPadding() +  cordX + 20);
+		 m_leftAnimationContainerWidth =  m_rootContainerWidth - m_smallSliderMaxWidth / 2;
+		 m_rightAnimationContainerWidth = m_smallSliderMaxWidth / 2;
+		 m_handleLayoutProperties->setPositionX(m_leftAnimationContainerWidth - m_rootContainerHeight/2);
+	} else if (768 - cordX < m_rootContainerWidth - 20)
+	{
+		m_rightAnimationContainer->setLeftPadding(m_rightAnimationContainer->leftPadding() + ((768 - cordX) - m_rootContainerWidth + 20));
+		m_rootContainerWidth += ((768 - cordX) - m_rootContainerWidth + 20);
+		m_rootContainer->setPreferredWidth(m_rootContainerWidth);
+		m_leftAnimationContainerWidth =  m_smallSliderMaxWidth / 2;
+		m_rightAnimationContainerWidth = m_rootContainerWidth - m_smallSliderMaxWidth / 2;
+		m_handleLayoutProperties->setPositionX(m_leftAnimationContainerWidth - m_rootContainerHeight/2);
+	}
+}
+
+
+float CustomSlider::fromSmallSliderValueToPosX(float value)
+{
+	float factor;
+	if(value <= m_smallSliderValue)
+	{
+		if(m_smallSliderValue == m_fromValue)
+			factor = 0;
+		else
+		{
+			factor = (value - m_fromValue) / (m_smallSliderValue - m_fromValue);
+		}
+		return factor * (m_leftAnimationContainerWidth - m_rootContainerHeight/2);
+	}
+	else
+	{
+		if(m_toValue == m_smallSliderValue)
+			factor = 0;
+		else
+			factor = (value - m_smallSliderValue) / (m_toValue - m_smallSliderValue);
+		return factor * (m_rightAnimationContainerWidth - m_rootContainerHeight/2);
+	}
+}
+
+float CustomSlider::fromSmallSliderPosXToValue(float positionX)
+{
+	if(positionX < 0)
+		positionX = 0;
+	else if(positionX > m_rootContainerWidth - m_rootContainerHeight)
+		positionX = m_rootContainerWidth - m_rootContainerHeight;
+	m_handleLayoutProperties->setPositionX(positionX);
+	 float endX;
+	 float factor;
+	 if(positionX < m_leftAnimationContainerWidth - m_rootContainerHeight/2)
+	 {
+		 if(positionX < 0)
+			 positionX = 0;
+		 endX = m_leftAnimationContainerWidth - m_rootContainerHeight/2;
+		 factor = (positionX / endX);
+		 return factor * (m_smallSliderValue - m_fromValue) + m_fromValue;
+	 }
+	 else
+	 {
+		 positionX = positionX - (m_leftAnimationContainerWidth- m_rootContainerHeight/2);
+		 endX = m_rightAnimationContainerWidth - m_rootContainerHeight/2;
+		 factor = positionX / endX;
+		 return factor * (m_toValue - m_smallSliderValue) + m_smallSliderValue;
+	 }
+}
+
 void CustomSlider::setLayoutSize(QSize size)
 {
-	 m_rootContainerWidth = size.width();
+	 m_rootContainerWidth = size.width() ;
 	 m_rootContainer->setPreferredWidth(size.width());
 	 m_rootContainerHeight = size.height();
+
 	 m_progressBarContainer->setPreferredWidth(m_rootContainerWidth - 87);
-	 updateHandlePositionX(m_value);
+	 if(this->m_objectName == "smallStepSlider"){
+		 m_leftAnimationContainer->setRightPadding(0);
+		 m_rightAnimationContainer->setLeftPadding(0);
+		 m_leftAnimationContainerWidth =  m_smallSliderMaxWidth / 2;
+		 m_rightAnimationContainerWidth = m_smallSliderMaxWidth / 2;
+	 }
+
+	 float factor = (m_value - m_fromValue) / (m_toValue - m_value);
+	 if(factor <= 1)
+	 {
+		 m_leftAnimationContainer->setRightPadding(size.width() -m_smallSliderMaxWidth);
+		 m_leftAnimationContainerWidth = size.width() - m_smallSliderMaxWidth / 2;
+	 }
+	 else{
+		 m_rightAnimationContainer->setLeftPadding(size.width() -m_smallSliderMaxWidth);
+		 m_rightAnimationContainerWidth = size.width() - m_smallSliderMaxWidth / 2;
+	 }
+
+	if(this->m_objectName == "slider")
+		updateHandlePositionX(m_value);
+	else
+		m_handleLayoutProperties->setPositionX(m_leftAnimationContainerWidth - m_rootContainerHeight/2);
 }
 
 void CustomSlider::createConnections()
@@ -172,6 +353,7 @@ void CustomSlider::onOrientationAboutToChange(bb::cascades::UIOrientation::Type 
         	if(m_timer->isActive())
         		m_timer->stop();
         	m_handleLongPressed = false;
+        	m_handleContainer->setVisible(true);
             emit handleReleased();
 
 }
@@ -220,6 +402,7 @@ void CustomSlider::createHandle()
                .preferredWidth(m_rootContainerHeight)
                .preferredHeight(m_rootContainerHeight);
 
+
     m_handleImageTracker = new ImageTracker(m_handleOnImg.source());
 
 
@@ -239,6 +422,7 @@ void CustomSlider::createHandle()
     m_handle->addGestureHandler(longPressHandler);
 }
 
+
 void CustomSlider::sliderHandleTouched(TouchEvent* event)
 {
     if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
@@ -251,7 +435,6 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             m_handle->setImage(m_handleOnImg);
             m_touchEventInitX = event->windowX();
-
             m_handleInitX = m_handleLayoutProperties->positionX() + m_rootContainerPositionX;
             return;
         }
@@ -285,6 +468,7 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
                 m_timer->stop();
             m_handleLongPressed = false;
             setMediaState(false);
+            m_handleContainer->setVisible(true);
             emit handleReleased();
 
             return;
@@ -304,10 +488,15 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
             m_handle->setImage(m_handleOnImg);
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             setImmediateValue(fromPosXToValue(handlePosX));
+            m_touchEventInitX = event->windowX();
             return;
         }
 
         if(TouchType::Move == type) {
+        	if(m_handleLongPressed){
+        		emit move(event->windowX());
+        		return;
+        	}
             if(!m_timer->isActive()) {
                 setImmediateValue(fromPosXToValue(handlePosX));
                 m_timer->start(m_updateInterval);
@@ -317,11 +506,16 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
         else
 
         if(TouchType::Up == type) {
+        	if(m_handleLongPressed){
+        		sliderHandleTouched(event);
+        		return;
+        	}
             m_handle->setImage(m_handleOffImg);
             m_progressBarImageView->setImage(m_progressBarImage);
             setImmediateValue(fromPosXToValue(handlePosX));
             if(m_timer->isActive())
                 m_timer->stop();
+            emit handleReleased();
             setMediaState(false);
             return;
         }
@@ -330,7 +524,13 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
 
 void CustomSlider::updateHandlePositionX(float value)
 {
-	m_coordinateX = fromValueToPosX(value);
+	if(this->m_objectName == "smallStepSlider")
+	{
+		m_coordinateX = fromSmallSliderValueToPosX(value);
+	}
+	else
+		m_coordinateX = fromValueToPosX(value);
+
     m_handleLayoutProperties->setPositionX(m_coordinateX);
     if(m_coordinateX == 0) {
         m_progressBarImageView->setVisible(false);
@@ -347,6 +547,8 @@ float CustomSlider::fromValueToPosX(float value) const
 
     return (m_rootContainerWidth - m_rootContainerHeight) * factor;
 }
+
+
 
 float CustomSlider::fromPosXToValue(float positionX) const
 {
@@ -374,7 +576,16 @@ void CustomSlider::setUpdateInterval(int interval)
 void CustomSlider::onHandleLongPressed(bb::cascades::LongPressEvent* event)
 {
     m_handleLongPressed = true;
+    m_handleContainer->setVisible(false);
     emit handleLongPressed(event->x());
+}
+
+void CustomSlider::onHandleContainerLongPressed()
+{
+	 float handleCenter = 53;
+	 m_handleLongPressed = true;
+	 m_handleContainer->setVisible(false);
+	 emit handleLongPressed(handleCenter);
 }
 
 float CustomSlider::handleLocalX() const
@@ -401,5 +612,6 @@ void CustomSlider::updateRootContainerPreferredWidth(float width)
 
 void CustomSlider::setLongPressEnabled(bool enabled)
 {
+	m_handleContainer->setVisible(true);
     m_handleLongPressed = enabled;
 }

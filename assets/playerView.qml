@@ -245,7 +245,7 @@ Page {
                             {
                             	controlsContainer.setOpacity(1);
                             	controlsContainer.setVisible(true);
-                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
+                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
                                 uiControlsShowTimer.start();
                             }
                         }
@@ -831,7 +831,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setVisible(true);
             controlsContainer.setOpacity(1);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
             uiControlsShowTimer.start();
             fadeInOut.play();
         }
@@ -1079,7 +1079,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setOpacity(1);
             controlsContainer.setVisible(true);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
             uiControlsShowTimer.start();
         }
     }//appContainer
