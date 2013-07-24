@@ -51,15 +51,15 @@ private:
     void createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, PixelFormat format);
 
 private:
-    int             	videoStream_;
-    AVFormatContext*	pFormatContext_;
-    AVCodecContext* 	pVideoCodecContext_;
-    AVCodec*            pVideoCodec_;
-    AVStream*           pVideoStream_;
-    AVFrame*			pFrame_;
-    uint8_t*			pFrameBuffer_;
-    AVPacket*       	pPacket_;
-    bool                allowSeek_;
+    int             	videoStream;
+    AVFormatContext*	pFormatContext;
+    AVCodecContext* 	pVideoCodecContext;
+    AVCodec*            pVideoCodec;
+    AVStream*           pVideoStream;
+    AVFrame*			pFrame;
+    uint8_t*			pFrameBuffer;
+    AVPacket*       	pPacket;
+    bool                allowSeek;
 };
 
 
