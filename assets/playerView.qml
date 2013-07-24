@@ -271,6 +271,7 @@ Page {
                 id: volume
                 layout: AbsoluteLayout {
                 }
+                verticalAlignment: orientationHandler.orientation == UIOrientation.Portrait ? VerticalAlignment.Center : VerticalAlignment.Fill
                 visible: false
 
                 property int positionY: orientationHandler.orientation == UIOrientation.Portrait ? 225 : 384
