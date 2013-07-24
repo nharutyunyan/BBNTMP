@@ -24,6 +24,7 @@ private:
 	QString m_filepath;
 	QString m_thumbPng;
 	int m_index;
+	int current;
 
 };
 #endif /* PRODUCER_HPP_ */

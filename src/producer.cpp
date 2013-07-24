@@ -24,6 +24,7 @@ void Producer::updateVideoList(const QVariantList& videoFiles, int start)
     m_result.clear();
     qDebug() << "m_result ==  " << m_result;
     m_index = start;
+    current = start;
     m_filepath = QDir::home().absoluteFilePath("thumbnails/");
         qDebug() << "m_filepath " << m_filepath;
         m_thumbPng = "-thumb.png";
@@ -32,23 +33,23 @@ void Producer::updateVideoList(const QVariantList& videoFiles, int start)
         for (int i = 0; i < videoFiles.size(); ++ i)
         {
             QVariantMap v = videoFiles[i].toMap();
-            qDebug() << "==  " << v["thumbURL"].value<QString>();
             if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png")
                 m_result.append(v["path"].toString());
+            else
+                m_index++;
         }
         qDebug() << "m_result size() " << m_result.size();
-        qDebug() << "m_result ==  " << m_result;
 }
 
 void Producer::produce()
 {
 	//if no more data, emit a finished signal
-	if (m_index >= m_result.size()) {
+	if (current >= m_result.size()) {
 			emit finished();
 		} else {
 		//do whatever to retrieve the data
 		//and then emit a produced signal with the data
-		QStringList pathElements = m_result[m_index].split('/',
+		QStringList pathElements = m_result[current].split('/',
 				QString::SkipEmptyParts, Qt::CaseSensitive);
 		// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
 		QString finalFileName = m_filepath
@@ -58,7 +59,7 @@ void Producer::produce()
 		try {
 			VideoThumbnailer videoThumbnailer;
 			videoThumbnailer.generateThumbnail(
-					m_result[m_index].toUtf8().constData(),
+					m_result[current].toUtf8().constData(),
 					finalFileName.toUtf8().constData());
 		} catch (exception& e) {
 			std::cerr << "Error: " << e.what() << endl;
@@ -69,6 +70,7 @@ void Producer::produce()
 		}
 		qDebug() << " process data === " << m_index;
 		++m_index;
+		++current;
 
 		emit produced(finalFileName, m_index - 1);
 	}
