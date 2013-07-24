@@ -1044,12 +1044,12 @@ Page {
                 var videoPos = 0;
                 bookmarkTimer.start();
                 
-                if(!bookmarkIcon.visible) 
-                	bookmarkIcon.visible= true;
+                if(! durationSlider.bookmarkVisible) 
+                	durationSlider.bookmarkVisible = true;
                 	
                 if(infoListModel.getVideoPosition() < 60000)
                 {
-                	bookmarkIcon.visible = false;
+                    durationSlider.bookmarkVisible = false;
                 	bookmarkTimer.stop();
                 }
 
