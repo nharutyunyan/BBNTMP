@@ -17,7 +17,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-static const int THUMBNAIL_SIZE=200;
+static const int THUMBNAIL_SIZE=380;
 static const bool MAINTAIN_ASPECT_RATIO = true;
 
 MovieDecoder::MovieDecoder(const std::string& filename, AVFormatContext* pavContext)
@@ -384,13 +384,13 @@ void MovieDecoder::calculateDimensions(int& destWidth, int& destHeight)
 
         if (srcWidth > srcHeight)
         {
-            destWidth  = THUMBNAIL_SIZE;
-            destHeight = static_cast<int>(static_cast<float>(THUMBNAIL_SIZE) / srcWidth * srcHeight);
+            destWidth  = static_cast<int>(static_cast<float>(THUMBNAIL_SIZE) / srcHeight * srcWidth);
+            destHeight = THUMBNAIL_SIZE;
         }
         else
         {
-            destWidth  = static_cast<int>(static_cast<float>(THUMBNAIL_SIZE) / srcHeight * srcWidth);
-            destHeight = THUMBNAIL_SIZE;
+            destWidth  = THUMBNAIL_SIZE;
+            destHeight = static_cast<int>(static_cast<float>(THUMBNAIL_SIZE) / srcWidth * srcHeight);
         }
     }
 }

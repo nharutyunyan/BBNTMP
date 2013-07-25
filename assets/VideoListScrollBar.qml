@@ -4,7 +4,7 @@ import nuttyPlayer 1.0
 Container {
     id: videoList
     background: Color.Black
-    preferredHeight: 150
+    preferredHeight: 200
     signal videoSelected(variant item)
     property variant currentPath:""
     property bool isVisible: false
@@ -19,36 +19,40 @@ Container {
         listItemComponents: [
             ListItemComponent {
                 Container {
-                    verticalAlignment: VerticalAlignment.Bottom
-                    maxWidth: 200
                     id: listItemtDef
-                    ThumbnailItem {
-                        id: thumb
-                        imageSource: ListItemData.thumbURL
-                        movieTitle: ListItemData.title
-                        movieLength: ListItemData.duration
-                        isVideoBarItem: true
-                        bottomPadding: 30.0
-                        topPadding: 5.0
+                    verticalAlignment: VerticalAlignment.Fill
+                    horizontalAlignment: HorizontalAlignment.Fill
+
+                    Container {
+                        verticalAlignment: VerticalAlignment.Bottom
+                        maxWidth: 320
+
+                        ThumbnailItem {
+                            id: thumb
+                            imageSource: ListItemData.thumbURL
+                            movieTitle: ListItemData.title
+                            movieLength: ListItemData.duration
+                            isVideoBarItem: true
+                        }
+                        bottomPadding: 10
                     }
+
                     Container{
                         verticalAlignment: VerticalAlignment.Fill
                         horizontalAlignment: HorizontalAlignment.Fill
                         ImageView {
 	                        id: selectionImg
 	                        imageSource: "asset:///images/Player/MovieListItemSelectedBorder.png"
-	                        visible: listItemtDef.ListItem.view.currentPath === ListItemData.path
-                            scalingMethod: ScalingMethod.AspectFill
+	                        visible: listItemtDef.ListItem.view.currentPath == ListItemData.path
                             verticalAlignment: VerticalAlignment.Fill
                             horizontalAlignment: HorizontalAlignment.Fill
+                            preferredHeight: 400
                         }
-	                }
+                    }
 
                     leftMargin: 7
                     layout: DockLayout {
-
                     }
-
                 }
             }
         ]
