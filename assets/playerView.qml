@@ -245,7 +245,8 @@ Page {
                             {
                             	controlsContainer.setOpacity(1);
                             	controlsContainer.setVisible(true);
-                            	uiControlsShowTimer.start();
+                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
+                                uiControlsShowTimer.start();
                             }
                         }
                     }
@@ -261,7 +262,7 @@ Page {
                 layoutProperties: AbsoluteLayoutProperties {
                     id: subtitleArea
                     positionX: 0
-                    positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                    positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
                }
            }
 
@@ -823,6 +824,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setVisible(true);
             controlsContainer.setOpacity(1);
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
             uiControlsShowTimer.start();
             fadeInOut.play();
         }
@@ -854,11 +856,7 @@ Page {
 
                onPositionChanged: {
                     durationSlider.setValue(position);
-                    //Set correct subtitle positon
-                   if (valueChangedBySeek) {
-                       subtitleManager.seek(myPlayer.positionInMsecs);
-                       valueChangedBySeek = false;
-                   }
+                    subtitleManager.seek(position);
                }
                onDurationChanged: {
                    durationSlider.toValue = duration;
@@ -984,6 +982,7 @@ Page {
                    upperMenu.setOpacity(0);
                    controlsContainer.setOpacity(0);
                    controlsContainer.setVisible(false);
+                   subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                    uiControlsShowTimer.stop();
                    volume.visible = false;
                    }
@@ -1067,6 +1066,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setOpacity(1);
             controlsContainer.setVisible(true);
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
             uiControlsShowTimer.start();
         }
     }//appContainer
