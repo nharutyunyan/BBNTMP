@@ -274,7 +274,6 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
         else
 
         if(TouchType::Up == type) {
-        	setMediaState(false);
             m_handle->setImage(m_handleOffImg);
             m_progressBarImageView->setImage(m_progressBarImage);
 
@@ -285,6 +284,7 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
             if(m_timer->isActive())
                 m_timer->stop();
             m_handleLongPressed = false;
+            setMediaState(false);
             emit handleReleased();
 
             return;
@@ -300,7 +300,7 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
         float handlePosX = event->localX() - m_rootContainerHeight / 2;
 
         if(TouchType::Down == type) {
-
+        	setMediaState(true);
             m_handle->setImage(m_handleOnImg);
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             setImmediateValue(fromPosXToValue(handlePosX));
@@ -322,6 +322,7 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
             setImmediateValue(fromPosXToValue(handlePosX));
             if(m_timer->isActive())
                 m_timer->stop();
+            setMediaState(false);
             return;
         }
     }

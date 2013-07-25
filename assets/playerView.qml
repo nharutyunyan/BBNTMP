@@ -778,13 +778,16 @@ Page {
                     }
                     property bool previousState: false
                     onPauseHandleChanged: {
-
                         if (myPlayer.mediaState == MediaState.Started && durationSlider.pauseHandle) {
                             previousState = true;
                             appContainer.pauseMediaPlayer();
                         } else if (myPlayer.mediaState == MediaState.Paused && ! durationSlider.pauseHandle && previousState) {
                             appContainer.playMediaPlayer();
                             previousState = false;
+                        }
+                        if(! durationSlider.pauseHandle)
+                        {
+                            myPlayer.valueChangedBySeek = false;
                         }
                     }
 
@@ -859,9 +862,15 @@ Page {
                property bool valueChangedBySeek:false //keeping this flag to optimise the handling of immediateValueChanged. 
 
                onPositionChanged: {
-                    durationSlider.setValue(position);
-                    subtitleManager.seek(position);
-               }
+                   if (valueChangedBySeek) {
+                       subtitleManager.seek(position);
+                   }
+                   else{
+                        subtitleManager.seek(position);
+                        durationSlider.setValue(position);
+                    }
+                }
+
                onDurationChanged: {
                    durationSlider.toValue = duration;
                    // If the duration is changes, it means the video to play is changes.
