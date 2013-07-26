@@ -203,6 +203,8 @@ void InfoListModel::updateVideoList2()
 	updateListWithDeletedVideos(result);
 
 	MetaDataReader* reader = new MetaDataReader(this);
+	m_producer->updateVideoList(m_list, 0);
+
 	if (!reader)
 	{
 		refresh();
@@ -216,8 +218,6 @@ void InfoListModel::updateVideoList2()
 		if(!result.isEmpty())
 			reader->addMetadataReadRequest();
 	}
-
-	m_producer = new Producer(m_list, start);
 
 	clear();
 	append(m_list);
