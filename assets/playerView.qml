@@ -511,6 +511,7 @@ Page {
                 layout: DockLayout {}
                 preferredWidth: 768
                 Container {
+                    layout: DockLayout {}
                     id: backButtonContainer
                     objectName: backButtonContainer
                     opacity: 0.5
@@ -519,18 +520,14 @@ Page {
                     horizontalAlignment: HorizontalAlignment.Left
                     verticalAlignment: VerticalAlignment.Center
                     ImageButton {
-                        id: backButton
                         pressedImageSource: "asset:///images/Player/BackButtonPressed.png"
                         defaultImageSource: "asset:///images/Player/BackButton.png"
-
-                        onClicked: {
-                            if(upperMenu.opacity != 0) {
-                                infoListModel.setVideoPosition(myPlayer.position);
-                                appContainer.curVolume = bpsEventHandler.getVolume();
-                                navigationPane.pop();
-                                pgPlayer.destroy();
-                            }
-                        }
+                    }
+                    onTouchCapture: {
+                        infoListModel.setVideoPosition(myPlayer.position);
+                        appContainer.curVolume = bpsEventHandler.getVolume();
+                        pgPlayer.destroy();
+                        myPlayer.stop();
                     }
                 } //backButtonContainer
                 Container {
@@ -625,7 +622,8 @@ Page {
                             defaultImageSource: "asset:///images/Player/HDMIButtonInactive.png"
 
                             onClicked: {
-                                if (upperMenu.opacity != 0) hdmiButtonContainer.hdmiEnabled = ! hdmiButtonContainer.hdmiEnabled;
+                                if (upperMenu.opacity != 0) 
+                                    hdmiButtonContainer.hdmiEnabled = ! hdmiButtonContainer.hdmiEnabled;
                             }
                         }
                         onCreationCompleted: {
