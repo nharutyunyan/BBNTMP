@@ -511,6 +511,7 @@ Page {
                 id: upperMenu
                 layout: DockLayout {}
                 preferredWidth: 768
+
                 Container {
                     layout: DockLayout {}
                     id: backButtonContainer
@@ -523,8 +524,11 @@ Page {
                     ImageButton {
                         pressedImageSource: "asset:///images/Player/BackButtonPressed.png"
                         defaultImageSource: "asset:///images/Player/BackButton.png"
+                        onClicked: {
+                            backButtonContainer.goBack();
+                        }
                     }
-                    onTouchCapture: {
+                    function goBack() {
                         infoListModel.setVideoPosition(myPlayer.position);
                         appContainer.curVolume = bpsEventHandler.getVolume();
                         pgPlayer.destroy();
@@ -725,6 +729,8 @@ Page {
                 }
             ]
             onTouch: {
+                if(upperMenu.opacity == 0 && event.localY < 100 && event.localX < 104)
+                    backButtonContainer.goBack();
                 upperMenu.setOpacity(1);
                 uiControlsShowTimer.start();
             }
