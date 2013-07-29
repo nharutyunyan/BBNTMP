@@ -86,6 +86,9 @@ void SubtitleManager::load(QString fileName)
 	{
 		SubtitleEntry entry;
 		QString line = in.readLine();
+		if(line[0] == 13) {
+		    continue; // in case of empty line
+		}
 		//Just checking ID. No need to be kept so far.
 		bool ok = true;
 		line.toUInt(&ok);
