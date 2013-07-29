@@ -288,13 +288,13 @@ Page {
                         if (pos >= begin && pos < (end - begin) / 2 + begin) return begin;
                         if (pos <= end && pos >= (end - begin) / 2 + begin) return end;
                     }
-                    return 0;
+                    return -2;
                 }
                 Container {
                     layout: AbsoluteLayout {
                     }
 
-                    preferredHeight: volume.positionY + 140
+                    preferredHeight: volume.positionY + 142
 
                     ImageView {
                         layoutProperties: AbsoluteLayoutProperties {
