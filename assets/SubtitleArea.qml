@@ -2,6 +2,7 @@ import bb.cascades 1.0
 import nuttyPlayer 1.0
 
 Container {
+    implicitLayoutAnimationsEnabled: false
     layout: StackLayout {
         orientation: LayoutOrientation.TopToBottom
     }
