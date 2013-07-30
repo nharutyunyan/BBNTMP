@@ -129,6 +129,7 @@ Container {
 
         onImmediateValueChanged: {
             slideBar.immediateValue = immediateValue;
+            slideBar.value = value;
         }
     }
 }
