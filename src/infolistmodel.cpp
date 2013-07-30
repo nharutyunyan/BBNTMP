@@ -77,6 +77,12 @@ void InfoListModel::getVideoFiles()
 		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos",
 				filters, result);
 
+		FileSystemUtility::getEntryListR("/accounts/1000/shared/camera",
+		                filters, result);
+
+		FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads",
+		                        filters, result);
+
 		QFile file(m_file);
 		if (!file.exists()) {
 			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
@@ -184,6 +190,8 @@ void InfoListModel::updateVideoList()
 	filters << "*.mp4";
 	filters << "*.avi";
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
 	updateListWithDeletedVideos(result);
 	updateListWithAddedVideos(result);
 	append(m_list);
