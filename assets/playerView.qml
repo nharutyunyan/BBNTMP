@@ -493,7 +493,15 @@ Page {
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
                         if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                        {
                             subtitleButton.setEnabled(true);
+                            subtitleButtonContainer.initializeStates();
+                        }
+                        else
+                        {
+                            subtitleButton.setEnabled(false);
+                            subtitleAreaContainer.setOpacity(0);
+                        }
                         infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
                         myPlayer.play();
                         videoListDisappearAnimation.play();
@@ -656,6 +664,7 @@ Page {
                         rightPadding: 15
                         topPadding: 20
                         property bool subtitleEnabled
+                        signal initializeStates
 
                         ImageButton {
                             id: subtitleButton
@@ -670,8 +679,9 @@ Page {
                             }
                         }
                         onCreationCompleted: {
-                            subtitleButton.setEnabled(false);
-                            subtitleEnabled = settings.value("subtitleEnabled");
+                            initializeStates();
+                        }
+                        onSubtitleEnabledChanged: {
                             if (subtitleEnabled) {
                                 subtitleAreaContainer.setOpacity(1);
                                 subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
@@ -680,7 +690,8 @@ Page {
                                 subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
                             }
                         }
-                        onSubtitleEnabledChanged: {
+                        onInitializeStates: {
+                            subtitleEnabled = settings.value("subtitleEnabled");
                             if (subtitleEnabled) {
                                 subtitleAreaContainer.setOpacity(1);
                                 subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
