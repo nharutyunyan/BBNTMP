@@ -503,6 +503,11 @@ QString InfoListModel::getVideoTitle()
 	return v.toString();
 }
 
+int InfoListModel::getSelectedIndex()
+{
+    return m_selectedIndex;
+}
+
 InfoListModel* InfoListModel::get()
 {
 	return this;

@@ -94,6 +94,8 @@ public:
 
     Q_INVOKABLE void updateVideoList2();
 
+    Q_INVOKABLE int getSelectedIndex();
+
     void refresh();
 
 public:

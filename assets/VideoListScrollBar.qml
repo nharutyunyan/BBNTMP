@@ -65,7 +65,6 @@ Container {
         }
     }
     function scrollItemToMiddle(index, flag) {
-        console.log("??   " + listSize + "  " + index + "  " + flag);
         if(index > 0)
             index--;
         if(!flag && index > 0)
