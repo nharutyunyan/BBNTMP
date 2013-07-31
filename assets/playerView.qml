@@ -796,7 +796,6 @@ Page {
                     }
                     onBookmarkTouchedChanged: {
                         myPlayer.seekTime(infoListModel.getVideoPosition());
-                        durationSlider.immediateValue= infoListModel.getVideoPosition();
                         bookmarkVisible = false;
                         bookmarkTimer.stop();
                      }
