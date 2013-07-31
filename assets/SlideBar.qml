@@ -219,6 +219,8 @@ Container {
             sliderContainer.preferredWidth = Helpers.widthOfScreen
             slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
             smallSliderContainer.preferredWidth = Helpers.widthOfScreen
+            timeArea.rightPadding = 25
+            currentTimeLabel.leftPadding = 25
             
         } else {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
