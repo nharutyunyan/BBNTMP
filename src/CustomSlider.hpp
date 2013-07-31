@@ -14,6 +14,9 @@
 #include <bb/cascades/Image>
 #include <QSize>
 #include <bb/cascades/OrientationSupport>
+#include <bb/cascades/animation/translatetransition.h>
+#include <bb/cascades/animation/parallelanimation.h>
+#include <bb/cascades/StackLayout>
 namespace bb {
     namespace cascades {
         class Container;
@@ -31,6 +34,12 @@ using namespace bb::cascades;
 class CustomSlider : public bb::cascades::CustomControl {
     Q_OBJECT
 
+    Q_PROPERTY(float smallSliderMaxWidth WRITE setSmallSliderMaxWidth FINAL)
+    Q_PROPERTY(float smallCurrentValue  WRITE setSmallCurrentValue FINAL)
+    Q_PROPERTY(float smallCordX  WRITE setSmallCordX FINAL)
+    Q_PROPERTY(QString objectName  WRITE setObjectName FINAL)
+    Q_PROPERTY(bool animation  WRITE setAnimation FINAL)
+    Q_PROPERTY(QString background  WRITE setBackground FINAL)
     Q_PROPERTY(QSize layoutSize  WRITE setLayoutSize FINAL)
     Q_PROPERTY(bool mediaState READ  mediaState WRITE setMediaState NOTIFY mediaStateChanged FINAL)
     Q_PROPERTY(float value READ value WRITE setValue FINAL)
@@ -40,6 +49,7 @@ class CustomSlider : public bb::cascades::CustomControl {
     Q_PROPERTY(QSize handleSize READ handleSize NOTIFY handleSizeChanged FINAL)
 
 public:
+    float cordinatX();
     bool mediaState();
     CustomSlider(Container* parent = 0);
     virtual ~CustomSlider(){}
@@ -52,6 +62,12 @@ public:
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
 
 public Q_SLOTS:
+	void setSmallSliderMaxWidth(float);
+	void setSmallCurrentValue(float);
+	void setSmallCordX(float);
+	void setObjectName(QString);
+	void setAnimation(bool);
+	void setBackground(QString);
 	void onOrientationAboutToChange(bb::cascades::UIOrientation::Type uiOrientation);
 	void setLayoutSize(QSize);
 	void setMediaState(bool);
@@ -61,8 +77,11 @@ public Q_SLOTS:
     void resetValue();
     void setUpdateInterval(int interval);
     void onHandleLongPressed(bb::cascades::LongPressEvent* event);
+    void onHandleContainerLongPressed();
     float fromPosXToValue(float positionX) const;
     float fromValueToPosX(float value) const;
+    float fromSmallSliderValueToPosX(float);
+    float fromSmallSliderPosXToValue(float);
     void onHandleImageSizeChanged(int width, int height);
     QSize handleSize() const;
 
@@ -86,11 +105,12 @@ private Q_SLOTS:
 
 
 private:
+    void createAnimation();
     void createConnections();
     void createProgressBar();
     void createHandle();
     void setImmediateValue(float);
-
+    void update(float);
 
 private:
     // root container
@@ -106,9 +126,13 @@ private:
     ImageView* m_progressBarImageView;
     Image m_progressBarImage;
     Image m_progressBarImagePressed;
+    ParallelAnimation* m_animation;
+    TranslateTransition* m_leftTranslateTransition;
+    TranslateTransition* m_rightTranslateTransition;
 
     // handle
     Container* m_handleContainer;
+    Container* m_animationContainer;
     ImageView* m_handle;
     Image m_handleOnImg;
     Image m_handleOffImg;
@@ -122,6 +146,7 @@ private:
     float m_immediateValue;
     float m_coordinateX;
     bool m_mediastate;
+    float m_smallSliderValue;
 
     float m_touchEventInitX;
     float m_handleInitX;
@@ -134,8 +159,19 @@ private:
     int m_updateInterval;
 
     bool m_handleLongPressed;
+    QString m_objectName;
+    float m_smallSliderMaxWidth;
 
     AbsoluteLayoutProperties* m_handleLayoutProperties;
+    Container* m_leftAnimationContainer;
+    Container* m_rightAnimationContainer;
+    Container* m_leftContainer;
+    Container* m_rightContainer;
+    float m_leftAnimationContainerWidth;
+    float m_rightAnimationContainerWidth;
+    StackLayout *pStackLayout;
+    ImageView* leftBackground;
+    ImageView* rightBackground;
 };
 
 #endif /* CUSTOMSLIDER_H_ */
