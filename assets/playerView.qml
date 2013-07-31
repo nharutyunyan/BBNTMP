@@ -243,7 +243,6 @@ Page {
                         } else {
                             if(event.touchType == TouchType.Up && !controlsContainer.visible)
                             {
-                            	controlsContainer.setOpacity(1);
                             	controlsContainer.setVisible(true);
                                 subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                                 uiControlsShowTimer.start();
@@ -833,7 +832,6 @@ Page {
             }
             upperMenu.setOpacity(1);
             controlsContainer.setVisible(true);
-            controlsContainer.setOpacity(1);
             subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
             uiControlsShowTimer.start();
             fadeInOut.play();
@@ -996,7 +994,6 @@ Page {
                        uiControlsShowTimer.start();
                    } else {
                    upperMenu.setOpacity(0);
-                   controlsContainer.setOpacity(0);
                    controlsContainer.setVisible(false);
                    subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                    uiControlsShowTimer.stop();

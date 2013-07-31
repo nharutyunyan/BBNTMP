@@ -151,7 +151,7 @@ Container {
 
     Container {
         id : smallSliderContainer
-        verticalAlignment: VerticalAlignment.Bottom
+        verticalAlignment: VerticalAlignment.Center
         horizontalAlignment: HorizontalAlignment.Fill
         implicitLayoutAnimationsEnabled: false
             layout: AbsoluteLayout {
@@ -205,8 +205,11 @@ Container {
                     timeArea.bottomPadding = 0
                     currentTimeLabel.bottomPadding = 0
                     sliderContainer.bottomPadding = 0
+                    smallSliderContainer.bottomPadding = 0
                     timeArea.rightPadding = 25
                     currentTimeLabel.leftPadding = 25
+                    smallSliderContainer.verticalAlignment = VerticalAlignment.Bottom
+                    smallStepSlider.layoutProperties.positionY = 0
                     slideBar.slideBarHeight = 180;
                 } else {
                     timeArea.verticalAlignment = VerticalAlignment.Bottom
@@ -217,6 +220,9 @@ Container {
                     timeArea.bottomPadding = 30
                     currentTimeLabel.bottomPadding = 30
                     sliderContainer.bottomPadding = 10
+                    smallSliderContainer.bottomPadding = 10
+                    smallSliderContainer.verticalAlignment = VerticalAlignment.Center
+                    smallStepSlider.layoutProperties.positionY = 25
                     slideBar.slideBarHeight = 150;
                 }
             }
@@ -246,6 +252,9 @@ Container {
             timeArea.bottomPadding = 0 
             currentTimeLabel.bottomPadding = 0
             sliderContainer.bottomPadding = 0
+            smallSliderContainer.bottomPadding = 0
+            smallSliderContainer.verticalAlignment = VerticalAlignment.Bottom
+            smallStepSlider.layoutProperties.positionY = 0
             slideBar.slideBarHeight = 180;
         } else {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
@@ -256,6 +265,8 @@ Container {
             timeArea.bottomPadding = 30
             currentTimeLabel.bottomPadding = 30
             sliderContainer.bottomPadding = 10
+            smallSliderContainer.verticalAlignment = VerticalAlignment.Center
+            smallStepSlider.layoutProperties.positionY = 25
             slideBar.slideBarHeight = 150;
         }
     }
