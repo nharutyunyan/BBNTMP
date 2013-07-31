@@ -678,6 +678,7 @@ Page {
                             }
                         }
                         onCreationCompleted: {
+                            subtitleButton.setEnabled(false);
                             initializeStates();
                         }
                         onSubtitleEnabledChanged: {
