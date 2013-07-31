@@ -25,7 +25,7 @@ Container {
 
                     Container {
                         verticalAlignment: VerticalAlignment.Bottom
-                        maxWidth: 320
+                        maxWidth: 256
 
                         ThumbnailItem {
                             id: thumb
@@ -63,5 +63,13 @@ Container {
         layout: StackListLayout {
             orientation: LayoutOrientation.LeftToRight            
         }
+    }
+    function scrollItemToMiddle(index, flag) {
+        console.log("??   " + listSize + "  " + index + "  " + flag);
+        if(index > 0)
+            index--;
+        if(!flag && index > 0)
+            index--;
+        videoListView.scrollToItem([index], ScrollAnimation.None); // scroll to the current item
     }
 }
