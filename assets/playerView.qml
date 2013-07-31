@@ -934,6 +934,7 @@ Page {
                     if(!videoListScrollBar.isVisible && !appContainer.videoScrollBarIsClosing){
                          videoListAppearAnimation.play();
                          videoListScrollBar.isVisible = true;
+                         videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), OrientationSupport.orientation == UIOrientation.Portrait);
                     }
                     else
                          videoListDisappearAnimation.play(); 
