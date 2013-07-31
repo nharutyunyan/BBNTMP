@@ -245,7 +245,7 @@ Page {
                             {
                             	controlsContainer.setOpacity(1);
                             	controlsContainer.setVisible(true);
-                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
+                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                                 uiControlsShowTimer.start();
                             }
                         }
@@ -799,6 +799,10 @@ Page {
                         bookmarkVisible = false;
                         bookmarkTimer.stop();
                      }
+                    onSlideBarHeightChanged: {
+                        if(controlsContainer.visible == true)
+                        subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                    }
                 } //durationSlider
             }//sliderContainer
         }//controlsContainer
@@ -830,7 +834,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setVisible(true);
             controlsContainer.setOpacity(1);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
             uiControlsShowTimer.start();
             fadeInOut.play();
         }
@@ -1021,7 +1025,6 @@ Page {
                         videoWindow.preferredWidth = appContainer.landscapeWidth
                         volume.positionY = 384;
                         upperMenu.preferredWidth = appContainer.landscapeWidth
-                       // subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                     } else {
                         appContainer.heightOfScreen = appContainer.landscapeWidth;//(appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
                         appContainer.widthOfScreen = appContainer.landscapeHeight;
@@ -1029,10 +1032,11 @@ Page {
                         videoWindow.preferredWidth = appContainer.landscapeHeight;
                         volume.positionY = 225;
                         upperMenu.preferredWidth = appContainer.landscapeHeight
-                      //  subtitleArea.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-
                     }
-
+                    if (controlsContainer.visible == false)
+                    {
+                        subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                    }
                     if (appContainer.videoHeight / appContainer.videoWidth >= appContainer.heightOfScreen / appContainer.widthOfScreen) {
                         videoWindow.scaleY = appContainer.initialScreenScaleY = 1
                         videoWindow.scaleX = appContainer.initialScreenScaleX = (appContainer.videoWidth * appContainer.heightOfScreen / appContainer.videoHeight) / videoWindow.preferredWidth
@@ -1078,7 +1082,7 @@ Page {
             upperMenu.setOpacity(1);
             controlsContainer.setOpacity(1);
             controlsContainer.setVisible(true);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 210;
+            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
             uiControlsShowTimer.start();
         }
     }//appContainer

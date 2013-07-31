@@ -20,9 +20,10 @@ Container {
     property int timeAreaWidth: 200 
     property int timeAreaHeight: 70
     property int sliderHandleWidth: 87
-    property real factor: 105 
-    preferredHeight: 2 * height
-    
+    property real factor: 105
+    property real slideBarHeight
+    preferredHeight: slideBarHeight
+
     layout: DockLayout {
         
     }
@@ -135,7 +136,7 @@ Container {
     TimeArea {
         id: timeArea
         timeInMsc: slideBar.toValue
-        preferredWidth: my.timeAreaWidth
+        preferredWidth: timeAreaWidth
         preferredHeight: height
         horizontalAlignment: HorizontalAlignment.Right
     }
@@ -143,7 +144,7 @@ Container {
     TimeArea {
         id: currentTimeLabel
         timeInMsc: slideBar.value
-        preferredWidth: my.timeAreaWidth
+        preferredWidth: timeAreaWidth
         preferredHeight: height
         horizontalAlignment: HorizontalAlignment.Left
     }
@@ -173,7 +174,7 @@ Container {
             property int smallStepSliderWidth: 400
             property int dt: 20 * 1000 // delta time in seconds
             property real longPressInitX
-            property int minTime: 2 * 60 * 1000 // min time to show small steps slider
+            property int minTime: 60 * 1000 // min time to show small steps slider
             property bool handlLongPressed: false
         },
         
@@ -203,14 +204,20 @@ Container {
                     slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
                     timeArea.bottomPadding = 0
                     currentTimeLabel.bottomPadding = 0
+                    sliderContainer.bottomPadding = 0
+                    timeArea.rightPadding = 25
+                    currentTimeLabel.leftPadding = 25
+                    slideBar.slideBarHeight = 180;
                 } else {
                     timeArea.verticalAlignment = VerticalAlignment.Bottom
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
                     sliderContainer.positionOfX = currentTimeLabel.preferredWidth
                     sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
                     slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
-                    timeArea.bottomPadding = 40
-                    currentTimeLabel.bottomPadding = 40
+                    timeArea.bottomPadding = 30
+                    currentTimeLabel.bottomPadding = 30
+                    sliderContainer.bottomPadding = 10
+                    slideBar.slideBarHeight = 150;
                 }
             }
         }
@@ -236,14 +243,20 @@ Container {
             slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
             timeArea.rightPadding = 25
             currentTimeLabel.leftPadding = 25
+            timeArea.bottomPadding = 0 
+            currentTimeLabel.bottomPadding = 0
+            sliderContainer.bottomPadding = 0
+            slideBar.slideBarHeight = 180;
         } else {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
             currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
             sliderContainer.positionOfX = currentTimeLabel.preferredWidth
             sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
             slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
-            timeArea.bottomPadding = 40
-            currentTimeLabel.bottomPadding = 40
+            timeArea.bottomPadding = 30
+            currentTimeLabel.bottomPadding = 30
+            sliderContainer.bottomPadding = 10
+            slideBar.slideBarHeight = 150;
         }
     }
 
