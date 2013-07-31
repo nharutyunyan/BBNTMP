@@ -7,8 +7,7 @@ ListView {
     objectName: "listView"
     layout: GridListLayout {
         id: videoGridView
-        columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 3 : 4
-        verticalCellSpacing: orientationHandler.orientation == UIOrientation.Landscape ? - 60 : 6
+        columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
     }
     horizontalAlignment: HorizontalAlignment.Center
 
@@ -103,7 +102,7 @@ ListView {
                 // can update the UI after the orientation changed
                 if (orientation == UIOrientation.Portrait) {
                     // make some ui changes related to portrait
-                    videoGridView.columnCount = 3
+                    videoGridView.columnCount = 2
                 } else if (orientation == UIOrientation.Landscape) {
                     // make some ui changes related to landscape
                     videoGridView.columnCount = 4

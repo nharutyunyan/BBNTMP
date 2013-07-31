@@ -20,7 +20,7 @@ NavigationPane {
                 },
                 ImagePaintDefinition {
                     id: backgroundImage
-                    imageSource: "asset:///images/bg.png"
+                    imageSource: "asset:///images/Player/VideoBG.png"
                 }
             ]
             background: backgroundImage.imagePaint
