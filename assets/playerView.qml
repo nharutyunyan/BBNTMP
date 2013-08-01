@@ -255,6 +255,90 @@ Page {
                     }
                 } // onTouch
 
+                gestureHandlers: [
+                    TapHandler {
+                        onTapped: {
+                            if (event.y < appContainer.heightOfScreen - durationSlider.height) {
+                                appContainer.showPlayPauseButton();
+                            }
+                        }
+                    },
+                    // Add a handler for pinch gestures
+                    PinchHandler {
+                        onPinchStarted: {
+                            videoWindow.startScaleX = videoWindow.scaleX;
+                            videoWindow.startScaleY = videoWindow.scaleY;
+                            appContainer.startTranslationX = videoWindow.translationX;
+                            appContainer.startTranslationY = videoWindow.translationY;
+                            appContainer.startPinchDistance = event.distance;
+                            appContainer.startMidPointX = event.midPointX;
+                            appContainer.startMidPointY = event.midPointY;
+                            appContainer.isPinchZoom = true;
+                            appContainer.startWidth = videoWindow.preferredWidth;
+                            appContainer.startHeight = videoWindow.preferredHeight;
+
+                        }
+
+                        // As the pinch expands or contracts, change the scale of
+                        // the image
+                        onPinchUpdated: {
+                            appContainer.coefficientOfZoom = event.distance / appContainer.startPinchDistance;
+
+                            videoWindow.scaleX = videoWindow.startScaleX * appContainer.coefficientOfZoom;
+                            videoWindow.scaleY = videoWindow.startScaleY * appContainer.coefficientOfZoom;
+                            videoWindow.translationX = appContainer.startTranslationX // start translation + (appContainer.startTranslationX + videoWindow.preferredWidth / 2 - appContainer.startMidPointX) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointX isn't changed + (event.midPointX - appContainer.startMidPointX); // translation in time of move
+
+                            videoWindow.translationY = appContainer.startTranslationY // start translation + (appContainer.startTranslationY + videoWindow.preferredHeight / 2 - appContainer.startMidPointY) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointY isn't changed
+                            + (event.midPointY - appContainer.startMidPointY); // translation in time of move
+                            console.log("height ==" + (videoWindow.preferredHeight / appContainer.startHeight) / videoWindow.scaleX)
+                            console.log("width ==" + (videoWindow.preferredWidth / appContainer.startWidth) / videoWindow.scaleX)
+                        } // onPinchUpdate
+                        onPinchEnded: {
+                            if (videoWindow.scaleX < appContainer.initialScreenScaleX || videoWindow.scaleY < appContainer.initialScreenScaleY) {
+                                scaleAnimation.play();
+                                videoWindow.translationX = 0;
+                                videoWindow.translationY = 0;
+                                if (appContainer.videoHeight / appContainer.videoWidth >= appContainer.heightOfScreen / appContainer.widthOfScreen) {
+                                    videoWindow.scaleX = appContainer.initialScreenScaleX = (appContainer.videoWidth * appContainer.heightOfScreen / appContainer.videoHeight) / videoWindow.preferredWidth
+                                    videoWindow.scaleY = appContainer.initialScreenScaleY = 1;
+                                } else {
+                                    videoWindow.scaleY = appContainer.initialScreenScaleY = (appContainer.videoHeight * appContainer.widthOfScreen / appContainer.videoWidth) / videoWindow.preferredHeight
+                                    videoWindow.scaleX = appContainer.initialScreenScaleX = 1;
+                                }
+                            } else {
+                                if (appContainer.videoHeight / appContainer.videoWidth >= appContainer.heightOfScreen / appContainer.widthOfScreen) {
+                                    if (videoWindow.scaleX <= 1) {
+                                        videoWindow.translationX = 0
+                                    }
+                                } else {
+                                    if (videoWindow.scaleY <= 1) {
+                                        videoWindow.translationY = 0
+                                    }
+                                }
+                            }
+                            if (videoWindow.scaleX > 1) {
+
+                                if (videoWindow.translationX > (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2)) {
+                                    videoWindow.translationX = (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2);
+                                }
+                                if (videoWindow.translationX < - ((((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2) )) {
+                                    videoWindow.translationX = - (((videoWindow.scaleX - 1.0) * videoWindow.preferredWidth) / 2);
+                                }
+                            }
+                            if (videoWindow.scaleY > 1) {
+                                if (videoWindow.translationY > (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2)) {
+                                    videoWindow.translationY = (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2);
+                                }
+                                if (videoWindow.translationY < - ((((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2) )) {
+                                    videoWindow.translationY = - (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2);
+                                }
+                            }
+                        } // onPinchEnded
+                    } // PinchHandler
+                ] // attachedObjects
+                // Play/pause image is transparent. It will become visible when the video
+                // is played/paused using tap event. It will be visible 1 sec.
+
                 //Subtitle area
             SubtitleArea {
                 preferredWidth: videoWindow.preferredWidth
@@ -352,6 +436,7 @@ Page {
                     }
                 }
             }
+<<<<<<< HEAD
             gestureHandlers: [
                 TapHandler {
                     onTapped: {
@@ -443,6 +528,9 @@ Page {
             ] // attachedObjects
             // Play/pause image is transparent. It will become visible when the video
             // is played/paused using tap event. It will be visible 1 sec.
+=======
+
+>>>>>>> Fixed Bug: Mute and Volume  button is not working properly
             ImageView {
                 id: screenPlayPauseImage
                 implicitLayoutAnimationsEnabled: false
