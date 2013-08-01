@@ -12,20 +12,46 @@ Container {
             spaceQuota: 1.0
         }
     }
-    
-    Label {
-        multiline: true
-        text: subtitleManager.text
-        textFormat: TextFormat.Html
-        textStyle.color: Color.White
-        textStyle.textAlign: TextAlign.Center
-        overlapTouchPolicy: OverlapTouchPolicy.Allow
+
+    Container {
         verticalAlignment: VerticalAlignment.Bottom
         horizontalAlignment: HorizontalAlignment.Center
-        
-        onCreationCompleted: {
-            
-            setImplicitLayoutAnimationsEnabled(false);
+        implicitLayoutAnimationsEnabled: false
+        Container {
+            implicitLayoutAnimationsEnabled: false
+            layout: AbsoluteLayout {
+            }
+            Container {
+                implicitLayoutAnimationsEnabled: false
+                Label {
+                    multiline: true
+                    text: subtitleManager.text
+                    textFormat: TextFormat.Html
+                    textStyle.color: Color.DarkGray
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    textStyle.textAlign: TextAlign.Center
+                    implicitLayoutAnimationsEnabled: false
+                }
+                layoutProperties: AbsoluteLayoutProperties {
+                    positionX: subtitleContainerLayout.layoutFrame.x + 2
+                    positionY: subtitleContainerLayout.layoutFrame.y + 1
+                }
+            }
+            Container {
+                implicitLayoutAnimationsEnabled: false
+                Label {
+                    multiline: true
+                    text: subtitleManager.text
+                    textFormat: TextFormat.Html
+                    textStyle.color: Color.White
+                    textStyle.textAlign: TextAlign.Center
+                    overlapTouchPolicy: OverlapTouchPolicy.Allow
+                    implicitLayoutAnimationsEnabled: false
+                }
+                attachedObjects: LayoutUpdateHandler {
+                    id: subtitleContainerLayout
+                }
+            }
         }
     }
 }
