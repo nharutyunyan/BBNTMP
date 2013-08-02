@@ -42,7 +42,7 @@ void SubtitleManager::handlePositionChanged(uint pos)
 	     QString newText = m_textEntries.mid(m_entries[m_currentEntryIndex].textStartPos,
 		 	                              m_entries[m_currentEntryIndex].textEndPos - m_entries[m_currentEntryIndex].textStartPos);
 	     if(newText.mid(newText.size()-1) == "\n"){
-	     	newText = newText.mid(0, newText.size() - sizeof("\n"));
+	     	newText = newText.mid(0, newText.size() - sizeof('\n'));
 	     }
 	     if(m_currentText != newText)
 	     {
@@ -86,20 +86,10 @@ void SubtitleManager::load(QString fileName)
 	{
 		SubtitleEntry entry;
 		QString line = in.readLine();
-		if(line[0] == 13) {
-		    continue; // in case of empty line
-		}
-		//Just checking ID. No need to be kept so far.
-		bool ok = true;
-		line.toUInt(&ok);
-	    if (!ok)
-	    {
-	    	qDebug() << "Invalid format of subtitles file \n";
-	    	return;
-	    }
-
-		line = in.readLine(); //Start, End
-		parseTimesLine(line, entry.startTime, entry.endTime);
+		if(!line.contains(" --> "))
+		    continue;
+		if(!parseTimesLine(line, entry.startTime, entry.endTime))
+		    continue;
 		entry.textStartPos = textPos;
 		//Get texts line by line. Read while the line is not empty
 		line = in.readLine();
@@ -115,13 +105,13 @@ void SubtitleManager::load(QString fileName)
     m_loaded = true;
 }
 
-void SubtitleManager::parseTimesLine(const QString& input, uint& start, uint & end)
+bool SubtitleManager::parseTimesLine(const QString& input, uint& start, uint & end)
 {
     QStringList tokens = input.split(" --> ");
     if(tokens.size() != 2)
     {
     	qDebug() <<QString("Invalid time line %1 in srt file \n").arg(input);
-    	return;
+    	return false;
     }
     QTime startTime = QTime::fromString(tokens[0], "hh:mm:ss,zzz");
     QString endTimeStr = tokens[1];
@@ -131,6 +121,9 @@ void SubtitleManager::parseTimesLine(const QString& input, uint& start, uint & e
 
     start = startTime.hour() * 3600 * 1000 + startTime.minute() * 60 * 1000 + startTime.second() * 1000  + startTime.msec();
     end   = endTime.hour() * 3600 * 1000 + endTime.minute() * 60 * 1000 + endTime.second() * 1000  + endTime.msec();
+    if(start > end)
+        return false;
+    return true;
 }
 
 //Using linear search, since the data is not big and the performance is not affected.
