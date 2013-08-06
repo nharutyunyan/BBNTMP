@@ -1024,7 +1024,7 @@ Page {
             QTimer {
                 id: bookmarkTimer
                 singleShot: true
-                interval: 7000
+                interval: 30000
                 onTimeout: {
                     durationSlider.bookmarkVisible = false;
                 }
