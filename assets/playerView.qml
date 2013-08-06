@@ -379,10 +379,15 @@ Page {
                     // the image
                     onPinchUpdated: {
                         appContainer.coefficientOfZoom = event.distance / appContainer.startPinchDistance;
-
-                        
-                        videoWindow.scaleX = videoWindow.startScaleX * appContainer.coefficientOfZoom;
-                        videoWindow.scaleY = videoWindow.startScaleY * appContainer.coefficientOfZoom;
+                        if(appContainer.coefficientOfZoom <= 1 || videoWindow.scaleX/appContainer.initialScreenScaleX < 4)
+                        {
+                        	videoWindow.scaleX = videoWindow.startScaleX * appContainer.coefficientOfZoom;
+                        	videoWindow.scaleY = videoWindow.startScaleY * appContainer.coefficientOfZoom;
+                        }
+                        else
+                        {
+                            appContainer.coefficientOfZoom = 1;
+                        }
                         videoWindow.translationX = appContainer.startTranslationX // start translation 
                         + (appContainer.startTranslationX + videoWindow.preferredWidth / 2 - appContainer.startMidPointX) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointX isn't changed 
                         + (event.midPointX - appContainer.startMidPointX); // translation in time of move
