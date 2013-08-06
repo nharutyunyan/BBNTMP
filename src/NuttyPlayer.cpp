@@ -1,5 +1,6 @@
 #include "NuttyPlayer.hpp"
 #include "InfoListModel.hpp"
+#include "HDMIScreen.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
@@ -31,6 +32,8 @@ thumbnailsGenerationFinished(false)
     qml->setContextProperty("infoListModel", model);
 
     passScreenDimensionsToQml(qml);
+    HDMIScreen* hdmi = new HDMIScreen(app);
+    qml->setContextProperty("HDMIScreen", hdmi);
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
