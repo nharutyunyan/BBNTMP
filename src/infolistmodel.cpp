@@ -22,11 +22,26 @@ using namespace utility;
 //View model should be simple, and just keep the list for Views
 MovieDecoder InfoListModel::movieDecoder;
 
+
+inline const static QStringList getVideoFileList() {
+	QStringList filters, result;
+	filters // add more suffix filters here
+		<< "*.mp4"
+		<< "*.wmv"
+		<< "*.avi";
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
+	return result;
+}
+
+
 InfoListModel::InfoListModel(QObject* parent)
 : bb::cascades::QVariantListDataModel()
-, m_selectedIndex(0), start(0)
+, m_selectedIndex(0)
+, m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
+, start(0)
 {
-	m_file = QDir::home().absoluteFilePath("videoInfoList.json");
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
 
@@ -70,19 +85,7 @@ void InfoListModel::getVideoFiles()
 		dir.mkpath("data/thumbnails/");
 	}
 	try {
-		QStringList result;
-		QStringList filters;
-		filters << "*.mp4";
-		filters << "*.avi";
-		FileSystemUtility::getEntryListR("/accounts/1000/shared/videos",
-				filters, result);
-
-		FileSystemUtility::getEntryListR("/accounts/1000/shared/camera",
-		                filters, result);
-
-		FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads",
-		                        filters, result);
-
+		QStringList result (getVideoFileList());
 		QFile file(m_file);
 		if (!file.exists()) {
 			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
@@ -182,16 +185,12 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 
 }
 
+
+
+
 void InfoListModel::updateVideoList()
  {
-	QStringList result;
-	QStringList filters;
-	QVariantList videos;
-	filters << "*.mp4";
-	filters << "*.avi";
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
+	QStringList result (getVideoFileList());
 	updateListWithDeletedVideos(result);
 	updateListWithAddedVideos(result);
 	append(m_list);
@@ -201,12 +200,7 @@ void InfoListModel::updateVideoList()
 void InfoListModel::updateVideoList2()
  {
 	start= m_list.size();
-	QStringList result;
-	QStringList filters;
-	QVariantList videos;
-	filters << "*.mp4";
-	filters << "*.avi";
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+	QStringList result (getVideoFileList());
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 
