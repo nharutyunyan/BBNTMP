@@ -3,11 +3,7 @@ import bb.cascades 1.0
 Container {
     id: refreshContainer
 
-    property bool refreshing: false
-    property bool released: true
-    property bool refreshMode: false
-
-	signal refreshTriggered
+    property int refreshMode: 0
 
     horizontalAlignment: HorizontalAlignment.Fill
 
@@ -38,20 +34,14 @@ Container {
         LayoutUpdateHandler {
             id: refreshHandler
             onLayoutFrameChanged: {
-                if (layoutFrame.y >= 70) {
-                    refreshMode = true;
+                if (!released && layoutFrame.y >= 70) {
+                    refreshMode = 2;
                     refreshStatus.text = "Release to refresh";
-
-                    if (released)
-                    	refreshing = true;
-
                 } else if (layoutFrame.y >= -70) {
-                    refreshMode = true;
-                    refreshStatus.text = "Pull to refresh"
-                } else if (layoutFrame.y >= -100) {
-                    refreshTriggered();
+                    released = false;
+                    refreshMode = 1;
+                    refreshStatus.text = "Pull to refresh";
                 }
-
             }
         }
     ]
