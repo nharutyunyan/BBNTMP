@@ -70,7 +70,8 @@ Page {
                                                      // and the point released. This is needed for differentiation of 
                                                      // gestures handling for "zoom out" and "seek 5 seconds" 
         property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
-
+        property int bookmarkMinTime : 60000
+        
         Container {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
@@ -486,10 +487,15 @@ Page {
                 isVisible: false
 
                 onVideoSelected: {
-                    console.log("selected item PATH == " + item.path);
-
+                    if(durationSlider.bookmarkVisible)
+                    {
+                        durationSlider.bookmarkVisible = false;
+                        bookmarkTimer.stop();
+                    }
+                    infoListModel.setVideoPosition(myPlayer.position);
                     pgPlayer.currentPath= item.path;
                     myPlayer.setSourceUrl(item.path);
+                    pgPlayer.currentLenght = item.duration
 
                     if (appContainer.playMediaPlayer() == MediaError.None) {
                         videoWindow.visible = true;
@@ -506,7 +512,16 @@ Page {
                             subtitleButton.setEnabled(false);
                             subtitleAreaContainer.setOpacity(0);
                         }
-                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item));
+                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
+                        if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
+                            durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
+                            durationSlider.bookmarkVisible = true;
+                            bookmarkTimer.start();
+                        }
+                        upperMenu.setOpacity(1);
+                        controlsContainer.setOpacity(1);
+                        controlsContainer.setVisible(true);
+                        uiControlsShowTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
                     }  
@@ -778,9 +793,7 @@ Page {
                     id: durationSlider
                     horizontalAlignment: HorizontalAlignment.Fill
                     verticalAlignment: VerticalAlignment.Center
-                    bookmarkPositionX: OrientationSupport.orientation == UIOrientation.Landscape 
-                                       ? timeAreaWidth + sliderHandleWidth /2 +  (infoListModel.getVideoPosition()  / pgPlayer.currentLenght) * (appContainer.landscapeWidth - 2 * timeAreaWidth - sliderHandleWidth) -30 
-                                       : sliderHandleWidth /2 + (infoListModel.getVideoPosition()  / pgPlayer.currentLenght) * (appContainer.landscapeHeight - sliderHandleWidth) - 30
+                    bookmarkPositionX: getBookmarkPosition()
 
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1
@@ -819,6 +832,14 @@ Page {
                         if(controlsContainer.visible == true)
                         subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                     }
+
+                    function getBookmarkPosition() {
+                        return OrientationSupport.orientation == UIOrientation.Landscape 
+                        			? timeAreaWidth + sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (appContainer.landscapeWidth - 2 * timeAreaWidth - sliderHandleWidth) - 30 
+                        			: sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (appContainer.landscapeHeight - sliderHandleWidth) - 30
+
+                    }
+
                 } //durationSlider
             }//sliderContainer
         }//controlsContainer
@@ -1079,7 +1100,7 @@ Page {
                 if(! durationSlider.bookmarkVisible) 
                 	durationSlider.bookmarkVisible = true;
                 	
-                if(infoListModel.getVideoPosition() < 60000)
+                if(infoListModel.getVideoPosition() < appContainer.bookmarkMinTime)
                 {
                     durationSlider.bookmarkVisible = false;
                 	bookmarkTimer.stop();

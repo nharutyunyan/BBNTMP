@@ -86,7 +86,7 @@ public:
 
     Q_INVOKABLE int getHeight();
 
-    Q_INVOKABLE int getVideoPosition(QVariant item);
+    Q_INVOKABLE int getVideoPosition(QString item);
 
     Q_INVOKABLE QString getVideoTitle();
 

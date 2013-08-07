@@ -30,29 +30,6 @@ Container {
     background: backgroundImage.imagePaint
 
     Container {
-        id: bookmark
-        verticalAlignment: VerticalAlignment.Top
-        layout: AbsoluteLayout {
-        }
-
-        ImageView {
-            id: bookmarkIcon
-            visible: bookmarkVisible
-            imageSource: "asset:///images/Player/BookmarkIcon.png"
-            implicitLayoutAnimationsEnabled: false
-            layoutProperties: AbsoluteLayoutProperties {
-                positionX: bookmarkPositionX
-
-            }
-            onTouch: {
-                if (! bookmarkTouched) 
-                  bookmarkTouched = true
-            }
-
-        } //bookmark Icon
-    } //bookmark
-
-    Container {
         id: sliderContainer
         verticalAlignment: VerticalAlignment.Bottom
         horizontalAlignment: HorizontalAlignment.Center
@@ -148,6 +125,34 @@ Container {
         preferredHeight: height
         horizontalAlignment: HorizontalAlignment.Left
     }
+
+    Container {
+        id: bookmark
+        verticalAlignment: VerticalAlignment.Top
+        layout: AbsoluteLayout {
+        }
+        implicitLayoutAnimationsEnabled: false
+        ImageView {
+            id: bookmarkIcon
+            visible: bookmarkVisible
+            imageSource: "asset:///images/Player/BookmarkIcon.png"
+            implicitLayoutAnimationsEnabled: false
+            layoutProperties: AbsoluteLayoutProperties {
+                positionX: bookmarkPositionX
+
+            }
+            gestureHandlers: [
+                TapHandler {
+                    onTapped: {
+                        console.log("bookmark touched =====")
+                        bookmarkTouched = ! bookmarkTouched
+                    }
+                }
+
+            ]
+
+        } //bookmark Icon
+    } //bookmark
 
     Container {
         id : smallSliderContainer

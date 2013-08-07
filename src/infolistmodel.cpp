@@ -490,9 +490,18 @@ int InfoListModel::getVideoPosition()
 	return retValue;
 }
 
-int InfoListModel::getVideoPosition(QVariant item)
+int InfoListModel::getVideoPosition(QString item)
 {
-	return indexOf(item);
+	for(int i = 0; i < m_list.size(); ++i)
+	{
+		QVariantMap v = m_list[i].toMap();
+		if(v["path"].toString().compare(item) == 0)
+		{
+			return i;
+		}
+	}
+	return -1;
+
 }
 
 QString InfoListModel::getVideoTitle()
