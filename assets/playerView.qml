@@ -1032,6 +1032,7 @@ Page {
 
            OrientationHandler {
                onOrientationAboutToChange: {
+                    videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));
                     if (orientation == UIOrientation.Landscape) {
                         
                         appContainer.heightOfScreen = appContainer.landscapeHeight;
