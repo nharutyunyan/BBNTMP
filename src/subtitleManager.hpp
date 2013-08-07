@@ -61,7 +61,7 @@ signals:
 
 private:
 	void load(QString fileName);
-	void parseTimesLine(const QString&, uint& start, uint& end);
+	bool parseTimesLine(const QString&, uint& start, uint& end);
 
 	QString m_currentText;
 	QVector<SubtitleEntry> m_entries;
