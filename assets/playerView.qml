@@ -14,6 +14,7 @@ Page {
     Container {
         id: appContainer
          background: backgroundImage.imagePaint
+         implicitLayoutAnimationsEnabled: false
 
         layout: DockLayout {
         }
@@ -76,6 +77,7 @@ Page {
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
             verticalAlignment: VerticalAlignment.Center
+            implicitLayoutAnimationsEnabled: false
 
             layout: DockLayout {}
 
@@ -83,6 +85,7 @@ Page {
             property int startingY  
 
            Container {
+               implicitLayoutAnimationsEnabled: false
                layout: AbsoluteLayout {
                            }
                //background: Color.Red
@@ -122,7 +125,7 @@ Page {
                     WindowProperty.Visible
 
                     onCreationCompleted: {
-                      
+
                         appContainer.videoWidth = infoListModel.getWidth()
                         appContainer.videoHeight = infoListModel.getHeight()
                         if (OrientationSupport.orientation == UIOrientation.Landscape) {
@@ -143,8 +146,7 @@ Page {
                         }
                         appContainer.startWidth = videoWindow.preferredWidth;
                         appContainer.startHeight = videoWindow.preferredHeight;
-                       
-                    }
+                   }
                     onVisibleChanged: {
                     console.log("foreignwindow visible = " + visible);
                     console.log("maxHeight ==" + maxHeight)
@@ -350,10 +352,11 @@ Page {
             Container {
                 id: subtitleContainer
                 preferredWidth: videoWindow.preferredWidth
+                implicitLayoutAnimationsEnabled: false
                 layout: DockLayout {
                 }
                 layoutProperties: AbsoluteLayoutProperties {
-                        positionX: 0
+                    positionX: 0
                 }
                 Container {
                     id: subtitleAreaContainer
@@ -815,7 +818,9 @@ Page {
                     id: durationSlider
                     horizontalAlignment: HorizontalAlignment.Fill
                     verticalAlignment: VerticalAlignment.Center
+
                     bookmarkPositionX: getBookmarkPosition()
+                    bookmarkVisible: false
 
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1
@@ -1108,44 +1113,49 @@ Page {
                     videoWindow.translationX = 0
                     videoWindow.translationY = 0
                 }
-           }
+           },
 
-        ] // Attached objects.
+            QTimer {
+                id: initTimer
+                singleShot: true
+                interval: 1
+                onTimeout: {
+                    myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
+                    myPlayer.prepare();
+                    bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                    if (appContainer.playMediaPlayer() == MediaError.None) {
+
+                        var videoPos = 0;
+                        if(infoListModel.getVideoPosition() > appContainer.bookmarkMinTime)
+                        {
+                            durationSlider.bookmarkVisible = true;
+                            bookmarkTimer.start();
+                        }
+
+                        videoWindow.visible = true;
+                        contentContainer.visible = true;
+                        if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                            subtitleButton.setEnabled(true);
+
+                        appContainer.changeVideoPosition = false;
+                        if(myPlayer.seekTime(videoPos) != MediaError.None) {
+                            console.log("seekTime ERROR");
+                        }
+                        appContainer.changeVideoPosition = true;
+                    }
+                    upperMenu.setOpacity(1);
+                    subtitleButtonContainer.setOpacity(1);
+                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                    controlsContainer.setOpacity(1);
+                    controlsContainer.setVisible(true);
+                    uiControlsShowTimer.start();
+                }
+            }
+       ] // Attached objects.
 
         onCreationCompleted: {
-            myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
-            myPlayer.prepare();
-            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-            if (appContainer.playMediaPlayer() == MediaError.None) {
-
-                var videoPos = 0;
-                bookmarkTimer.start();
-                
-                if(! durationSlider.bookmarkVisible) 
-                	durationSlider.bookmarkVisible = true;
-                	
-                if(infoListModel.getVideoPosition() < appContainer.bookmarkMinTime)
-                {
-                    durationSlider.bookmarkVisible = false;
-                	bookmarkTimer.stop();
-                }
-
-                videoWindow.visible = true;
-                contentContainer.visible = true;
-                if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
-                    subtitleButton.setEnabled(true);
-                appContainer.changeVideoPosition = false;
-                if(myPlayer.seekTime(videoPos) != MediaError.None) {
-                    console.log("seekTime ERROR");
-                }
-                appContainer.changeVideoPosition = true;
-            }
-            upperMenu.setOpacity(1);
-            subtitleButtonContainer.setOpacity(1);
-            controlsContainer.setOpacity(1);
-            controlsContainer.setVisible(true);
-            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
-            uiControlsShowTimer.start();
+            initTimer.start();
         }
+
     }//appContainer
 }// Page
