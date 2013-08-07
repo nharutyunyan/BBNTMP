@@ -7,6 +7,7 @@ namespace bb {
     namespace cascades {
         class Application;
         class AbstractPane;
+        class QmlDocument;
     }
 }
 /*
@@ -21,6 +22,7 @@ class NuttyPlayer : public QObject
 public:
     NuttyPlayer(bb::cascades::Application *app);
     virtual ~NuttyPlayer() {}
+    void passScreenDimensionsToQml(bb::cascades::QmlDocument *qml);
 
 public slots:
     void onSplashscreenMinimalIntervalElapsed();

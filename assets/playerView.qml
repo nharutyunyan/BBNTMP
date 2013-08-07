@@ -126,15 +126,15 @@ Page {
                         appContainer.videoWidth = infoListModel.getWidth()
                         appContainer.videoHeight = infoListModel.getHeight()
                         if (OrientationSupport.orientation == UIOrientation.Landscape) {
-                            appContainer.heightOfScreen = appContainer.landscapeHeight;
-                            appContainer.widthOfScreen = appContainer.landscapeWidth;
-                            videoWindow.preferredHeight = appContainer.landscapeHeight;
-                            videoWindow.preferredWidth = appContainer.landscapeWidth
+                            appContainer.heightOfScreen = displayInfo.height;
+                            appContainer.widthOfScreen = displayInfo.width;
+                            videoWindow.preferredHeight = displayInfo.height;
+                            videoWindow.preferredWidth = displayInfo.width
                         } else {
-                            appContainer.heightOfScreen = appContainer.landscapeWidth;
-                            appContainer.widthOfScreen = appContainer.landscapeHeight;
-                            videoWindow.preferredHeight = appContainer.landscapeWidth;
-                            videoWindow.preferredWidth = appContainer.landscapeHeight
+                            appContainer.heightOfScreen = displayInfo.width;
+                            appContainer.widthOfScreen = displayInfo.height;
+                            videoWindow.preferredHeight = displayInfo.width;
+                            videoWindow.preferredWidth = displayInfo.height
                         }
                         if (appContainer.videoHeight / appContainer.videoWidth >= appContainer.heightOfScreen / appContainer.widthOfScreen) {
 							scaleX = appContainer.initialScreenScaleX = (appContainer.videoWidth * appContainer.heightOfScreen / appContainer.videoHeight) / videoWindow.preferredWidth
@@ -156,13 +156,13 @@ Page {
                 onTouch: {
                     if (! appContainer.isPinchZoom) {
                         if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                            appContainer.heightOfScreen = appContainer.landscapeWidth;
-                            appContainer.widthOfScreen = appContainer.landscapeHeight;
-                            appContainer.touchDistanceAgainstMode = appContainer.landscapeHeight / 5;
+                            appContainer.heightOfScreen = displayInfo.width;
+                            appContainer.widthOfScreen = displayInfo.height;
+                            appContainer.touchDistanceAgainstMode = displayInfo.height / 5;
                         } else {
-                            appContainer.heightOfScreen = appContainer.landscapeHeight;
-                            appContainer.widthOfScreen = appContainer.landscapeWidth;
-                            appContainer.touchDistanceAgainstMode = appContainer.landscapeWidth / 5;
+                            appContainer.heightOfScreen = displayInfo.height;
+                            appContainer.widthOfScreen = displayInfo.width;
+                            appContainer.touchDistanceAgainstMode = displayInfo.width / 5;
                         }
                         if (event.localY < appContainer.heightOfScreen - Helpers.heightOfSlider) {
                         if (event.touchType == TouchType.Down) {
@@ -732,8 +732,8 @@ Page {
             }
 
             onCreationCompleted: {
-                if (OrientationSupport.orientation == UIOrientation.Landscape) upperMenu.preferredWidth = appContainer.landscapeWidth;
-                else upperMenu.preferredWidth = appContainer.landscapeHeight
+                if (OrientationSupport.orientation == UIOrientation.Landscape) upperMenu.preferredWidth = displayInfo.width;
+                else upperMenu.preferredWidth = displayInfo.height
             }
 
             animations: [
@@ -835,8 +835,8 @@ Page {
 
                     function getBookmarkPosition() {
                         return OrientationSupport.orientation == UIOrientation.Landscape 
-                        			? timeAreaWidth + sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (appContainer.landscapeWidth - 2 * timeAreaWidth - sliderHandleWidth) - 30 
-                        			: sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (appContainer.landscapeHeight - sliderHandleWidth) - 30
+                        			? timeAreaWidth + sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * timeAreaWidth - sliderHandleWidth) - 30 
+                        			: sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - sliderHandleWidth) - 30
 
                     }
 
@@ -1056,19 +1056,19 @@ Page {
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));
                     if (orientation == UIOrientation.Landscape) {
                         
-                        appContainer.heightOfScreen = appContainer.landscapeHeight;
-                        appContainer.widthOfScreen = appContainer.landscapeWidth;
-                        videoWindow.preferredHeight = appContainer.landscapeHeight;
-                        videoWindow.preferredWidth = appContainer.landscapeWidth
+                        appContainer.heightOfScreen = displayInfo.height;
+                        appContainer.widthOfScreen = displayInfo.width;
+                        videoWindow.preferredHeight = displayInfo.height;
+                        videoWindow.preferredWidth = displayInfo.width
                         volume.positionY = 384;
-                        upperMenu.preferredWidth = appContainer.landscapeWidth
+                        upperMenu.preferredWidth = displayInfo.width
                     } else {
-                        appContainer.heightOfScreen = appContainer.landscapeWidth;//(appContainer.landscapeHeight * appContainer.landscapeHeight) / appContainer.landscapeWidth
-                        appContainer.widthOfScreen = appContainer.landscapeHeight;
-                        videoWindow.preferredHeight = appContainer.landscapeWidth;
-                        videoWindow.preferredWidth = appContainer.landscapeHeight;
+                        appContainer.heightOfScreen = displayInfo.width;//(displayInfo.height * displayInfo.height) / displayInfo.width
+                        appContainer.widthOfScreen = displayInfo.height;
+                        videoWindow.preferredHeight = displayInfo.width;
+                        videoWindow.preferredWidth = displayInfo.height;
                         volume.positionY = 225;
-                        upperMenu.preferredWidth = appContainer.landscapeHeight
+                        upperMenu.preferredWidth = displayInfo.height
                     }
                     if (controlsContainer.visible == false)
                     {
