@@ -193,7 +193,7 @@ Page {
                                     }
                                 } else if (appContainer.touchPositionX + appContainer.touchDistanceAgainstMode < event.localX) {
                                     appContainer.changeVideoPosition = true;
-                                    myPlayer.seekTime(durationSlider.value - Helpers.seekTimeInSlide);
+                                    myPlayer.seekTime(Math.max(durationSlider.value - Helpers.seekTimeInSlide,0));
                                 }
                                 appContainer.changeVideoPosition = false;
                             }
