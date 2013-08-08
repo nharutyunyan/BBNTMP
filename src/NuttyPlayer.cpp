@@ -4,6 +4,7 @@
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
+#include <bb/device/DisplayInfo>
 
 using namespace bb::cascades;
 
@@ -29,6 +30,8 @@ thumbnailsGenerationFinished(false)
     InfoListModel* model = new InfoListModel(this);
     qml->setContextProperty("infoListModel", model);
 
+    passScreenDimensionsToQml(qml);
+
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
 }
@@ -51,4 +54,20 @@ void NuttyPlayer::onSplashscreenMaximalIntervalElapsed() {
     // In case somehow we are still waiting for the response simply start the scene
 	if (!thumbnailsGenerationFinished)
         Application::instance()->setScene(root);
+}
+
+void NuttyPlayer::passScreenDimensionsToQml(bb::cascades::QmlDocument *qml){
+    // Tell qml what the size of our device screen is to adjust scaling as needed
+    bb::device::DisplayInfo display;
+
+    int width = display.pixelSize().width();
+    int height = display.pixelSize().height();
+
+    QDeclarativePropertyMap* displayProperties = new QDeclarativePropertyMap;
+
+    // invert them because the code uses landscape dimensions and display.pixelSize() provides portrait dimensions
+    displayProperties->insert("width", QVariant(height));
+    displayProperties->insert("height", QVariant(width));
+
+    qml->setContextProperty("displayInfo", displayProperties);
 }
