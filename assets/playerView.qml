@@ -907,7 +907,8 @@ Page {
                    else{
                         subtitleManager.seek(position);
                         durationSlider.setValue(position);
-                    }
+                        }
+                   mainPage.currentMoviePosition = position;
                 }
 
                onDurationChanged: {

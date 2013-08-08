@@ -9,6 +9,8 @@ NavigationPane {
     peekEnabled: false
     backButtonsVisible: false
     Page {
+        id : mainPage
+        property variant currentMoviePosition;
         content: Container {
            id: movieGridContainer
             layout: DockLayout {
@@ -42,6 +44,7 @@ NavigationPane {
             application.manualExit.connect(onManualExit);
         }
         function onManualExit() {
+            infoListModel.setVideoPosition(mainPage.currentMoviePosition);
             infoListModel.saveData();
             // This must exit the application.
             application.quit();
