@@ -244,8 +244,9 @@ Page {
                         } else {
                             if(event.touchType == TouchType.Up && !controlsContainer.visible)
                             {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                                subtitleButtonContainer.setOpacity(1);
                             	controlsContainer.setVisible(true);
-                                subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                                 uiControlsShowTimer.start();
                             }
                         }
@@ -346,15 +347,82 @@ Page {
                 // is played/paused using tap event. It will be visible 1 sec.
 
                 //Subtitle area
-            SubtitleArea {
+            Container {
+                id: subtitleContainer
                 preferredWidth: videoWindow.preferredWidth
-                id: subtitleAreaContainer
+                layout: DockLayout {
+                }
                 layoutProperties: AbsoluteLayoutProperties {
-                    id: subtitleArea
-                    positionX: 0
-                    positionY: videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - 150;
-               }
-           }
+                        positionX: 0
+                }
+                Container {
+                    id: subtitleAreaContainer
+                    preferredWidth: videoWindow.preferredWidth - Helpers.differentScreenWidthAndSubtitleWidth
+                    horizontalAlignment: HorizontalAlignment.Center
+                    layout: DockLayout {
+                        
+                    }
+                    SubtitleArea {
+                    	id: subtitleArea
+                    	horizontalAlignment: HorizontalAlignment.Center
+           			}
+           		 }
+
+                Container {
+                    layout: DockLayout {
+                        
+                    }
+                    id: subtitleButtonContainer
+                    objectName: subtitleButtonContainer
+                    opacity: 0.5
+                    preferredWidth: Helpers.widthOfSubtitleButton
+                    verticalAlignment: VerticalAlignment.Bottom
+                    horizontalAlignment: HorizontalAlignment.Right
+                    leftPadding: 15
+                    implicitLayoutAnimationsEnabled: false
+                    property bool subtitleEnabled
+                    signal initializeStates
+
+                    ImageButton {
+                        id: subtitleButton
+                        disabledImageSource: "asset:///images/Player/SubtitleButtonDisabled.png"
+                        pressedImageSource: "asset:///images/Player/SubtitleButtonPressed.png"
+                        defaultImageSource: "asset:///images/Player/SubtitleButton.png"
+                        onClicked: {
+                            if (subtitleButtonContainer.opacity != 0) {
+                                uiControlsShowTimer.start();
+                                subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
+                                settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
+                            }
+                        }
+                    }
+                    onCreationCompleted: {
+                        subtitleButton.setEnabled(false);
+                        initializeStates();
+                    }
+                    onSubtitleEnabledChanged: {
+                        if (subtitleEnabled) {
+                            subtitleAreaContainer.setOpacity(1);
+                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
+                        } else {
+                            subtitleAreaContainer.setOpacity(0);
+                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
+                        }
+                    }
+
+                    onInitializeStates: {
+                        subtitleEnabled = settings.value("subtitleEnabled");
+                        if (subtitleEnabled) {
+                            subtitleAreaContainer.setOpacity(1);
+                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
+                        } else {
+                            subtitleAreaContainer.setOpacity(0);
+                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
+                        }
+                    }
+
+                } //subtitleButtonContainer
+            }
 
             }
 
@@ -521,6 +589,7 @@ Page {
                         upperMenu.setOpacity(1);
                         controlsContainer.setOpacity(1);
                         controlsContainer.setVisible(true);
+                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                         uiControlsShowTimer.start();
                         myPlayer.play();
                         videoListDisappearAnimation.play();
@@ -674,53 +743,6 @@ Page {
                             }
                         }
                     } //hdmiButtonContainer
-                    Container {
-                        id: subtitleButtonContainer
-                        objectName: subtitleButtonContainer
-                        opacity: 0.5
-                        verticalAlignment: VerticalAlignment.Center
-                        horizontalAlignment: HorizontalAlignment.Right
-                        rightPadding: 15
-                        topPadding: 20
-                        property bool subtitleEnabled
-                        signal initializeStates
-
-                        ImageButton {
-                            id: subtitleButton
-                            disabledImageSource: "asset:///images/Player/SubtitleButtonDisabled.png"
-                            pressedImageSource: "asset:///images/Player/SubtitleButtonPressed.png"
-                            defaultImageSource: "asset:///images/Player/SubtitleButton.png"
-                            onClicked: {
-                                if (upperMenu.opacity != 0) {
-                                    subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
-                                    settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
-                                }
-                            }
-                        }
-                        onCreationCompleted: {
-                            subtitleButton.setEnabled(false);
-                            initializeStates();
-                        }
-                        onSubtitleEnabledChanged: {
-                            if (subtitleEnabled) {
-                                subtitleAreaContainer.setOpacity(1);
-                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
-                            } else {
-                                subtitleAreaContainer.setOpacity(0);
-                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
-                            }
-                        }
-                        onInitializeStates: {
-                            subtitleEnabled = settings.value("subtitleEnabled");
-                            if (subtitleEnabled) {
-                                subtitleAreaContainer.setOpacity(1);
-                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
-                            } else {
-                                subtitleAreaContainer.setOpacity(0);
-                                subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
-                            }
-                        }
-                    } //subtitleButtonContainer
                 }
                 implicitLayoutAnimationsEnabled: false
                 
@@ -830,7 +852,7 @@ Page {
                      }
                     onSlideBarHeightChanged: {
                         if(controlsContainer.visible == true)
-                        subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                     }
 
                     function getBookmarkPosition() {
@@ -869,8 +891,9 @@ Page {
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
             upperMenu.setOpacity(1);
+            subtitleButtonContainer.setOpacity(1);
             controlsContainer.setVisible(true);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
             uiControlsShowTimer.start();
             fadeInOut.play();
         }
@@ -1032,9 +1055,10 @@ Page {
                    if(durationSlider.onSlider) {
                        uiControlsShowTimer.start();
                    } else {
+                   subtitleButtonContainer.setOpacity(0);
                    upperMenu.setOpacity(0);
                    controlsContainer.setVisible(false);
-                   subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                   subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
                    uiControlsShowTimer.stop();
                    volume.visible = false;
                    }
@@ -1072,7 +1096,7 @@ Page {
                     }
                     if (controlsContainer.visible == false)
                     {
-                        subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
                     }
                     if (appContainer.videoHeight / appContainer.videoWidth >= appContainer.heightOfScreen / appContainer.widthOfScreen) {
                         videoWindow.scaleY = appContainer.initialScreenScaleY = 1
@@ -1117,9 +1141,10 @@ Page {
                 appContainer.changeVideoPosition = true;
             }
             upperMenu.setOpacity(1);
+            subtitleButtonContainer.setOpacity(1);
             controlsContainer.setOpacity(1);
             controlsContainer.setVisible(true);
-            subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
             uiControlsShowTimer.start();
         }
     }//appContainer

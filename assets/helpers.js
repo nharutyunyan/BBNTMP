@@ -21,5 +21,7 @@ var seekTimeInSlide = 5*1000;
 var heightOfSlider = 100;
 var heightOfScreen = 1280;
 var widthOfScreen = 768;
-
+var distanceFromSubtitleToBottomOfScreen = 30;
+var widthOfSubtitleButton = 150;
+var differentScreenWidthAndSubtitleWidth = 300;
 
