@@ -88,23 +88,7 @@ void InfoListModel::getVideoFiles()
 			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
 				QTextStream stream(&file);
 				stream << "[]" << endl;
-				for (int i = 0; i < result.size(); ++i) {
-					QVariantMap val;
-					val["path"] = result[i];
-					val["position"] = "0";
-					//Get the last path component and set it as title. Might be changed in future to get title from metadata
-					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
-					val["title"] = pathElements[pathElements.size()-1];
-					// Add the thumbnail URL to the JSON file
-					val["thumbURL"] = "asset:///images/BlankThumbnail.png";//finalFileName;
-
-					movieDecoder.setContext(0);
-					movieDecoder.initialize(result[i].toStdString());
-					val["width"] = movieDecoder.getWidth();
-					val["height"] = movieDecoder.getHeight();
-
-					m_list.append(val);
-				}
+				updateListWithAddedVideos(result);
 				file.close();
 			}
 			saveData();
@@ -254,8 +238,8 @@ void InfoListModel::onMetadataReady2(const QVariantMap& data)
 		}
 		index++;
 	}
-		saveData();
-     	replace(index, m_list.at(index));
+	saveData();
+    replace(index, m_list.at(index));
 }
 
 
@@ -329,11 +313,13 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 	}
 
 	bool changed = false;
+	int changedItem;
 
 	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
 	{
 		if(path == (*it).toMap()["path"].toString())
 		{
+		    changedItem = it - m_list.begin();
 			QVariantMap infoMap = (*it).toMap();
 			//Set only needed fields : title, duration
 			QString titleInMD = data.value("title").toString();
@@ -370,8 +356,8 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 	//Save and reload the new list
 	if (changed)
 	{
+		replace(changedItem, m_list.at(changedItem));
 		saveData();
-		refresh();
 	}
 }
 
