@@ -16,15 +16,6 @@ ListView {
 
     leadingVisual: PullToRefresh {
         id: refreshHandler
-        released: listView.released
-        
-        onRefreshTriggered: {
-            if(refreshing)
-            {
-	            infoListModel.updateVideoList2();
-	            refreshHandler.refreshing= false;
-	        }
-        }
     }
 
     listItemComponents: [
@@ -61,11 +52,15 @@ ListView {
             released = false;
         } else if (event.touchType == TouchType.Up) {
             released = true;
-            if(refreshHandler.refreshMode)
-            {
+            
+            if(refreshHandler.refreshMode > 0) {
+                if(refreshHandler.refreshMode == 2)
+                    infoListModel.updateVideoList2();
+                
             	scrollToPosition(ScrollPosition.Beginning, ScrollAnimation.Smooth);
-                refreshHandler.refreshMode= false;
+                refreshHandler.refreshMode = 0;
             }
+            
         }
     }
 
