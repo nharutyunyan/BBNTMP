@@ -21,9 +21,8 @@ MovieDecoder VideoThumbnailer::movieDecoder;
 
 void VideoThumbnailer::generateThumbnail(const string& videoFile, const string& outputFile, AVFormatContext* pAvContext)
 {
-    PngWriter* pngWriter = new PngWriter(outputFile);
-    generateThumbnail(videoFile, *pngWriter, outputFile, pAvContext);
-    delete pngWriter;
+    PngWriter pngWriter (outputFile);
+    generateThumbnail(videoFile, pngWriter, outputFile, pAvContext);
 }
 
 void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
