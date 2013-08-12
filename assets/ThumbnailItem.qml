@@ -4,8 +4,6 @@ import "helpers.js" as Helpers
 Container {
     layout: StackLayout {
     }
-    
-    background: itemBackground.imagePaint
 
     verticalAlignment: VerticalAlignment.Fill
     horizontalAlignment: HorizontalAlignment.Fill
@@ -97,11 +95,6 @@ Container {
             id: timeBackground
             imageSource: "asset:///images/GridView/TimeFrame.png"
 
-        },
-
-        ImagePaintDefinition {
-            id: itemBackground
-            imageSource: "asset:///images/GridView/outline.png"
         }
     ]
 
