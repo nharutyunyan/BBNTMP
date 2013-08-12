@@ -25,10 +25,9 @@ MovieDecoder InfoListModel::movieDecoder;
 
 inline const static QStringList getVideoFileList() {
 	QStringList filters, result;
-	filters // add more suffix filters here
-		<< "*.mp4"
-		<< "*.wmv"
-		<< "*.avi";
+
+	filters << "*.3gp" << "*.3g2" << "*.asf" << "*.avi" << "*.f4v" << "*.ismv" << "*.m4v" << "*.mkv" << "*.mov" << "*.mp4" << "*.mpeg" << "*.wmv" ;
+
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
