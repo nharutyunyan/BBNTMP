@@ -18,6 +18,11 @@ ListView {
         id: refreshHandler
     }
 
+	// Expose the menu to the rest of the application to check if it's open
+    contextMenuHandler: ContextMenuHandler {
+        id: myContext
+    }
+
     listItemComponents: [
         // define component which will represent list item GUI appearence
         ListItemComponent {
@@ -33,11 +38,48 @@ ListView {
                 onCreationCompleted: {
                     appear.play();
                 }
+
                 onTouch: {
-                    if (event.touchType == TouchType.Up) popOut.play();
-                    if (event.touchType == TouchType.Down) sinkIn.play();
+                    if (event.touchType == TouchType.Down) 
+                    	sinkIn.play();
+                    else if(event.touchType == TouchType.Cancel || event.touchType == TouchType.Up)
+                    	popOut.play();
                 }
                 
+                contextActions: [
+                    ActionSet {
+                        title: "Menu Action Set"
+                        subtitle: "Menu Action Set."
+
+                        actions: [
+                            ActionItem {
+                                title: "Add to favorites"
+                                //To do if UX design needs image here
+                                //imageSource: "asset:///images/Favorite.png"
+                                onTriggered: {
+                                    //TODO: Add code here for task "Add to favourite" 
+                                }
+                            },
+                            ActionItem {
+                                 title: "Delete"
+                                 //To do if UX design needs image here
+                                 //imageSource: "asset:///images/Delete.png"
+                                 onTriggered: {
+                                    //TODO: Add code here for task "Delete"                                      
+                                 }
+                            },
+                            ActionItem {
+                                title: "Multiselect"
+                                //To do if UX design needs image here
+                                //imageSource: "asset:///images/Multiselect.png"
+                                onTriggered: {
+                                    //TODO: add code here for task "Multiselect"
+                                }
+                            }
+                        ]                   
+                    } // end of ActionSet
+                ] // end of contextActions list
+
                 animations: [
                     FadeTransition {
                         id: appear
@@ -82,7 +124,7 @@ ListView {
                 refreshHandler.refreshMode = 0;
             }
             
-        }
+        } 
     }
 
     onTriggered: {
@@ -90,20 +132,25 @@ ListView {
         select(indexPath);
     }
     onSelectionChanged: {
-        // slot called when ListView emits selectionChanged signal
-        // A slot naming convention is used for automatic connection of list view signals to slots
-        if (selected) {
-            infoListModel.setSelectedIndex(listView.selectionList())
-            var page = getSecondPage();
-            console.log("pushing detail " + page)
-            //variables for passing selected video path and length to videoScrollList
-            var currentPath = listView.dataModel.data(indexPath).path;
-            page.currentPath = currentPath;
-            var currentLenght = listView.dataModel.data(indexPath).duration;
-            page.currentLenght = currentLenght;
-            navigationPane.push(page);
+        // Don't load a video if a context menu is showing
+        if (myContext.visualState == ContextMenuVisualState.Hidden) 
+        {
+	        // slot called when ListView emits selectionChanged signal
+	        // A slot naming convention is used for automatic connection of list view signals to slots
+	        if (selected) {
+	            infoListModel.setSelectedIndex(listView.selectionList())
+	            var page = getSecondPage();
+	            console.log("pushing detail " + page)
+	            //variables for passing selected video path and length to videoScrollList
+	            var currentPath = listView.dataModel.data(indexPath).path;
+	            page.currentPath = currentPath;
+	            var currentLenght = listView.dataModel.data(indexPath).duration;
+	            page.currentLenght = currentLenght;
+	            navigationPane.push(page);
+	        }
         }
     } // onSelectionChanged
+    
     property Page secondPage
     function getSecondPage() {
         if (! secondPage) {
