@@ -7,7 +7,7 @@
 #include <Qtextstream>
 #include <iostream>
 
-
+#include <QSet>
 #include <QVariantList>
 #include "utility.hpp"
 #include "videothumbnailer.hpp"
@@ -91,23 +91,7 @@ void InfoListModel::getVideoFiles()
 			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
 				QTextStream stream(&file);
 				stream << "[]" << endl;
-				for (int i = 0; i < result.size(); ++i) {
-					QVariantMap val;
-					val["path"] = result[i];
-					val["position"] = "0";
-					//Get the last path component and set it as title. Might be changed in future to get title from metadata
-					QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
-					val["title"] = pathElements[pathElements.size()-1];
-					// Add the thumbnail URL to the JSON file
-					val["thumbURL"] = "asset:///images/BlankThumbnail.png";//finalFileName;
-
-					movieDecoder.setContext(0);
-					movieDecoder.initialize(result[i].toStdString());
-					val["width"] = movieDecoder.getWidth();
-					val["height"] = movieDecoder.getHeight();
-
-					m_list.append(val);
-				}
+				updateListWithAddedVideos(result);
 				file.close();
 			}
 			saveData();
@@ -129,35 +113,34 @@ void InfoListModel::getVideoFiles()
 
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
-	QVariantList videos;
-	for (int i = 0; i < result.size(); ++i) {
-		bool videoExist = false;
-		for (int ix = 0; ix < m_list.size(); ++ix) {
-			QVariantMap v = m_list[ix].toMap();
-			if (v["path"].toString().compare(result[i]) == 0) {
-				videoExist = true;
-				break;
-			}
-		}
+	// Slight improvement to the video exists check that was below,
+	// but even more could be gained by replacing underlying m_list structure with map
+	QSet<QString> set;
+	for (QVariantList::iterator i = m_list.begin(); i != m_list.end(); ++i) {
+		QVariantMap v = i->toMap();
+		set.insert(v["path"].toString());
+	}
+
+	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
+		bool videoExist = set.contains(*i);
 		if (!videoExist) {
 			//add new video to json data
 			QVariantMap val;
-			val["path"] = result[i];
+			val["path"] = *i;
 			val["position"] = "0";
 			//Get the last path component and set it as title. Might be changed in future to get title from metadata
-			QStringList pathElements = result[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+			QStringList pathElements = i->split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 			val["title"] = pathElements[pathElements.size()-1];
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 
 			movieDecoder.setContext(0);
-			movieDecoder.initialize(result[i].toStdString());
+			movieDecoder.initialize(i->toStdString());
 			val["width"] = movieDecoder.getWidth();
 			val["height"] = movieDecoder.getHeight();
-			videos.append(val);
+			m_list.append(val);
 		}
 	}
-	m_list.append(videos);
 }
 
 void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
@@ -165,22 +148,18 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	QDir dir;
 	QString thumbnailDir = dir.homePath() + "/thumbnails/";
 	dir.cd(thumbnailDir);
-	QVariantList index;
-	for (int ix = m_list.size()-1; ix>= 0; --ix) {
-		bool videoExist = false;
-		QVariantMap v = m_list[ix].toMap();
-		for (int i = 0; i < result.size(); ++i) {
-			if (v["path"].toString().compare(result[i]) == 0) {
-				videoExist = true;
-				break;
-			}
-		}
-		if (!videoExist) {
+
+	QSet<QString> result_set (result.toSet());
+
+	for (QVariantList::iterator i = m_list.begin(); i != m_list.end(); ) {
+		QVariantMap v (i->toMap());
+		bool videoStillExists = result_set.contains(v["path"].toString());
+		if (!videoStillExists) {
 			// if the video does not exist any more remote its thumbnail as well
 			dir.remove(v["thumbURL"].toString());
-			m_list.erase(m_list.begin() + ix);
+			i = m_list.erase(i);
 			start--;
-		}
+		} else ++i;
 	}
 
 }
@@ -510,6 +489,7 @@ int InfoListModel::getSelectedIndex()
 {
     return m_selectedIndex;
 }
+
 
 InfoListModel* InfoListModel::get()
 {
