@@ -621,8 +621,8 @@ Page {
                     horizontalAlignment: HorizontalAlignment.Left
                     verticalAlignment: VerticalAlignment.Center
                     ImageButton {
-                        pressedImageSource: "asset:///images/Player/BackButtonPressed.png"
-                        defaultImageSource: "asset:///images/Player/BackButton.png"
+                        pressedImageSource: "asset:///images/Player/back_button_press.png"
+                        defaultImageSource: "asset:///images/Player/back_button_normal.png"
                         onClicked: {
                             backButtonContainer.goBack();
                         }
