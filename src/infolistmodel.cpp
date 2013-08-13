@@ -227,8 +227,8 @@ void InfoListModel::onMetadataReady2(const QVariantMap& data)
 		}
 		index++;
 	}
-		saveData();
-     	replace(index, m_list.at(index));
+	saveData();
+    replace(index, m_list.at(index));
 }
 
 
@@ -302,11 +302,13 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 	}
 
 	bool changed = false;
+	int changedItem;
 
 	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
 	{
 		if(path == (*it).toMap()["path"].toString())
 		{
+		    changedItem = it - m_list.begin();
 			QVariantMap infoMap = (*it).toMap();
 			//Set only needed fields : title, duration
 			QString titleInMD = data.value("title").toString();
@@ -343,8 +345,8 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 	//Save and reload the new list
 	if (changed)
 	{
+		replace(changedItem, m_list.at(changedItem));
 		saveData();
-		refresh();
 	}
 }
 
