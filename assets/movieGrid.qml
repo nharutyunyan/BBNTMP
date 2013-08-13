@@ -33,7 +33,11 @@ ListView {
                 onCreationCompleted: {
                     appear.play();
                 }
-
+                onTouch: {
+                    if (event.touchType == TouchType.Up) popOut.play();
+                    if (event.touchType == TouchType.Down) sinkIn.play();
+                }
+                
                 animations: [
                     FadeTransition {
                         id: appear
@@ -41,6 +45,23 @@ ListView {
                         easingCurve: StockCurve.CubicOut
                         fromOpacity: 0.0
                         toOpacity: 1.0
+                    },
+                    //This makes the thumbnail "sink in" when tapped before loading the video
+                    ScaleTransition {
+                        id : sinkIn                    
+                        toX: 0.95
+                        toY: 0.95
+                        easingCurve: StockCurve.Linear
+                        duration: 100
+                    },
+                    ScaleTransition {
+                        id : popOut
+                        fromX: 0.95
+                        fromY: 0.95
+                        toX: 1
+                        toY: 1
+                        easingCurve: StockCurve.Linear
+                        duration: 100
                     }
                 ]
             }
