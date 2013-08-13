@@ -997,7 +997,8 @@ Page {
                     if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
                     if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
-                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";  
+                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
+                    uiControlsShowTimer.start();
                 }
 
                 onShowVideoScrollBar: {
