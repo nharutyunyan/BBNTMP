@@ -10,21 +10,37 @@ NavigationPane {
     backButtonsVisible: false
     Page {
         content: Container {
-           id: movieGridContainer
-            layout: DockLayout {
+            id: globalContainer
+            layout: DockLayout{}
+            
+            
+            Container {
+	            id: movieGridContainer
+	            layout: DockLayout {
+	            }
+	            attachedObjects: [
+	                ComponentDefinition {
+	                    id: movieGrid
+	                    source: "movieGrid.qml"
+	                },
+	                ImagePaintDefinition {
+	                    id: backgroundImage
+	                    imageSource: "asset:///images/Player/VideoBG.png"
+	                }
+	            ]
+	            background: backgroundImage.imagePaint
+	        } //moviegrid Container
+
+            // Busy indicator when thumbs are loading, on top of the grid
+            ActivityIndicator {
+                id: loadingIndicator
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center
+                objectName: "LoadingIndicator"
+                preferredWidth: 250
             }
-            attachedObjects: [
-                ComponentDefinition {
-                    id: movieGrid
-                    source: "movieGrid.qml"
-                },
-                ImagePaintDefinition {
-                    id: backgroundImage
-                    imageSource: "asset:///images/Player/VideoBG.png"
-                }
-            ]
-            background: backgroundImage.imagePaint
-        } //Container
+        } // global container
+        
         property variant movieGridObj;
         onCreationCompleted: {
             // this slot is called when declarative scene is created
