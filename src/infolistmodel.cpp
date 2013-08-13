@@ -194,7 +194,7 @@ void InfoListModel::updateVideoList2()
 	else
 	{
 		reader->setData(result);
-		connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady2(const QVariantMap&)));
+		connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
 		connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
 		if(!result.isEmpty())
 			reader->addMetadataReadRequest();
@@ -203,35 +203,6 @@ void InfoListModel::updateVideoList2()
 	clear();
 	append(m_list);
  }
-
-void InfoListModel::onMetadataReady2(const QVariantMap& data)
-{
-	//Update the appropriate video info entry
-	QString path = data[bb::multimedia::MetaData::Uri].toString();
-	if(path.isEmpty())
-			return;
-
-	int index = 0;
-	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
-	{
-		if(path == (*it).toMap()["path"].toString())
-		{
-			QVariantMap infoMap = (*it).toMap();
-			QString duration = data.value(bb::multimedia::MetaData::Duration).toString();
-			if (!duration.isEmpty() && infoMap.value("duration").toString() != duration)
-				infoMap["duration"] = duration;
-
-			//Update the list
-			(*it) = infoMap;
-			break;
-		}
-		index++;
-	}
-	saveData();
-    replace(index, m_list.at(index));
-}
-
-
 
 //end:refresh block
 
@@ -310,7 +281,6 @@ void InfoListModel::onMetadataReady(const QVariantMap& data)
 		{
 		    changedItem = it - m_list.begin();
 			QVariantMap infoMap = (*it).toMap();
-			//Set only needed fields : title, duration
 			QString titleInMD = data.value("title").toString();
 			if(!titleInMD.isEmpty() && infoMap.value(bb::multimedia::MetaData::Title).toString() != titleInMD)
 			{

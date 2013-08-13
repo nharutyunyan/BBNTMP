@@ -105,7 +105,6 @@ public:
 public slots:
     void consume(QString data, int index);
     void onMetadataReady(const QVariantMap& data);
-    void onMetadataReady2(const QVariantMap& data);
     void onAllMetadataRead();
 
     signals:
