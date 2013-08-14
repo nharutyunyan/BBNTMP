@@ -34,10 +34,6 @@ Page {
         //Indicates whether to change the video position, when the slider's value is changed.
         property bool changeVideoPosition : false
 
-        // This properties are used for dynamically defining video window size for different orientations
-        property int landscapeWidth : 1280
-        property int landscapeHeight : 768
-
         property int startHeight
         property int startWidth
         property int videoWidth
@@ -73,7 +69,22 @@ Page {
         property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
         property int bookmarkMinTime : 60000
         
-        Container {
+        function setDimensionsFromOrientation(pOrientation)
+        {
+            if (pOrientation == UIOrientation.Landscape) {
+                appContainer.heightOfScreen = displayInfo.height;
+                appContainer.widthOfScreen = displayInfo.width;
+                videoWindow.preferredHeight = displayInfo.height;
+                videoWindow.preferredWidth = displayInfo.width
+            } else {
+                appContainer.heightOfScreen = displayInfo.width;
+                appContainer.widthOfScreen = displayInfo.height;
+                videoWindow.preferredHeight = displayInfo.width;
+                videoWindow.preferredWidth = displayInfo.height
+            }
+        }
+
+        Container { 
             id: contentContainer
             horizontalAlignment: HorizontalAlignment.Center
             verticalAlignment: VerticalAlignment.Center
@@ -135,22 +146,15 @@ Page {
                     WindowProperty.Position |
                     WindowProperty.Visible
 
+
                     onCreationCompleted: {
-                        if (OrientationSupport.orientation == UIOrientation.Landscape) {
-                            appContainer.heightOfScreen = displayInfo.height;
-                            appContainer.widthOfScreen = displayInfo.width;
-                            videoWindow.preferredHeight = displayInfo.height;
-                            videoWindow.preferredWidth = displayInfo.width
-                        } else {
-                            appContainer.heightOfScreen = displayInfo.width;
-                            appContainer.widthOfScreen = displayInfo.height;
-                            videoWindow.preferredHeight = displayInfo.width;
-                            videoWindow.preferredWidth = displayInfo.height
-                        }
+
+                        appContainer.setDimensionsFromOrientation(OrientationSupport.orientation);
                         initializeVideoScales();
                         appContainer.startWidth = videoWindow.preferredWidth;
                         appContainer.startHeight = videoWindow.preferredHeight;
                     }
+
                     onInitializeVideoScales: {
                         appContainer.videoWidth = infoListModel.getWidth()
                         appContainer.videoHeight = infoListModel.getHeight()
@@ -231,28 +235,15 @@ Page {
                                         appContainer.directionIsDetect = true;
                                     } else {
                                         appContainer.volumeChange = true;
-                                        if (appContainer.previousPositionY - event.windowY > 0) {
-                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.windowY) / 10;
-                                            if (appContainer.curVolume > 100) appContainer.curVolume = 100;
-                                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-
-                                            volume.visible = true;
-                                            if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
-                                            else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                                            if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
-                                            else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
+                                        var deltaPosition = appContainer.previousPositionY - event.localY;
+                                    	// limit the size of deltaPosition to avoid any large jumps in the volume
+                                        if (Math.abs(deltaPosition) < 70) 
+                                        {
+                                            // min and max to bound value between 0 and 100
+                                            appContainer.curVolume = Math.min(Math.max(appContainer.curVolume + deltaPosition / 9, 0),100);
                                         }
-                                        if (appContainer.previousPositionY - event.windowY < 0) {
-                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.windowY) / 10;
-                                            if (appContainer.curVolume < 0) appContainer.curVolume = 0;
-                                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-
-                                            volume.visible = true;
-                                            if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
-                                            else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                                            if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
-                                            else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
-                                        }
+                                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                                        volume.setMuteIcons();
                                         uiControlsShowTimer.start();
                                     }
                                 }
@@ -441,17 +432,15 @@ Page {
                         initializeStates();
                     }
                     onSubtitleEnabledChanged: {
-                        if (subtitleEnabled) {
-                            subtitleAreaContainer.setOpacity(1);
-                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
-                        } else {
-                            subtitleAreaContainer.setOpacity(0);
-                            subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
+                            subtitleButtonContainer.showSubButton();
                         }
-                    }
 
                     onInitializeStates: {
-                        subtitleEnabled = settings.value("subtitleEnabled");
+                       		subtitleEnabled = settings.value("subtitleEnabled");
+                            subtitleButtonContainer.showSubButton();
+                        }
+
+                    function showSubButton() {
                         if (subtitleEnabled) {
                             subtitleAreaContainer.setOpacity(1);
                             subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButton.png");
@@ -460,7 +449,6 @@ Page {
                             subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
                         }
                     }
-
                 } //subtitleButtonContainer
             }
 
@@ -488,6 +476,16 @@ Page {
                         if (pos <= end && pos >= (end - begin) / 2 + begin) return end;
                     }
                     return -2;
+                }
+                
+                // this function changes the icons on the volume bar when the volume reaches its extremes
+                function setMuteIcons()
+                {
+                    volume.visible = true;
+                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
+                    else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
+                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
                 }
                 Container {
                     layout: AbsoluteLayout {
@@ -528,8 +526,7 @@ Page {
                             appContainer.volumeFullorMute = true
                             appContainer.curVolume = 100;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png"   
-                            volumeMute.imageSource = "asset:///images/Player/VolumeMute.png"
+                            volume.setMuteIcons();
                         }
                     }
                     ImageView {
@@ -544,8 +541,7 @@ Page {
                             appContainer.volumeFullorMute = true
                             appContainer.curVolume = 0;
                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png"  
-                            volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"
+                            volume.setMuteIcons();
                         }
                     }
                 }
@@ -1033,13 +1029,9 @@ Page {
                 }
 
                 onSpeakerVolumeChanged: {
-                    volume.visible = true;
                     appContainer.curVolume = bpsEventHandler.getVolume();
-                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
-                    else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
-                    else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
-                    uiControlsShowTimer.start();
+                    volume.setMuteIcons();
+
                 }
 
                 onShowVideoScrollBar: {
@@ -1119,23 +1111,16 @@ Page {
 
            OrientationHandler {
                onOrientationAboutToChange: {
-                    videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));
+                    videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));  
+                    appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
-                        appContainer.heightOfScreen = displayInfo.height;
-                        appContainer.widthOfScreen = displayInfo.width;
-                        videoWindow.preferredHeight = displayInfo.height;
-                        videoWindow.preferredWidth = displayInfo.width
                         volume.positionY = 384;
                         upperMenu.preferredWidth = displayInfo.width
                     } else {
-                        appContainer.heightOfScreen = displayInfo.width;//(displayInfo.height * displayInfo.height) / displayInfo.width
-                        appContainer.widthOfScreen = displayInfo.height;
-                        videoWindow.preferredHeight = displayInfo.width;
-                        videoWindow.preferredWidth = displayInfo.height;
                         volume.positionY = 225;
                         upperMenu.preferredWidth = displayInfo.height
                     }
-                    videoWindow.initializeVideoScales();
+                    	videoWindow.initializeVideoScales();
                     if (controlsContainer.visible == false)
                     {
                         subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
