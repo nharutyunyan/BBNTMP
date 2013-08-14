@@ -977,7 +977,8 @@ Page {
                    else{
                         subtitleManager.seek(position);
                         durationSlider.setValue(position);
-                    }
+                        }
+                   mainPage.currentMoviePosition = position;
                 }
 
                // Investigate how the metadata can be retrieved without playing the video.
