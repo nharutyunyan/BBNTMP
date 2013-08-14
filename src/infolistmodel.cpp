@@ -446,7 +446,6 @@ int InfoListModel::getVideoPosition(QString item)
 		}
 	}
 	return -1;
-
 }
 
 QString InfoListModel::getVideoTitle()
