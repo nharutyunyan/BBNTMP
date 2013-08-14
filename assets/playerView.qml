@@ -760,6 +760,7 @@ Page {
                         rightPadding: 10
                         topPadding: 10
                         property bool hdmiEnabled: false
+                        enabled: HDMIScreen.connection
 
                         ImageButton {
                             id: hdmiButton
@@ -773,7 +774,6 @@ Page {
                             }
                         }
                         onCreationCompleted: {
-                            hdmiButton.setEnabled(false);
                             if (hdmiEnabled) {
                                 hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
                             } else {
