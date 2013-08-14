@@ -6,6 +6,7 @@
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/device/DisplayInfo>
+#include <bb/cascades/ActivityIndicator>
 
 using namespace bb::cascades;
 
@@ -27,6 +28,7 @@ thumbnailsGenerationFinished(false)
     QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
 
     qml->setContextProperty("application", app);
+    qml->setContextProperty("nuttyplayer", this);
 
     InfoListModel* model = new InfoListModel(this);
     qml->setContextProperty("infoListModel", model);
@@ -37,13 +39,24 @@ thumbnailsGenerationFinished(false)
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
+
+    // Start the busy animation
+    QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
+    if (loadingIndicator)
+    	((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
 }
 
 void NuttyPlayer::onThumbnailsGenerationFinished() {
 	thumbnailsGenerationFinished = true;
+
+    // Stop the busy animation.  This may happen before the loading screen ends
+    QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
+    if (loadingIndicator)
+    	((bb::cascades::ActivityIndicator*)loadingIndicator)->stop();
+
     // set created root object as a scene
     if (splashScreenMinimalIntervalElapsed)
-        Application::instance()->setScene(root);
+    	Application::instance()->setScene(root);
 }
 
 void NuttyPlayer::onSplashscreenMinimalIntervalElapsed() {
