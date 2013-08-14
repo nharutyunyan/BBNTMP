@@ -384,6 +384,7 @@ void CustomSlider::createProgressBar()
                                     .preferredHeight(m_progressBarContainerHeight)
                                     .horizontal(HorizontalAlignment::Left)
                                     .vertical(VerticalAlignment::Center);
+    m_progressBarImageView->setVisible(false);
     m_progressBarImageView->setImage(m_progressBarImage);
     m_progressBarImageView->setImplicitLayoutAnimationsEnabled(false);
 
@@ -535,7 +536,8 @@ void CustomSlider::updateHandlePositionX(float value)
     if(m_coordinateX == 0) {
         m_progressBarImageView->setVisible(false);
     }
-    else {
+    else if(m_coordinateX > 0)
+    {
         m_progressBarImageView->setVisible(true);
         m_progressBarImageView->setPreferredWidth(m_coordinateX);
     }

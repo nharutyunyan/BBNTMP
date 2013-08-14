@@ -572,10 +572,12 @@ Page {
                     pgPlayer.currentPath= item.path;
                     myPlayer.setSourceUrl(item.path);
                     pgPlayer.currentLenght = item.duration
-
+                    
                     if (appContainer.playMediaPlayer() == MediaError.None) {
                         videoWindow.visible = true;
                         contentContainer.visible = true;
+                        durationSlider.toValue = item.duration;
+                        videoTitle.text = item.title;
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
                         if(subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
@@ -829,7 +831,7 @@ Page {
 
                     bookmarkPositionX: getBookmarkPosition()
                     bookmarkVisible: false
-
+                    toValue: pgPlayer.currentLenght
                     layoutProperties: StackLayoutProperties {
                         spaceQuota: 1
                     }
@@ -945,13 +947,6 @@ Page {
                         durationSlider.setValue(position);
                     }
                 }
-
-               onDurationChanged: {
-                   durationSlider.toValue = duration;
-                   // If the duration is changes, it means the video to play is changes.
-                   // So update the video title on the UI as well
-                   videoTitle.text = infoListModel.getVideoTitle();
-               }
 
                // Investigate how the metadata can be retrieved without playing the video.
                onMetaDataChanged: {
