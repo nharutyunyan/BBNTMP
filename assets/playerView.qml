@@ -88,7 +88,17 @@ Page {
                implicitLayoutAnimationsEnabled: false
                layout: AbsoluteLayout {
                            }
-               //background: Color.Red
+               id: foreignWindowControlContainer
+                touchBehaviors: [
+                    TouchBehavior {
+                        TouchReaction {
+                            eventType: TouchType.Down
+                            phase: PropagationPhase.Bubbling
+                            response: TouchResponse.StartTracking
+                        }
+                    }
+                ]
+                //background: Color.Red
            ForeignWindowControl {
                 id: videoWindow
                 objectName: "VideoWindow"
@@ -173,12 +183,12 @@ Page {
                             appContainer.widthOfScreen = displayInfo.width;
                             appContainer.touchDistanceAgainstMode = displayInfo.width / 5;
                         }
-                        if (event.localY < appContainer.heightOfScreen - Helpers.heightOfSlider) {
+                        if (event.windowY < appContainer.heightOfScreen - Helpers.heightOfSlider) {
                         if (event.touchType == TouchType.Down) {
-                            appContainer.previousPositionX = event.localX;
-                            appContainer.previousPositionY = event.localY;
-                            appContainer.touchPositionX = event.localX;
-                            appContainer.touchPositionY = event.localY;
+                            appContainer.previousPositionX = event.windowX;
+                            appContainer.previousPositionY = event.windowY;
+                            appContainer.touchPositionX = event.windowX;
+                            appContainer.touchPositionY = event.windowY;
                             contentContainer.startingX = videoWindow.translationX;
                             contentContainer.startingY = videoWindow.translationY;
                             appContainer.directionIsDetect = false;
@@ -189,40 +199,40 @@ Page {
                             appContainer.offsetY = 0;
 
                         } else if (event.touchType == TouchType.Up && ! appContainer.volumeChange) {
-                            if (Math.abs(appContainer.touchPositionX - event.localX) > appContainer.touchDistanceAgainstMode) {
+                            if (Math.abs(appContainer.touchPositionX - event.windowX) > appContainer.touchDistanceAgainstMode) {
                                 // TODO: probably we could use the application container size
                                 // to calculate the magic numbers below by the percentage
 
-                                if (appContainer.touchPositionX >= event.localX + appContainer.touchDistanceAgainstMode) {
+                                if (appContainer.touchPositionX >= event.windowX + appContainer.touchDistanceAgainstMode) {
                                     appContainer.changeVideoPosition = true;
                                     if (durationSlider.value + Helpers.seekTimeInSlide < durationSlider.toValue) {
                                         myPlayer.seekTime(durationSlider.value + Helpers.seekTimeInSlide);
                                     } else {
                                         myPlayer.seekTime(durationSlider.toValue);
                                     }
-                                } else if (appContainer.touchPositionX + appContainer.touchDistanceAgainstMode < event.localX) {
+                                } else if (appContainer.touchPositionX + appContainer.touchDistanceAgainstMode < event.windowX) {
                                     appContainer.changeVideoPosition = true;
                                     myPlayer.seekTime(Math.max(durationSlider.value - Helpers.seekTimeInSlide,0));
                                 }
                                 appContainer.changeVideoPosition = false;
                             }
-                            if (event.localY > 180 && videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
+                            if (event.windowY > 180 && videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 videoListDisappearAnimation.play();
                             } 
                         } else if (event.touchType == TouchType.Move) {
                             if (! appContainer.directionIsDetect) {
 
                                 if (appContainer.counterForDetectDirection != 0) {
-                                    appContainer.offsetX += Math.abs(appContainer.previousPositionX - event.localX);
-                                    appContainer.offsetY += Math.abs(appContainer.previousPositionY - event.localY);
+                                    appContainer.offsetX += Math.abs(appContainer.previousPositionX - event.windowX);
+                                    appContainer.offsetY += Math.abs(appContainer.previousPositionY - event.windowY);
                                     -- appContainer.counterForDetectDirection;
                                 } else {
                                     if (appContainer.offsetX > appContainer.offsetY) {
                                         appContainer.directionIsDetect = true;
                                     } else {
                                         appContainer.volumeChange = true;
-                                        if (appContainer.previousPositionY - event.localY > 0) {
-                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
+                                        if (appContainer.previousPositionY - event.windowY > 0) {
+                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.windowY) / 10;
                                             if (appContainer.curVolume > 100) appContainer.curVolume = 100;
                                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 
@@ -232,8 +242,8 @@ Page {
                                             if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
                                             else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png"; 
                                         }
-                                        if (appContainer.previousPositionY - event.localY < 0) {
-                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.localY) / 10;
+                                        if (appContainer.previousPositionY - event.windowY < 0) {
+                                            appContainer.curVolume = appContainer.curVolume + (appContainer.previousPositionY - event.windowY) / 10;
                                             if (appContainer.curVolume < 0) appContainer.curVolume = 0;
                                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 
@@ -246,8 +256,8 @@ Page {
                                         uiControlsShowTimer.start();
                                     }
                                 }
-                                appContainer.previousPositionX = event.localX;
-                                appContainer.previousPositionY = event.localY;
+                                appContainer.previousPositionX = event.windowX;
+                                appContainer.previousPositionY = event.windowY;
                             }
                         }
                         } else {
@@ -390,19 +400,41 @@ Page {
                     implicitLayoutAnimationsEnabled: false
                     property bool subtitleEnabled
                     signal initializeStates
-
+                        touchBehaviors: [
+                            TouchBehavior {
+                                TouchReaction {
+                                    eventType: TouchType.Down
+                                    phase: PropagationPhase.Capturing
+                                    response: TouchResponse.StartTracking
+                                }
+                            },
+                            TouchBehavior {
+                                TouchReaction {
+                                    eventType: TouchType.Down
+                                    phase: PropagationPhase.AtTarget
+                                    response: TouchResponse.StartTracking
+                                }
+                            }
+                        ]
+                        onTouchCapture: {
+                            foreignWindowControlContainer.touch(event)
+                        }
+                        onTouch: {
+                            foreignWindowControlContainer.touch(event)
+                            if(event.touchType == TouchType.Up)
+                            {
+                                if (subtitleButtonContainer.opacity != 0) {
+                                    uiControlsShowTimer.start();
+                                    subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
+                                    settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
+                                }
+                                }
+                    }
                     ImageButton {
                         id: subtitleButton
                         disabledImageSource: "asset:///images/Player/SubtitleButtonDisabled.png"
                         pressedImageSource: "asset:///images/Player/SubtitleButtonPressed.png"
                         defaultImageSource: "asset:///images/Player/SubtitleButton.png"
-                        onClicked: {
-                            if (subtitleButtonContainer.opacity != 0) {
-                                uiControlsShowTimer.start();
-                                subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
-                                settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
-                            }
-                        }
                     }
                     onCreationCompleted: {
                         subtitleButton.setEnabled(false);
