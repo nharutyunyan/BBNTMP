@@ -14,24 +14,53 @@ NavigationPane {
         content: Container {
             id: globalContainer
             layout: DockLayout{}
-            
-            
-            Container {
-	            id: movieGridContainer
-	            layout: DockLayout {
-	            }
-	            attachedObjects: [
-	                ComponentDefinition {
-	                    id: movieGrid
-	                    source: "movieGrid.qml"
-	                },
-	                ImagePaintDefinition {
-	                    id: backgroundImage
-	                    imageSource: "asset:///images/Player/VideoBG.png"
-	                }
-	            ]
-	            background: backgroundImage.imagePaint
-	        } //moviegrid Container
+		        
+                Container {
+                id :movieGridPage
+                layout: StackLayout{}
+
+				// Add container to prevent white-background bug on z10
+				Container {
+                    ImageView {
+                        id: headerImage
+                        imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
+                        onTouch: {
+                            // TODO : Code for issue 14?
+                        }
+                    }
+                }
+
+                Container {
+                    id: movieGridContainer
+                    layout: DockLayout {
+                    }
+                    attachedObjects: [
+                        ComponentDefinition {
+                            id: movieGrid
+                            source: "movieGrid.qml"
+                        },
+                        ImagePaintDefinition {
+                            id: backgroundImage
+                            imageSource: "asset:///images/Player/VideoBG.png"
+                        }
+                    ]
+                    background: backgroundImage.imagePaint
+
+
+                } //moviegrid Container  
+            } //moviegridPage Container
+
+			// I can't manage to translate it 72 units from the top without making another container
+			Container{
+			    topPadding:72
+                ImageView {
+                    id: headerShadow
+                    imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/shadow.png" : "asset:///images/shadow_landscape.png"
+                    horizontalAlignment: HorizontalAlignment.Center
+                    verticalAlignment: VerticalAlignment.Center
+                }
+            }
+
 
             // Busy indicator when thumbs are loading, on top of the grid
             ActivityIndicator {
@@ -65,5 +94,11 @@ NavigationPane {
             // This must exit the application.
             application.quit();
         }
+
+        attachedObjects: [
+            OrientationHandler {
+                id: orientationHandlerMain
+            }
+        ]
     }
 }
