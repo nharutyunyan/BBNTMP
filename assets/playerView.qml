@@ -1035,7 +1035,7 @@ Page {
                 onSpeakerVolumeChanged: {
                     appContainer.curVolume = bpsEventHandler.getVolume();
                     volume.setMuteIcons();
-
+                    uiControlsShowTimer.start();
                 }
 
                 onShowVideoScrollBar: {
