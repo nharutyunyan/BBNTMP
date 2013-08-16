@@ -1,5 +1,6 @@
 import bb.cascades 1.0
 import bb.multimedia 1.0
+import bb.system 1.0
 import nuttyPlayer 1.0
 import bpsEventHandler 1.0
 import nutty.slider 1.0
@@ -623,6 +624,10 @@ Page {
                             durationSlider.bookmarkVisible = true;
                             bookmarkTimer.start();
                         }
+                        else
+                        {
+                            invalidToast.show();
+                        }
                         upperMenu.setOpacity(1);
                         controlsContainer.setOpacity(1);
                         subtitleButtonContainer.setOpacity(1);
@@ -942,6 +947,14 @@ Page {
         }
 
         attachedObjects: [
+            // Notification displayed to the user when broken file is opened
+            SystemToast {
+                id: invalidToast
+                body: "Video is corrupt or invalid."
+                onFinished: {
+                    backButtonContainer.goBack();
+                }
+            },
             Sheet {
                 id: videoSheet
                 objectName: "videoSheet"
@@ -1159,6 +1172,10 @@ Page {
                             console.log("seekTime ERROR");
                         }
                         appContainer.changeVideoPosition = true;
+                    }
+                    else
+                    {
+                        invalidToast.show();
                     }
                     upperMenu.setOpacity(1);
                     subtitleButtonContainer.setOpacity(1);

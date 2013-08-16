@@ -65,6 +65,11 @@ InfoListModel::InfoListModel(QObject* parent)
 
 void InfoListModel::consume(QString data, int index)
 {
+	if (index == utility::INVALID_VIDEO)
+	{
+		emit consumed();
+		return;
+	}
 	//process that data
 	// add generated thumbnail to list model
 	setValue(index, "thumbURL", "file://" + data);
@@ -101,7 +106,6 @@ void InfoListModel::getVideoFiles()
 			load();
 			start = m_list.size();
 			updateVideoList();
-			m_producer->updateVideoList(m_list, 0);
 			onAllMetadataRead();
 		}
 	} catch (const exception& e) {
@@ -132,20 +136,26 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 			movieDecoder.setContext(0);
-			movieDecoder.initialize(i->toStdString());
-			_int64 duration = movieDecoder.getVideosDuration();
+			try{
+				movieDecoder.initialize(i->toStdString());
+				_int64 duration = movieDecoder.getVideosDuration();
 
-			if(duration != 0)
-			{
-				val["duration"] = duration;
+				if(duration != 0)
+				{
+					val["duration"] = duration;
+				}
+				else
+				{
+					//need to read from mediaPlayer in background
+				}
+				val["width"] = movieDecoder.getWidth();
+				val["height"] = movieDecoder.getHeight();
+				m_list.append(val);
 			}
-			else
-			{
-				//need to read from mediaPlayer in background
+			catch (...){
+				// invalid video! just skip this file.
 			}
-			val["width"] = movieDecoder.getWidth();
-			val["height"] = movieDecoder.getHeight();
-			m_list.append(val);
+
 		}
 	}
 }

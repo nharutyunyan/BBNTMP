@@ -8,6 +8,7 @@
 
 #include "utility.hpp"
 
+
 namespace utility {
 
 bool FileSystemUtility::getEntryListR(const QString& dir, const QStringList& filters, QStringList& result)
