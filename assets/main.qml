@@ -58,6 +58,7 @@ NavigationPane {
 
             // Once this object is created, attach the signal to a Javascript function.
             application.manualExit.connect(onManualExit);
+            settings.setValue("inPlayerView", false);
         }
         function onManualExit() {
             infoListModel.setVideoPosition(mainPage.currentMoviePosition);
