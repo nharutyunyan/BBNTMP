@@ -12,9 +12,7 @@ Container {
     ListView {
         id: videoListView
         property  alias currentPath: videoList.currentPath
-        dataModel: InfoListModel {
-            id: dataModel
-        }
+        dataModel: infoListModel 
 
         listItemComponents: [
             ListItemComponent {

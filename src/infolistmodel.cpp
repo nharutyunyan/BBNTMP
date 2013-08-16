@@ -26,7 +26,7 @@ MovieDecoder InfoListModel::movieDecoder;
 inline const static QStringList getVideoFileList() {
 	QStringList filters, result;
 
-	filters << "*.3gp" << "*.3g2" << "*.asf" << "*.avi" << "*.f4v" << "*.ismv" << "*.m4v" << "*.mkv" << "*.mov" << "*.mp4" << "*.mpeg" << "*.wmv" ;
+	filters <<  "*.avi" <<  "*.mp4" ;
 
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
@@ -43,9 +43,6 @@ InfoListModel::InfoListModel(QObject* parent)
 {
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
-
-    getVideoFiles();
-
     m_producer = new Producer(m_list, start);
 
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
@@ -63,6 +60,7 @@ InfoListModel::InfoListModel(QObject* parent)
 			SLOT(quit()));
 	QObject::connect(m_producer, SIGNAL(finished()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
+	getVideoFiles();
 }
 
 void InfoListModel::consume(QString data, int index)
@@ -95,7 +93,7 @@ void InfoListModel::getVideoFiles()
 			}
 			saveData();
 			load();
-			readMetadatas(result);
+			onAllMetadataRead();
 			append(m_list);
 		}
 		else
@@ -103,7 +101,8 @@ void InfoListModel::getVideoFiles()
 			load();
 			start = m_list.size();
 			updateVideoList();
-			readMetadatas(result);
+			m_producer->updateVideoList(m_list, 0);
+			onAllMetadataRead();
 		}
 	} catch (const exception& e) {
 		//do corresponding job
@@ -132,9 +131,18 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			val["title"] = pathElements[pathElements.size()-1];
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
-
 			movieDecoder.setContext(0);
 			movieDecoder.initialize(i->toStdString());
+			_int64 duration = movieDecoder.getVideosDuration();
+
+			if(duration != 0)
+			{
+				val["duration"] = duration;
+			}
+			else
+			{
+				//need to read from mediaPlayer in background
+			}
 			val["width"] = movieDecoder.getWidth();
 			val["height"] = movieDecoder.getHeight();
 			m_list.append(val);
@@ -169,8 +177,8 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 void InfoListModel::updateVideoList()
  {
 	QStringList result (getVideoFileList());
-	updateListWithDeletedVideos(result);
 	updateListWithAddedVideos(result);
+	updateListWithDeletedVideos(result);
 	append(m_list);
 }
 
@@ -182,22 +190,10 @@ void InfoListModel::updateVideoList2()
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 
-	MetaDataReader* reader = new MetaDataReader(this);
+//	MetaDataReader* reader = new MetaDataReader(this);
 	m_producer->updateVideoList(m_list, 0);
+	onAllMetadataRead();
 
-	if (!reader)
-	{
-		refresh();
-		return;
-	}
-	else
-	{
-		reader->setData(result);
-		connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
-		connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
-		if(!result.isEmpty())
-			reader->addMetadataReadRequest();
-	}
 
 	clear();
 	append(m_list);
