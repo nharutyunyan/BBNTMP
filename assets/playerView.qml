@@ -573,7 +573,6 @@ Page {
                 }
                 ]
             }
-
         }//contentContainer
 
         // Video list scroll bar for Portrait mode
@@ -666,6 +665,7 @@ Page {
                         }
                     }
                     function goBack() {
+                        settings.setValue("inPlayerView", false);
                         infoListModel.setVideoPosition(myPlayer.position);
                         appContainer.curVolume = bpsEventHandler.getVolume();
                         pgPlayer.destroy();
@@ -1003,6 +1003,10 @@ Page {
                id: settings;
            },
 
+           Screenshot {
+               id: screenshot
+           },
+
            BpsEventHandler {
                id: bpsEventHandler
                property bool locked: false
@@ -1167,7 +1171,17 @@ Page {
        ] // Attached objects.
 
         onCreationCompleted: {
+            settings.setValue("inPlayerView", true);
+            Application.thumbnail.connect(onThumbnail);
             initTimer.start();
+        }
+
+        function onThumbnail() {
+            volume.visible = false;
+            subtitleButtonContainer.setOpacity(0);
+            upperMenu.setOpacity(0);
+            controlsContainer.setVisible(false);
+            screenshot.makeScreenShot();
         }
 
     }//appContainer

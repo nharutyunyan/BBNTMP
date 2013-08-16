@@ -19,6 +19,7 @@
 #include "infolistmodel.hpp"
 #include "CustomSlider.hpp"
 #include "Settings.hpp"
+#include "Screenshot.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -46,6 +47,7 @@ int main(int argc, char **argv)
     qmlRegisterType<InfoListModel>("nuttyPlayer", 1, 0, "InfoListModel");
     qmlRegisterType<CustomSlider>("nutty.slider", 1, 0, "CustomSlider");
     qmlRegisterType<Settings>("nuttyPlayer", 1, 0, "Settings");
+    qmlRegisterType<Screenshot>("nuttyPlayer", 1, 0, "Screenshot");
 
     QTranslator translator;
     QString locale_string = QLocale().name();

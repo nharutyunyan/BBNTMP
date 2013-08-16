@@ -28,6 +28,8 @@ public slots:
     void onSplashscreenMinimalIntervalElapsed();
     void onSplashscreenMaximalIntervalElapsed();
     void onThumbnailsGenerationFinished();
+    void onThumbnail();
+    void onAwake();
 
 private:
     bb::cascades::AbstractPane *root;

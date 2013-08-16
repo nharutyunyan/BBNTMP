@@ -1,12 +1,16 @@
 #include "NuttyPlayer.hpp"
 #include "InfoListModel.hpp"
 #include "HDMIScreen.hpp"
+#include "Settings.hpp"
+#include "Screenshot.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/device/DisplayInfo>
 #include <bb/cascades/ActivityIndicator>
+#include <bb/cascades/Container>
+#include <bb/cascades/SceneCover>
 
 using namespace bb::cascades;
 
@@ -44,6 +48,9 @@ thumbnailsGenerationFinished(false)
     QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
     if (loadingIndicator)
     	((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
+
+    connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
+    connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
 }
 
 void NuttyPlayer::onThumbnailsGenerationFinished() {
@@ -86,4 +93,21 @@ void NuttyPlayer::passScreenDimensionsToQml(bb::cascades::QmlDocument *qml){
     displayProperties->insert("height", QVariant(width));
 
     qml->setContextProperty("displayInfo", displayProperties);
+}
+
+void NuttyPlayer::onThumbnail() {
+    Settings settings;
+    if(!settings.value("inPlayerView").value<bool>()) {
+        return;
+    }
+    QmlDocument *qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
+    if (!qmlCover->hasErrors()) {
+        Container *coverContainer = qmlCover->createRootObject<Container>();
+        SceneCover *sceneCover = SceneCover::create().content(coverContainer);
+        Application::instance()->setCover(sceneCover);
+    }
+}
+
+void NuttyPlayer::onAwake() {
+    Application::instance()->setCover(0);
 }
