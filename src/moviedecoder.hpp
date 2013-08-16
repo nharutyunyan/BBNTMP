@@ -41,6 +41,8 @@ public:
     int getWidth();
     int getHeight();
     void setContext(AVFormatContext* pavContext);
+    _int64 getVideosDuration();
+    void setVideosDuration(std::string);
 
 private:
     void initializeVideo();
@@ -51,6 +53,7 @@ private:
     void createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, PixelFormat format);
 
 private:
+    _int64              videoDuration;
     int             	videoStream;
     AVFormatContext*	pFormatContext;
     AVCodecContext* 	pVideoCodecContext;

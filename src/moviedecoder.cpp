@@ -12,6 +12,7 @@
 #include <QVariantList>
 #include <Qdir>
 #include <bb/data/JsonDataAccess>
+#include <fstream>
 
 extern "C" {
 #include <libswscale/swscale.h>
@@ -30,6 +31,7 @@ MovieDecoder::MovieDecoder(const std::string& filename, AVFormatContext* pavCont
 , pFrameBuffer(0)
 , pPacket(0)
 , allowSeek(true)
+,videoDuration(-1)
 {
     initialize(filename);
 }
@@ -80,6 +82,7 @@ void MovieDecoder::initialize(const std::string& filename)
 //	}
     initializeVideo();
     pFrame = avcodec_alloc_frame();
+    setVideosDuration(filename);
 }
 
 void MovieDecoder::destroy()
@@ -184,6 +187,44 @@ void MovieDecoder::seek(int timeInSeconds)
     }
 }
 
+_int64 MovieDecoder::getVideosDuration()
+{
+	return videoDuration;
+}
+
+void MovieDecoder::setVideosDuration(std::string path)
+{
+	AVInputFormat* format = pFormatContext->iformat;
+	std::string extension( format->name);
+	std::string::size_type pos = extension.find(",");
+	if(pos != std::string::npos)
+		extension = extension.substr(0,pos);
+		if(extension == "avi" )
+		{
+		    int time_delay_between_frames;
+			int number_of_frame;
+			std::ifstream f;
+			f.open (path.c_str(),f.binary|f.in);
+			f.seekg(32,f.beg);
+			f.read((char*)&time_delay_between_frames,4);
+			f.seekg(48,f.beg);
+			f.read((char*)&number_of_frame,4);
+			f.close();
+			videoDuration = (_int64)time_delay_between_frames * number_of_frame /1000;
+		}
+		else if(extension == "asf")
+		{
+			videoDuration = static_cast<double>(pFormatContext->streams[videoStream]->duration) * static_cast<double>(pVideoCodecContext->ticks_per_frame) / static_cast<double>(pVideoCodecContext->time_base.den);
+		}
+		else if(extension == "mov")
+		{
+			videoDuration = pFormatContext->duration / 1000;
+		}
+		else {
+			videoDuration = -1;
+		}
+}
+
 int MovieDecoder::getDuration(const std::string& videoFile)
 {
     if (pFormatContext)
@@ -219,6 +260,7 @@ int MovieDecoder::getDuration(const std::string& videoFile)
 
 int MovieDecoder::getWidth()
 {
+	decodeVideoFrame();
 	return pVideoCodecContext->width;
 }
 
