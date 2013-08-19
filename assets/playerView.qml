@@ -1118,9 +1118,11 @@ Page {
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));  
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
+                        durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30
                         volume.positionY = 384;
                         upperMenu.preferredWidth = displayInfo.width
                     } else {
+                        durationSlider.bookmarkPositionX = durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - durationSlider.sliderHandleWidth) - 30
                         volume.positionY = 225;
                         upperMenu.preferredWidth = displayInfo.height
                     }
