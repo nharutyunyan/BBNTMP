@@ -437,6 +437,7 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
             m_handle->setImage(m_handleOnImg);
             m_touchEventInitX = event->windowX();
             m_handleInitX = m_handleLayoutProperties->positionX() + m_rootContainerPositionX;
+            m_smallSliderInitialValue = m_value;
             return;
         }
 
@@ -490,6 +491,7 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             setImmediateValue(fromPosXToValue(handlePosX));
             m_touchEventInitX = event->windowX();
+            m_smallSliderInitialValue = m_value;
             return;
         }
 
@@ -579,6 +581,7 @@ void CustomSlider::onHandleLongPressed(bb::cascades::LongPressEvent* event)
 {
     m_handleLongPressed = true;
     m_handleContainer->setVisible(false);
+    setImmediateValue(m_smallSliderInitialValue);
     emit handleLongPressed(event->x());
 }
 

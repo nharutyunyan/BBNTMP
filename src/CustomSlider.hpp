@@ -147,6 +147,7 @@ private:
     float m_coordinateX;
     bool m_mediastate;
     float m_smallSliderValue;
+    float m_smallSliderInitialValue;
 
     float m_touchEventInitX;
     float m_handleInitX;
