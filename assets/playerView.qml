@@ -245,6 +245,7 @@ Page {
                                         }
                                         bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                                         volume.setMuteIcons();
+                                        volume.setVisible(true);
                                         uiControlsShowTimer.start();
                                     }
                                 }
@@ -482,7 +483,6 @@ Page {
                 // this function changes the icons on the volume bar when the volume reaches its extremes
                 function setMuteIcons()
                 {
-                    volume.visible = true;
                     if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
                     if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
@@ -1131,10 +1131,12 @@ Page {
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), ! (OrientationSupport.orientation == UIOrientation.Portrait));  
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
+                        volume.verticalAlignment = VerticalAlignment.Fill
                         durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30
                         volume.positionY = 384;
                         upperMenu.preferredWidth = displayInfo.width
-                    } else {
+                    }  else {
+                        volume.verticalAlignment = VerticalAlignment.Center
                         durationSlider.bookmarkPositionX = durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - durationSlider.sliderHandleWidth) - 30
                         volume.positionY = 225;
                         upperMenu.preferredWidth = displayInfo.height
@@ -1154,7 +1156,6 @@ Page {
                 onTimeout: {
                     myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
                     myPlayer.prepare();
-                    bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                     if (appContainer.playMediaPlayer() == MediaError.None) {
 
                         var videoPos = 0;
@@ -1184,6 +1185,7 @@ Page {
                     subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                     controlsContainer.setOpacity(1);
                     controlsContainer.setVisible(true);
+                    volume.setVisible(true);
                     uiControlsShowTimer.start();
                 }
             }
