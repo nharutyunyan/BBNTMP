@@ -16,11 +16,12 @@ NavigationPane {
             layout: DockLayout{}
 		        
                 Container {
-                id :movieGridPage
+                id: movieGridPage
                 layout: StackLayout{}
 
-				// Add container to prevent white-background bug on z10
 				Container {
+                    layout: DockLayout {
+                    }
                     ImageView {
                         id: headerImage
                         imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
@@ -28,39 +29,56 @@ NavigationPane {
                             // TODO : Code for issue 14?
                         }
                     }
+                    Container {
+                        verticalAlignment: VerticalAlignment.Top
+                        horizontalAlignment: HorizontalAlignment.Right
+                        topPadding: 3
+                        ImageButton {
+                            id: info
+                            defaultImageSource: "asset:///images/appInfo.png"
+                            onClicked : {
+                                linkInvocation.trigger("bb.action.OPEN");
+                            }
+                            attachedObjects: [
+                                Invocation {
+                                    id: linkInvocation
+                                    query {
+                                        uri: "http://www.macadamian.com/"
+                                   }
+                                }
+                            ]
+                        }
+                    }
                 }
 
                 Container {
-                    id: movieGridContainer
                     layout: DockLayout {
                     }
-                    attachedObjects: [
-                        ComponentDefinition {
-                            id: movieGrid
-                            source: "movieGrid.qml"
-                        },
-                        ImagePaintDefinition {
-                            id: backgroundImage
-                            imageSource: "asset:///images/Player/VideoBG.png"
+
+                    Container {
+                        id: movieGridContainer
+                        layout: DockLayout {
                         }
-                    ]
-                    background: backgroundImage.imagePaint
-
-
-                } //moviegrid Container  
-            } //moviegridPage Container
-
-			// I can't manage to translate it 72 units from the top without making another container
-			Container{
-			    topPadding:72
-                ImageView {
-                    id: headerShadow
-                    imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/shadow.png" : "asset:///images/shadow_landscape.png"
-                    horizontalAlignment: HorizontalAlignment.Center
-                    verticalAlignment: VerticalAlignment.Center
+                        attachedObjects: [
+                            ComponentDefinition {
+                                id: movieGrid
+                                source: "movieGrid.qml"
+                            },
+                            ImagePaintDefinition {
+                                id: backgroundImage
+                                imageSource: "asset:///images/Player/VideoBG.png"
+                            }
+                        ]
+                        background: backgroundImage.imagePaint
+                    }
+                    ImageView {
+                        id: headerShadow
+                        imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/shadow.png" : "asset:///images/shadow_landscape.png"
+                        horizontalAlignment: HorizontalAlignment.Center
+                        verticalAlignment: VerticalAlignment.Top
+                    }
                 }
             }
-
 
             // Busy indicator when thumbs are loading, on top of the grid
             ActivityIndicator {
