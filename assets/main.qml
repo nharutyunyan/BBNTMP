@@ -117,6 +117,9 @@ NavigationPane {
         attachedObjects: [
             OrientationHandler {
                 id: orientationHandlerMain
+            },
+            Settings {
+                id: settings
             }
         ]
     }
