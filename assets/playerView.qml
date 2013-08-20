@@ -1142,7 +1142,7 @@ Page {
                     	videoWindow.initializeVideoScales();
                     if (controlsContainer.visible == false)
                     {
-                        subtitleAreaContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
+                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
                     }
                 }
            },
