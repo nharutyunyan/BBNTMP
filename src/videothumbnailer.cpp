@@ -28,7 +28,16 @@ void VideoThumbnailer::generateThumbnail(const string& videoFile, const string& 
 void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
 {
     movieDecoder.setContext(pAvContext);
-    movieDecoder.initialize(videoFile);
+    try
+    {
+    	movieDecoder.initialize(videoFile);
+    }
+    catch (exception& e)
+    {
+    	// don't try to generate thumbnail if this is not a valid video file!
+    	throw(e);
+    	return;
+    }
     movieDecoder.decodeVideoFrame();
 
     try

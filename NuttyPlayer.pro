@@ -30,6 +30,7 @@ LIBS += -lbb
 LIBS += -lcamapi -lscreen -L../ffmpeg/lib/lgpl/$${ARCH} -lavformat -lavcodec -lavutil -lswscale
 LIBS += -lpng
 LIBS += -lbbdevice
+LIBS += -lbbsystem
 
 INCLUDEPATH += ../src
 INCLUDEPATH += ../ffmpeg/include

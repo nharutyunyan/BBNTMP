@@ -11,6 +11,9 @@
 namespace utility
 {
 
+// used for error handling
+const int INVALID_VIDEO = -1;
+
 /**
  * @brief class FileSystemUtility
  * @details FileSystemUtility is intended to hold utility routines related to file system stuff
