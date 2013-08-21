@@ -36,11 +36,6 @@ public:
 
 	QString text() { return m_currentText; }
 
-	    /**
-		 * @brief Finds and updates the text according to the current track pos
-		 * @param pos  Position in msecs of the current track.
-		 */
-		Q_INVOKABLE void handlePositionChanged(uint pos);
 		/**
 		 * @brief Finds srt file and loads it
 		 * @details The search of srt file is based on video file name.
@@ -60,8 +55,9 @@ signals:
 
 
 private:
-	void load(QString fileName);
+	bool load(QString fileName);
 	bool parseTimesLine(const QString&, uint& start, uint& end);
+	void setCurrentText (QString text);
 
 	QString m_currentText;
 	QVector<SubtitleEntry> m_entries;
