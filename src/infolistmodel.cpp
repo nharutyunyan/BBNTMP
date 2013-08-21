@@ -26,7 +26,7 @@ MovieDecoder InfoListModel::movieDecoder;
 inline const static QStringList getVideoFileList() {
 	QStringList filters, result;
 
-	filters <<  "*.avi" <<  "*.mp4" ;
+	filters <<  "*.avi" <<  "*.mp4";
 
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
@@ -99,7 +99,7 @@ void InfoListModel::getVideoFiles()
 			saveData();
 			load();
 			onAllMetadataRead();
-			append(m_list);
+			refresh();
 		}
 		else
 		{
@@ -189,7 +189,7 @@ void InfoListModel::updateVideoList()
 	QStringList result (getVideoFileList());
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
-	append(m_list);
+	refresh();
 }
 
 //begin: refresh block
@@ -204,9 +204,7 @@ void InfoListModel::updateVideoList2()
 	m_producer->updateVideoList(m_list, 0);
 	onAllMetadataRead();
 
-
-	clear();
-	append(m_list);
+	refresh();
  }
 
 //end:refresh block
@@ -214,7 +212,14 @@ void InfoListModel::updateVideoList2()
 void InfoListModel::refresh()
 {
 	clear();
-	append(m_list);
+	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
+	{
+		// This causes a discrepency of indexes between m_list and the actual data model
+		// so we will leave this bit out until the requirements are clearer.
+		QVariantMap v (it->toMap());
+		//if (v["folder"]!= "removed")
+		append((*it));
+	}
 }
 
 InfoListModel::~InfoListModel()
@@ -470,4 +475,16 @@ int InfoListModel::getSelectedIndex()
 InfoListModel* InfoListModel::get()
 {
 	return this;
+}
+
+void InfoListModel::addVideoToRemoved(int index)
+{
+	setValue(index, "folder","removed");
+}
+
+void InfoListModel::deleteVideos(int index)
+{
+	QVariantMap v = m_list[index].toMap();
+	QFile::remove(v["path"].toString());
+	m_list.removeAt(index);
 }
