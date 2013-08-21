@@ -1,6 +1,7 @@
 import bb.cascades 1.0
 import nuttyPlayer 1.0
 import bb.multimedia 1.0
+import "helpers.js" as Helpers
 
 ListView {
     id: listView
@@ -12,6 +13,7 @@ ListView {
     horizontalAlignment: HorizontalAlignment.Center
 
     property bool released: true
+    property bool isMultiSelecting: false
     leadingVisualSnapThreshold: 0
 
     leadingVisual: PullToRefresh {
@@ -22,11 +24,57 @@ ListView {
     contextMenuHandler: ContextMenuHandler {
         id: myContext
     }
+    multiSelectAction: MultiSelectActionItem {
+    }
+
+	function addVidsToFavorites(){
+	    for (var i = 0; i < listView.selectionList().length;i++){
+	        var index = listView.selectionList()[i];
+            infoListModel.setValue(index, "folder", "favorites");
+        }
+        infoListModel.saveData();
+	}
+
+	// Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
+	function offsetListBy(offset){
+	    if (orientationHandler.orientation == UIOrientation.Portrait)
+            listView.preferredWidth = displayInfo.width - offset;
+        else
+        	listView.preferredWidth = displayInfo.Height - offset;
+    }
+
+    multiSelectHandler {
+        actions: [
+            // Add the actions that should appear on the context menu
+            // when multiple selection mode is enabled
+            ActionItem {
+                title: "Add to favorites"
+                //imageSource: "asset:///images/Favorite.png"
+                onTriggered:{
+                    listView.addVidsToFavorites();
+                }
+            },
+            ActionItem {
+                title: "Delete"
+                //imageSource: "asset:///images/Delete.png"
+            }
+        ]
+
+        // Set the initial status text of multiple selection mode. 
+        status: "None selected"
+        onActiveChanged: {
+            if (active==true)
+               listView.offsetListBy(Helpers.widthOfContextMenu);
+           else
+               listView.offsetListBy(0);           
+        }
+    }
 
     listItemComponents: [
         // define component which will represent list item GUI appearence
         ListItemComponent {
             Container{
+                id: itemRoot
 	            ThumbnailItem {
 	                imageSource: ListItemData.thumbURL
 	                movieTitle: " " + ListItemData.title
@@ -38,7 +86,7 @@ ListView {
                 onCreationCompleted: {
                     appear.play();
                 }
-
+                background: itemRoot.ListItem.selected ? Color.Cyan : Color.Transparent
                 onTouch: {
                     if (event.touchType == TouchType.Down) 
                     	sinkIn.play();
@@ -57,7 +105,7 @@ ListView {
                                 //To do if UX design needs image here
                                 //imageSource: "asset:///images/Favorite.png"
                                 onTriggered: {
-                                    //TODO: Add code here for task "Add to favourite" 
+                                    itemRoot.ListItem.view.addVidsToFavorites();
                                 }
                             },
                             ActionItem {
@@ -67,14 +115,6 @@ ListView {
                                  onTriggered: {
                                     //TODO: Add code here for task "Delete"                                      
                                  }
-                            },
-                            ActionItem {
-                                title: "Multiselect"
-                                //To do if UX design needs image here
-                                //imageSource: "asset:///images/Multiselect.png"
-                                onTriggered: {
-                                    //TODO: add code here for task "Multiselect"
-                                }
                             }
                         ]                   
                     } // end of ActionSet
@@ -147,7 +187,17 @@ ListView {
 	            var currentLenght = listView.dataModel.data(indexPath).duration;
 	            page.currentLenght = currentLenght;
 	            navigationPane.push(page);
+	            clearSelection();
 	        }
+        }
+        
+        // Display on the screen number of selected items
+        if (selectionList().length > 1) {
+            multiSelectHandler.status = selectionList().length + " items selected";
+        } else if (selectionList().length == 1) {
+            multiSelectHandler.status = "1 item selected";
+        } else {
+            multiSelectHandler.status = "None selected";
         }
     } // onSelectionChanged
     
