@@ -7,9 +7,14 @@ import "helpers.js" as Helpers
 ListView {
     id: listView
     objectName: "listView"
+    dataModel: GroupDataModel {
+    }
     layout: GridListLayout {
         id: videoGridView
+        headerMode: ListHeaderMode.Standard
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
+        spacingAfterHeader: 5
+        verticalCellSpacing: 0
     }
     horizontalAlignment: HorizontalAlignment.Center
 
@@ -43,7 +48,6 @@ ListView {
             infoListModel.addVideoToRemoved(index);
         }
         infoListModel.saveData();
-        infoListModel.refresh();
     }
     
     function deleteVideos(selected) {
@@ -52,7 +56,6 @@ ListView {
             infoListModel.deleteVideos(index);
         }
         infoListModel.saveData();
-        infoListModel.refresh();
     }
     
     function showDeleteDialog()
@@ -103,8 +106,15 @@ ListView {
     }
 
     listItemComponents: [
-        // define component which will represent list item GUI appearence
         ListItemComponent {
+            type: "header"
+            Header {
+                title: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+            }
+        },
+
+        ListItemComponent {
+            type: "item"
             Container{
                 id: itemRoot
 	            ThumbnailItem {
@@ -210,7 +220,7 @@ ListView {
 	        // slot called when ListView emits selectionChanged signal
 	        // A slot naming convention is used for automatic connection of list view signals to slots
 	        if (selected) {
-	            infoListModel.setSelectedIndex(listView.selectionList())
+	            infoListModel.setSelectedIndex(listView.selected())
 	            var page = getSecondPage();
 	            console.log("pushing detail " + page)
 	            //variables for passing selected video path and length to videoScrollList

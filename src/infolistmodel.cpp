@@ -36,18 +36,19 @@ inline const static QStringList getVideoFileList() {
 
 
 InfoListModel::InfoListModel(QObject* parent)
-: bb::cascades::QVariantListDataModel()
-, m_selectedIndex(0)
+: m_selectedIndex(QVariantList())
 , m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
-, start(0)
 {
+    setSortingKeys(QStringList() << "folder");
+    setGrouping(ItemGrouping::ByFullValue);
+
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
-    m_producer = new Producer(m_list, start);
+    m_producer = new Producer(this);
 
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
-	QObject::connect(m_producer, SIGNAL(produced(QString, int)), this,
-			SLOT(consume(QString, int)));
+	QObject::connect(m_producer, SIGNAL(produced(QString, QVariantList)), this,
+			SLOT(consume(QString, QVariantList)));
 
     m_producerThread  = new QThread();
 	m_producer->moveToThread(m_producerThread);
@@ -63,16 +64,16 @@ InfoListModel::InfoListModel(QObject* parent)
 	getVideoFiles();
 }
 
-void InfoListModel::consume(QString data, int index)
+void InfoListModel::consume(QString filename, QVariantList index)
 {
-	if (index == utility::INVALID_VIDEO)
+	if (index.length() == 0)
 	{
 		emit consumed();
 		return;
 	}
 	//process that data
 	// add generated thumbnail to list model
-	setValue(index, "thumbURL", "file://" + data);
+	setValue(index, "thumbURL", "file://" + filename);
 	//when finished processing emit a consumed signal
 	emit consumed();
 	saveData();
@@ -99,12 +100,10 @@ void InfoListModel::getVideoFiles()
 			saveData();
 			load();
 			onAllMetadataRead();
-			refresh();
 		}
 		else
 		{
 			load();
-			start = m_list.size();
 			updateVideoList();
 			onAllMetadataRead();
 		}
@@ -116,16 +115,14 @@ void InfoListModel::getVideoFiles()
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
 	// Slight improvement to the video exists check that was below,
-	// but even more could be gained by replacing underlying m_list structure with map
 	QSet<QString> set;
-	for (QVariantList::iterator i = m_list.begin(); i != m_list.end(); ++i) {
-		QVariantMap v = i->toMap();
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
 		set.insert(v["path"].toString());
 	}
 
 	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
-		bool videoExist = set.contains(*i);
-		if (!videoExist) {
+		if (!set.contains(*i)) {
 			//add new video to json data
 			QVariantMap val;
 			val["path"] = *i;
@@ -135,6 +132,8 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			val["title"] = pathElements[pathElements.size()-1];
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
+			// Add folder
+			val["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
 			movieDecoder.setContext(0);
 			try{
 				movieDecoder.initialize(i->toStdString());
@@ -150,12 +149,11 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 				}
 				val["width"] = movieDecoder.getWidth();
 				val["height"] = movieDecoder.getHeight();
-				m_list.append(val);
+				insert(val);
 			}
 			catch (...){
 				// invalid video! just skip this file.
 			}
-
 		}
 	}
 }
@@ -168,63 +166,39 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 
 	QSet<QString> result_set (result.toSet());
 
-	for (QVariantList::iterator i = m_list.begin(); i != m_list.end(); ) {
-		QVariantMap v (i->toMap());
-		bool videoStillExists = result_set.contains(v["path"].toString());
-		if (!videoStillExists) {
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v (data(indexPath).toMap());
+		if (!result_set.contains(v["path"].toString())) {
 			// if the video does not exist any more remote its thumbnail as well
 			dir.remove(v["thumbURL"].toString());
-			i = m_list.erase(i);
-			start--;
-		} else ++i;
+			removeAt(indexPath);
+		}
 	}
-
 }
-
-
-
 
 void InfoListModel::updateVideoList()
  {
 	QStringList result (getVideoFileList());
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
-	refresh();
 }
 
 //begin: refresh block
 void InfoListModel::updateVideoList2()
  {
-	start= m_list.size();
 	QStringList result (getVideoFileList());
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 
 //	MetaDataReader* reader = new MetaDataReader(this);
-	m_producer->updateVideoList(m_list, 0);
+	m_producer->updateVideoList(this);
 	onAllMetadataRead();
-
-	refresh();
  }
 
 //end:refresh block
 
-void InfoListModel::refresh()
-{
-	clear();
-	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
-	{
-		// This causes a discrepency of indexes between m_list and the actual data model
-		// so we will leave this bit out until the requirements are clearer.
-		QVariantMap v (it->toMap());
-		//if (v["folder"]!= "removed")
-		append((*it));
-	}
-}
-
 InfoListModel::~InfoListModel()
 {
-	m_list.clear();
 	delete m_producer;
 	delete m_producerThread;
     qDebug() << "Destroying InfoListModel object:" << this;
@@ -232,8 +206,10 @@ InfoListModel::~InfoListModel()
 
 void InfoListModel::load()
 {
+    clear();
     bb::data::JsonDataAccess jda;
-    m_list = jda.load(m_file).value<QVariantList>();
+    QVariantList vList = jda.load(m_file).toList();
+    insertList(vList);
     if (jda.hasError()) {
         bb::data::DataAccessError error = jda.error();
         qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
@@ -246,7 +222,11 @@ void InfoListModel::load()
 void InfoListModel::saveData()
 {
     bb::data::JsonDataAccess jda;
-    jda.save(m_list, m_file);
+    QVariantList vList;
+    for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+        vList.push_front(data(indexPath));
+    }
+    jda.save(QVariant(vList), m_file);
     if (jda.hasError()) {
         bb::data::DataAccessError error = jda.error();
         qDebug() << m_file << "JSON save error: " << error.errorType() << ": " << error.errorMessage();
@@ -272,100 +252,79 @@ void InfoListModel::readMetadatas(QStringList videoFiles)
 	    reader->addMetadataReadRequest();
 }
 
-void InfoListModel::onMetadataReady(const QVariantMap& data)
+void InfoListModel::onMetadataReady(const QVariantMap& val)
 {
 	//Update the appropriate video info entry
-	QString path = data[bb::multimedia::MetaData::Uri].toString();
+	QString path = val[bb::multimedia::MetaData::Uri].toString();
 	if(path.isEmpty())
 	{
 		qDebug() << "Error: No uri in metadata \n";
 		return;
 	}
 
-	bool changed = false;
-	int changedItem;
+	QVariantMap infoMap;
 
-	for(QVariantList::iterator it = m_list.begin(); it != m_list.end(); ++it)
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
 	{
-		if(path == (*it).toMap()["path"].toString())
+	    infoMap = data(indexPath).toMap();
+		if(path == infoMap["path"])
 		{
-		    changedItem = it - m_list.begin();
-			QVariantMap infoMap = (*it).toMap();
-			QString titleInMD = data.value("title").toString();
+			QString titleInMD = val.value("title").toString();
 			if(!titleInMD.isEmpty() && infoMap.value(bb::multimedia::MetaData::Title).toString() != titleInMD)
 			{
-				infoMap[bb::multimedia::MetaData::Title] = titleInMD;
-				changed = true;
+			    infoMap[bb::multimedia::MetaData::Title] = titleInMD;
 			}
 
-			QString duration = data.value(bb::multimedia::MetaData::Duration).toString();
+			QString duration = val.value(bb::multimedia::MetaData::Duration).toString();
 			if (!duration.isEmpty() && infoMap.value("duration").toString() != duration)
 			{
-				infoMap["duration"] = duration;
-				changed = true;
+			    infoMap["duration"] = duration;
 			}
-			QString width = data.value(bb::multimedia::MetaData::Width).toString();
+			QString width = val.value(bb::multimedia::MetaData::Width).toString();
 			if (!width.isEmpty() && infoMap.value("width").toString() != width)
 			{
-				infoMap["width"] = width;
-				changed = true;
+			    infoMap["width"] = width;
 			}
-			QString height = data.value(bb::multimedia::MetaData::Height).toString();
+			QString height = val.value(bb::multimedia::MetaData::Height).toString();
 			if (!height.isEmpty() && infoMap.value("height").toString() != height)
 			{
-				infoMap["height"] = height;
-				changed = true;
+			    infoMap["height"] = height;
 			}
 			//Update the list
-			(*it) = infoMap;
-			break;
+			updateItem(indexPath, infoMap);
+			saveData();
 		}
-	}
-
-	//Save and reload the new list
-	if (changed)
-	{
-		replace(changedItem, m_list.at(changedItem));
-		saveData();
 	}
 }
 
 void InfoListModel::onAllMetadataRead()
 {
     if(!m_producerThread->isRunning()) {
-        m_producer->updateVideoList(m_list, 0);
+        m_producer->updateVideoList(this);
         m_producerThread->start();
     }
 }
 
-QVariant InfoListModel::value(int ix, const QString &fld_name)
+QVariant InfoListModel::value(QVariantList ix, const QString &fld_name)
 {
-    QVariant ret;
-    // model data are organized in a list of dictionaries
-    if(ix >= 0 && ix < size()) {
-        // get dictionary on index
-        QVariantMap curr_val = QVariantListDataModel::value(ix).toMap();
-        ret = curr_val.value(fld_name);
+    if(data(ix) != QVariant::Invalid) {
+        return data(ix).toMap()[fld_name];
     }
-    return ret;
+    return QVariant::Invalid;
 }
 
-void InfoListModel::setValue(int ix, const QString& fld_name, const QVariant& val)
+void InfoListModel::setValue(QVariantList ix, const QString& fld_name, const QVariant& val)
 {
     // model data are organized in a list of dictionaries
-    if(ix >= 0 && ix < size()) {
-        // get dictionary on index
-        QVariantMap curr_val = QVariantListDataModel::value(ix).value<QVariantMap>();
-        // set dictionary value for key fld_name
-        curr_val[fld_name] = val;
-        // replace updated dictionary in array
-        replace(ix, curr_val);
-        m_list[ix].setValue(curr_val);
+    if(data(ix) != QVariant::Invalid) {
+        QVariantMap v = data(ix).toMap();
+        v[fld_name] = val;
+        updateItem(ix, v);
     }
 }
 
 
-void InfoListModel::setSelectedIndex(int index)
+void InfoListModel::setSelectedIndex(QVariantList index)
 {
 	m_selectedIndex = index;
 }
@@ -374,28 +333,8 @@ QString InfoListModel::getSelectedVideoPath()
 {
 	const QString flagName("path");
 	QVariant v = value(m_selectedIndex, flagName);
-	std::cout<<"\n\nSelected Index = "<<m_selectedIndex<<"\n";
+	qDebug() <<"\n\nSelected Index = "<<m_selectedIndex<<"\n";
 	return v.toString();
-}
-
-QString InfoListModel::getNextVideoPath(void)
-{
-	++m_selectedIndex;
-	if(m_selectedIndex >= size())
-	{
-		m_selectedIndex = 0;
-	}
-	return getSelectedVideoPath();
-}
-
-QString InfoListModel::getPreviousVideoPath(void)
-{
-	--m_selectedIndex;
-	if(m_selectedIndex < 0)
-	{
-		m_selectedIndex = size() - 1;
-	}
-	return getSelectedVideoPath();
 }
 
 QString InfoListModel::getFormattedTime(int msecs)
@@ -440,51 +379,78 @@ void InfoListModel::setVideoPosition(int pos)
 int InfoListModel::getVideoPosition()
 {
 	const QString flagName("position");
-	QVariant v = value(m_selectedIndex, flagName);
+	QVariant v = data(m_selectedIndex).toMap()[flagName];
 	int retValue =  v.toInt();
 	return retValue;
 }
 
-int InfoListModel::getVideoPosition(QString item)
+QVariantList InfoListModel::getVideoPosition(QString item)
 {
-	for(int i = 0; i < m_list.size(); ++i)
+    for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
 	{
-		QVariantMap v = m_list[i].toMap();
+		QVariantMap v = data(indexPath).toMap();
 		if(v["path"].toString().compare(item) == 0)
 		{
-			return i;
+			return indexPath;
 		}
 	}
-	return -1;
+	return QVariantList();
 }
 
 QString InfoListModel::getVideoTitle()
 {
 	const QString flagName("title");
 	QVariant v = value(m_selectedIndex, flagName);
-	std::cout << "\n\nSelected Index = " << m_selectedIndex << "\n";
+	qDebug() << "\n\nSelected Index = " << m_selectedIndex << "\n";
 	return v.toString();
 }
 
-int InfoListModel::getSelectedIndex()
+QVariantList InfoListModel::getSelectedIndex()
 {
     return m_selectedIndex;
 }
-
 
 InfoListModel* InfoListModel::get()
 {
 	return this;
 }
 
-void InfoListModel::addVideoToRemoved(int index)
+void InfoListModel::addVideoToRemoved(QVariantList index)
 {
 	setValue(index, "folder","removed");
 }
 
-void InfoListModel::deleteVideos(int index)
+void InfoListModel::deleteVideos(QVariantList index)
 {
-	QVariantMap v = m_list[index].toMap();
+	QVariantMap v = data(index).toMap();
 	QFile::remove(v["path"].toString());
-	m_list.removeAt(index);
+	removeAt(index);
+}
+
+QString InfoListModel::folderFieldName(QString fName)
+{
+    if(!fName.compare("videos"))
+        return QString("1Videos");
+
+    if(!fName.compare("downloads"))
+        return QString("2Downloads");
+
+    if(!fName.compare("camera"))
+        return QString("3Camera");
+
+    return QString("4Other");
+}
+
+int InfoListModel::getIntIndex(QVariantList index)
+{
+    QVariantMap v = data(index).toMap();
+    int result = 0;
+    for(QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
+    {
+        QVariantMap map = data(indexPath).toMap();
+        if(map == v)
+            return result;
+        result++;
+    }
+    return -1;
 }
