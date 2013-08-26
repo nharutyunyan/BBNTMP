@@ -25,9 +25,6 @@ NavigationPane {
                     ImageView {
                         id: headerImage
                         imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
-                        onTouch: {
-                            // TODO : Code for issue 14?
-                        }
                     }
                     Container {
                         verticalAlignment: VerticalAlignment.Top
@@ -57,6 +54,7 @@ NavigationPane {
 
                     Container {
                         id: movieGridContainer
+                        topPadding: 10
                         layout: DockLayout {
                         }
                         attachedObjects: [
