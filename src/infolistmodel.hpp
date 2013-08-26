@@ -96,7 +96,11 @@ public:
 
     Q_INVOKABLE int getSelectedIndex();
 
-    void refresh();
+    Q_INVOKABLE void addVideoToRemoved(int index);
+
+    Q_INVOKABLE void deleteVideos(int index);
+
+    Q_INVOKABLE void refresh();
 
 public:
     InfoListModel(QObject* parent = 0);

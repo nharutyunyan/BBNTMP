@@ -1,6 +1,7 @@
 import bb.cascades 1.0
 import nuttyPlayer 1.0
 import bb.multimedia 1.0
+import bb.system 1.0
 import "helpers.js" as Helpers
 
 ListView {
@@ -14,6 +15,7 @@ ListView {
 
     property bool released: true
     property bool isMultiSelecting: false
+    property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
     leadingVisual: PullToRefresh {
@@ -35,7 +37,34 @@ ListView {
         infoListModel.saveData();
 	}
 
-	// Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
+    function addVidsToRemoved(selected) {
+        for (var i = 0; i < selected.length; i++) {
+            var index = selected[i];
+            infoListModel.addVideoToRemoved(index);
+        }
+        infoListModel.saveData();
+        infoListModel.refresh();
+    }
+    
+    function deleteVideos(selected) {
+        for (var i = selected.length-1; i >= 0; i--) {
+            var index = selected[i];
+            infoListModel.deleteVideos(index);
+        }
+        infoListModel.saveData();
+        infoListModel.refresh();
+    }
+    
+    function showDeleteDialog()
+    {
+        // When confirmation dialog gains focus, selection is cleared, thus we must copy it first
+        listView.copyOfSelectedIndexes = listView.selectionList();
+        // We must sort the list to delete files in descending order.  Otherwise deleting an earlier index invalidates all later indexes
+        listView.copyOfSelectedIndexes.sort();
+        deleteDialog.showCustom("Delete from device","Move to hidden","Cancel");
+    }
+    
+    // Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
 	function offsetListBy(offset){
 	    if (orientationHandler.orientation == UIOrientation.Portrait)
             listView.preferredWidth = displayInfo.width - offset;
@@ -57,6 +86,9 @@ ListView {
             ActionItem {
                 title: "Delete"
                 //imageSource: "asset:///images/Delete.png"
+                onTriggered: {
+                   listView.showDeleteDialog();
+                }
             }
         ]
 
@@ -113,8 +145,8 @@ ListView {
                                  //To do if UX design needs image here
                                  //imageSource: "asset:///images/Delete.png"
                                  onTriggered: {
-                                    //TODO: Add code here for task "Delete"                                      
-                                 }
+                                    itemRoot.ListItem.view.showDeleteDialog();
+                                }
                             }
                         ]                   
                     } // end of ActionSet
@@ -228,6 +260,17 @@ ListView {
         },
         MediaPlayer {
             id: videoListScrollBar
+        },
+        CustomDialog {
+            id: deleteDialog
+            title: "File deletion..."
+            body: "Are you sure you want to remove file(s)?"
+            onFinished: {
+                if (deleteDialog.result == SystemUiResult.CustomButtonSelection) 
+                	listView.addVidsToRemoved(listView.copyOfSelectedIndexes);
+                else if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection) 
+                	listView.deleteVideos(listView.copyOfSelectedIndexes);
+            }
         }
     ]
 } // ListView
