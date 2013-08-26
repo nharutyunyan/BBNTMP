@@ -32,12 +32,17 @@ ListView {
     }
 
 	function addVidsToFavorites(){
-	    for (var i = 0; i < listView.selectionList().length;i++){
-	        var index = listView.selectionList()[i];
-            infoListModel.setValue(index, "folder", "0Favorites");
+        // This method temporarily removes videos from the model, thus
+        // it is important to go through the targets in descending order
+        // to avoid invalidation of indexes
+        listView.copyOfSelectedIndexes = listView.selectionList();
+        listView.copyOfSelectedIndexes.sort();
+        for (var i = listView.copyOfSelectedIndexes.length-1;i >= 0;i--){
+            var index = listView.copyOfSelectedIndexes[i];
+            infoListModel.fillFavoriteQueue(index);
         }
-        infoListModel.saveData();
-	}
+        infoListModel.dumpFavoriteQueue();
+    }
 
     function addVidsToRemoved(selected) {
         for (var i = 0; i < selected.length; i++) {

@@ -488,3 +488,36 @@ int InfoListModel::getIntIndex(QVariantList index)
     }
     return -1;
 }
+
+// Since updating indexes invalidates the indexes of other selected items,
+// We use a waiting list to add all the videos that are to be modified before
+// making real changes to the data model.
+void InfoListModel::fillFavoriteQueue(QVariantList index)
+{
+	QVariantMap v = data(index).toMap();
+	QString test = v["path"].toString();
+	if(v["folder"] != "0Favorites")
+	{
+        v["folder"] = "0Favorites";
+	}
+	else
+	{
+		QString path = v["path"].toString();
+		QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+		v["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+	}
+	// We remove the node because we will reinsert it once the buffer is full
+	removeAt(index);
+	m_favBuffer.push_front(v);
+}
+
+void InfoListModel::dumpFavoriteQueue()
+{
+	for(int i = 0; i < m_favBuffer.size();i++)
+	{
+		insert(m_favBuffer[i]);
+	}
+	// We've re-added all the modified nodes so we empty the buffer for next use
+	m_favBuffer.clear();
+	saveData();
+}
