@@ -14,68 +14,59 @@
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
 
-Producer::Producer(const QVariantList& videoFiles, int start)
+Producer::Producer(InfoListModel* videoFiles)
 {
+    m_thumbPng = "-thumb.png";
+    m_filepath = QDir::home().absoluteFilePath("thumbnails/");
+    updateVideoList(videoFiles);
 }
 
-void Producer::updateVideoList(const QVariantList& videoFiles, int start)
+void Producer::updateVideoList(InfoListModel* videoFiles)
 {
     m_result.clear();
-    qDebug() << "m_result ==  " << m_result;
-    m_index = start;
-    current = start;
-    m_filepath = QDir::home().absoluteFilePath("thumbnails/");
-	qDebug() << "m_filepath " << m_filepath;
-	m_thumbPng = "-thumb.png";
 
-	for (int i = 0; i < videoFiles.size(); ++ i)
+	for (QVariantList indexPath = videoFiles->first(); !indexPath.isEmpty(); indexPath = videoFiles->after(indexPath))
 	{
-		QVariantMap v = videoFiles[i].toMap();
-		if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png")
-			m_result.append(v["path"].toString());
-		else
-			m_index++;
+		QVariantMap v = videoFiles->data(indexPath).toMap();
+		if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png") {
+		    v["indexPath"] = indexPath;
+			m_result.insert(v);
+		}
 	}
-	qDebug() << "m_result size() " << m_result.size();
 }
 
 void Producer::produce()
 {
 	//if no more data, emit a finished signal
-	int test = m_result.size();
-	if (current >= m_result.size()) {
+	if (m_result.isEmpty()) {
 			emit finished();
 		} else {
-		//do whatever to retrieve the data
-		//and then emit a produced signal with the data
-		QStringList pathElements = m_result[current].split('/',
+		    QVariantMap v = m_result.data(m_result.last()).toMap();
+		    m_result.removeAt(m_result.last());
+		    QVariantList indexPath = v["indexPath"].toList();
+
+		QStringList pathElements = v["path"].toString().split('/',
 				QString::SkipEmptyParts, Qt::CaseSensitive);
 		// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
 		QString finalFileName = m_filepath
 				+ pathElements[pathElements.size() - 1] + "-" + pathElements[pathElements.size() - 2] + m_thumbPng;
 
 		//create thumbnail
-		// increment index before the try block because we want to continue to the next video even if it fails
-		++m_index;
-
 		try {
 			VideoThumbnailer videoThumbnailer;
 			videoThumbnailer.generateThumbnail(
-					m_result[current].toUtf8().constData(),
+			        v["path"].toString().toUtf8().constData(),
 					finalFileName.toUtf8().constData());
 		// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
 		} catch (exception& e) {
 			std::cerr << "Error: " << e.what() << endl;
-			++current;
-			emit produced("", utility::INVALID_VIDEO);
+			emit produced("", QVariantList());
 			return;
 		} catch (...) {
 			std::cerr << "General error" << endl;
-			++current;
-			emit produced("", utility::INVALID_VIDEO);
+			emit produced("", QVariantList());
 			return;
 		}
-		++current;
-		emit produced(finalFileName, m_index - 1);
+		emit produced(finalFileName, indexPath);
 	}
 }

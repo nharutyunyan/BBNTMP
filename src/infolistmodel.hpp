@@ -10,14 +10,15 @@
 #include <QString>
 #include <QVariant>
 #include <QMetaType>
-#include <bb/cascades/QListDataModel>
+#include <bb/cascades/GroupDataModel>
+
 #include "moviedecoder.hpp"
 
 class Producer;
 /*
  * Mutable list model implementation
  */
-class InfoListModel : public bb::cascades::QVariantListDataModel
+class InfoListModel : public bb::cascades::GroupDataModel
 {
     Q_OBJECT
 public:
@@ -37,7 +38,7 @@ public:
      * @param ix  index of the list item
      * @param fld_name  name of data field
      */
-    Q_INVOKABLE QVariant value(int ix, const QString &fld_name);
+    Q_INVOKABLE QVariant value(QVariantList ix, const QString &fld_name);
 
     /*
      * Convenience method to set the model data.
@@ -46,29 +47,19 @@ public:
      * @param fld_name  name of data field
      * @param val  new value
      */
-    Q_INVOKABLE void setValue(int ix, const QString &fld_name, const QVariant &val);
+    Q_INVOKABLE void setValue(QVariantList ix, const QString &fld_name, const QVariant &val);
 
     /*
      * Method to set the selected index when the list selection was changed by user.
      *
      * @param index The selected item's index
      */
-    Q_INVOKABLE void setSelectedIndex(int index);
+    Q_INVOKABLE void setSelectedIndex(QVariantList index);
 
     /*
      * Gets the path of the video which was selected by user.
      */
     Q_INVOKABLE QString getSelectedVideoPath();
-
-    /*
-     * Gets the path of the next video.
-     */
-    Q_INVOKABLE QString getNextVideoPath(void);
-
-    /*
-     * Gets the path of the previous video.
-     */
-    Q_INVOKABLE QString getPreviousVideoPath(void);
 
     /*
      * Converts the specified amount of milliseconds to a formatted time (hh:mm:ss).
@@ -86,7 +77,7 @@ public:
 
     Q_INVOKABLE int getHeight();
 
-    Q_INVOKABLE int getVideoPosition(QString item);
+    Q_INVOKABLE QVariantList getVideoPosition(QString item);
 
     Q_INVOKABLE QString getVideoTitle();
 
@@ -94,20 +85,22 @@ public:
 
     Q_INVOKABLE void updateVideoList2();
 
-    Q_INVOKABLE int getSelectedIndex();
+    Q_INVOKABLE QVariantList getSelectedIndex();
 
-    Q_INVOKABLE void addVideoToRemoved(int index);
+    Q_INVOKABLE int getIntIndex(QVariantList index);
 
-    Q_INVOKABLE void deleteVideos(int index);
+    Q_INVOKABLE void addVideoToRemoved(QVariantList index);
 
-    Q_INVOKABLE void refresh();
+    Q_INVOKABLE void deleteVideos(QVariantList index);
+
+    QString folderFieldName(QString fame);
 
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
 
 public slots:
-    void consume(QString data, int index);
+    void consume(QString filename, QVariantList index);
     void onMetadataReady(const QVariantMap& data);
     void onAllMetadataRead();
 
@@ -116,12 +109,10 @@ public slots:
         void finished();
 
 private:
-    int m_selectedIndex;
-    QVariantList m_list;
+    QVariantList m_selectedIndex;
     QString m_file;
     Producer* m_producer;
     QThread* m_producerThread;
-    int start;
     static MovieDecoder movieDecoder;
 
     void updateVideoList();

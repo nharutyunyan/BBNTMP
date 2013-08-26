@@ -4,27 +4,28 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantList>
+#include <bb/cascades/GroupDataModel>
+#include "infolistmodel.hpp"
+
+using namespace bb::cascades;
 
 class Producer: public QObject
 {
 	Q_OBJECT
 
 public:
-    Producer(const QVariantList& videoFiles, int);
-    void updateVideoList(const QVariantList& videoFiles, int start);
+    Producer(InfoListModel* videoFiles);
+    void updateVideoList(InfoListModel* videoFiles);
 
 public slots:
     void produce();
 signals:
-    void produced(QString data, int index);
+    void produced(QString data, QVariantList index);
     void finished();
 
 private:
-	QStringList m_result;
+	GroupDataModel m_result;
 	QString m_filepath;
 	QString m_thumbPng;
-	int m_index;
-	int current;
-
 };
 #endif /* PRODUCER_HPP_ */
