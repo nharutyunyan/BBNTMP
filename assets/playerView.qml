@@ -310,7 +310,14 @@ Page {
                             						+ (appContainer.startTranslationY + videoWindow.preferredHeight / 2 - appContainer.startMidPointY) * (appContainer.coefficientOfZoom - 1) // translation in time zoom when midPointY isn't changed
                             						+ (event.midPointY - appContainer.startMidPointY); // translation in time of move
                         } // onPinchUpdate
+                        onPinchCancelled: {
+                            pinchFinalize();
+                        }
                         onPinchEnded: {
+                            pinchFinalize();
+                        }
+
+                        function pinchFinalize() {
                             if (videoWindow.scaleX < appContainer.initialScreenScaleX || videoWindow.scaleY < appContainer.initialScreenScaleY) {
                                 scaleAnimation.play();
                                 videoWindow.translationX = 0;
@@ -350,7 +357,7 @@ Page {
                                     videoWindow.translationY = - (((videoWindow.scaleY - 1.0) * videoWindow.preferredHeight) / 2);
                                 }
                             }
-                        } // onPinchEnded
+                        }
                     } // PinchHandler
                 ] // attachedObjects
                 // Play/pause image is transparent. It will become visible when the video
