@@ -37,7 +37,7 @@ ListView {
 	function addVidsToFavorites(){
 	    for (var i = 0; i < listView.selectionList().length;i++){
 	        var index = listView.selectionList()[i];
-            infoListModel.setValue(index, "folder", "favorites");
+            infoListModel.setValue(index, "folder", "0Favorites");
         }
         infoListModel.saveData();
 	}
@@ -107,8 +107,16 @@ ListView {
     listItemComponents: [
         ListItemComponent {
             type: "header"
-            Header {
-                title: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+            Container{
+                leftPadding: 5
+	            Label {
+	                text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+	            }
+	            Container{
+	                minHeight:3
+	                background: Color.create("#ff8811")
+	                Divider{}
+	            }
             }
         },
 
