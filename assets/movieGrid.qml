@@ -68,11 +68,12 @@ ListView {
     }
     
     // Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
-	function offsetListBy(offset){
-	    if (orientationHandler.orientation == UIOrientation.Portrait)
-            listView.preferredWidth = displayInfo.width - offset;
+	function offsetList(isOrientationPortrait){
+	    var offset = listView.isMultiSelecting ? Helpers.widthOfContextMenu : 0;
+        if (isOrientationPortrait)
+            listView.preferredWidth = displayInfo.height - offset;
         else
-        	listView.preferredWidth = displayInfo.Height - offset;
+            listView.preferredWidth = displayInfo.width - offset;
     }
 
     multiSelectHandler {
@@ -98,10 +99,8 @@ ListView {
         // Set the initial status text of multiple selection mode. 
         status: "None selected"
         onActiveChanged: {
-            if (active==true)
-               listView.offsetListBy(Helpers.widthOfContextMenu);
-           else
-               listView.offsetListBy(0);           
+            listView.isMultiSelecting = active;
+            offsetList(orientationHandler.orientation == UIOrientation.Portrait)
         }
     }
 
@@ -262,6 +261,7 @@ ListView {
                     // make some ui changes related to landscape
                     videoGridView.columnCount = 4
                 }
+                offsetList(orientationHandler.orientation != UIOrientation.Portrait);
             }
         },
         ComponentDefinition {
