@@ -45,7 +45,8 @@ ListView {
     function addVidsToRemoved(selected) {
         for (var i = 0; i < selected.length; i++) {
             var index = selected[i];
-            infoListModel.addVideoToRemoved(index);
+            // this function is temporary removed. Will be returned in one of the future patches.
+            //infoListModel.addVideoToRemoved(index);
         }
         infoListModel.saveData();
     }
@@ -111,6 +112,7 @@ ListView {
                 leftPadding: 5
 	            Label {
 	                text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+	                textStyle.color: Color.create("#dddddd")
 	            }
 	            Container{
 	                minHeight:3
