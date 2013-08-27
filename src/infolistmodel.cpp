@@ -45,7 +45,6 @@ InfoListModel::InfoListModel(QObject* parent)
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
     m_producer = new Producer(this);
-
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(produced(QString, QVariantList)), this,
 			SLOT(consume(QString, QVariantList)));
@@ -61,6 +60,9 @@ InfoListModel::InfoListModel(QObject* parent)
 			SLOT(quit()));
 	QObject::connect(m_producer, SIGNAL(finished()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
+	observer = new Observer(this);
+	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), observer,
+					SLOT(setNewVideos(QStringList)));
 	getVideoFiles();
 }
 
@@ -77,6 +79,44 @@ void InfoListModel::consume(QString filename, QVariantList index)
 	//when finished processing emit a consumed signal
 	emit consumed();
 	saveData();
+}
+
+void InfoListModel::getVideoFiles(const QString& path)
+{
+	QStringList filters, result, newVideos;
+	filters <<  "*.avi" <<  "*.mp4";
+	result = getVideoFileList();
+	QSet<QString> set;
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap v = data(indexPath).toMap();
+			set.insert(v["path"].toString());
+		}
+	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
+		bool videoExist = set.contains(*i);
+		if(!videoExist)
+		{
+			newVideos.push_back(*i);
+		}
+
+	}
+	if(newVideos.isEmpty())
+	{
+			updateListWithDeletedVideos(result);
+			m_producer->updateVideoList(this);
+			onAllMetadataRead();
+	}
+	else
+	{
+		emit notifyObserver(newVideos);
+	}
+}
+
+void InfoListModel::fileComplate(QString path)
+{
+	QStringList result (getVideoFileList());
+	updateListWithAddedVideos(result);
+	m_producer->updateVideoList(this);
+	onAllMetadataRead();
 }
 
 void InfoListModel::getVideoFiles()
@@ -154,6 +194,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			catch (...){
 				// invalid video! just skip this file.
 			}
+
 		}
 	}
 }
@@ -166,13 +207,20 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 
 	QSet<QString> result_set (result.toSet());
 
+	QList<QVariantList> value;
+
 	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
 		QVariantMap v (data(indexPath).toMap());
 		if (!result_set.contains(v["path"].toString())) {
 			// if the video does not exist any more remote its thumbnail as well
-			dir.remove(v["thumbURL"].toString());
-			removeAt(indexPath);
+			value.push_back(indexPath);
 		}
+	}
+
+	while(!value.isEmpty()) {
+		dir.remove(data(value.last()).toMap()["thumbURL"].toString());
+		removeAt(value.last());
+		value.pop_back();
 	}
 }
 
@@ -182,20 +230,6 @@ void InfoListModel::updateVideoList()
 	updateListWithAddedVideos(result);
 	updateListWithDeletedVideos(result);
 }
-
-//begin: refresh block
-void InfoListModel::updateVideoList2()
- {
-	QStringList result (getVideoFileList());
-	updateListWithAddedVideos(result);
-	updateListWithDeletedVideos(result);
-
-//	MetaDataReader* reader = new MetaDataReader(this);
-	m_producer->updateVideoList(this);
-	onAllMetadataRead();
- }
-
-//end:refresh block
 
 InfoListModel::~InfoListModel()
 {

@@ -23,9 +23,6 @@ ListView {
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
-    leadingVisual: PullToRefresh {
-        id: refreshHandler
-    }
 
 	// Expose the menu to the rest of the application to check if it's open
     contextMenuHandler: ContextMenuHandler {
@@ -200,23 +197,6 @@ ListView {
             }
         }
     ]
-
-    onTouch: {
-        if (event.touchType == TouchType.Down) {
-            released = false;
-        } else if (event.touchType == TouchType.Up) {
-            released = true;
-            
-            if(refreshHandler.refreshMode > 0) {
-                if(refreshHandler.refreshMode == 2)
-                    infoListModel.updateVideoList2();
-                
-            	scrollToPosition(ScrollPosition.Beginning, ScrollAnimation.Smooth);
-                refreshHandler.refreshMode = 0;
-            }
-            
-        } 
-    }
 
     onTriggered: {
         clearSelection();

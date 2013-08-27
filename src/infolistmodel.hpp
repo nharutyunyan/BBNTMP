@@ -13,6 +13,7 @@
 #include <bb/cascades/GroupDataModel>
 
 #include "moviedecoder.hpp"
+#include "observer.hpp"
 
 class Producer;
 /*
@@ -83,8 +84,6 @@ public:
 
     Q_INVOKABLE InfoListModel* get();
 
-    Q_INVOKABLE void updateVideoList2();
-
     Q_INVOKABLE QVariantList getSelectedIndex();
 
     Q_INVOKABLE int getIntIndex(QVariantList index);
@@ -103,10 +102,12 @@ public slots:
     void consume(QString filename, QVariantList index);
     void onMetadataReady(const QVariantMap& data);
     void onAllMetadataRead();
-
+    void getVideoFiles(const QString&);
+    void fileComplate(QString);
     signals:
         void consumed();
         void finished();
+        void notifyObserver(QStringList);
 
 private:
     QVariantList m_selectedIndex;
@@ -114,12 +115,14 @@ private:
     Producer* m_producer;
     QThread* m_producerThread;
     static MovieDecoder movieDecoder;
+    Observer* observer;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
     void getVideoFiles();
     void readMetadatas(QStringList videoFiles);
+    QVariantMap writeVideoMetaData(QString);
 };
 
 
