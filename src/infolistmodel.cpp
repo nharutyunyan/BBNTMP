@@ -454,11 +454,16 @@ void InfoListModel::addVideoToRemoved(QVariantList index)
 	setValue(index, "folder","removed");
 }
 
-void InfoListModel::deleteVideos(QVariantList index)
+void InfoListModel::deleteVideos()
 {
-	QVariantMap v = data(index).toMap();
-	QFile::remove(v["path"].toString());
-	removeAt(index);
+	for (int i = 0; i < m_currentSelectionList.size(); i++)
+	{
+		QVariantList index = m_currentSelectionList[i];
+		QVariantMap v = data(index).toMap();
+		QFile::remove(v["path"].toString());
+		removeAt(index);
+	}
+	saveData();
 }
 
 QString InfoListModel::folderFieldName(QString fName)
@@ -489,35 +494,65 @@ int InfoListModel::getIntIndex(QVariantList index)
     return -1;
 }
 
-// Since updating indexes invalidates the indexes of other selected items,
-// We use a waiting list to add all the videos that are to be modified before
-// making real changes to the data model.
-void InfoListModel::fillFavoriteQueue(QVariantList index)
+
+void InfoListModel::toggleFavorites()
 {
-	QVariantMap v = data(index).toMap();
-	QString test = v["path"].toString();
-	if(v["folder"] != "0Favorites")
+    QList<QVariantMap> favBuffer;
+	for (int i = 0; i < m_currentSelectionList.size(); i++)
 	{
-        v["folder"] = "0Favorites";
+		QVariantList index = m_currentSelectionList[i];
+		QVariantMap v = data(index).toMap();
+		QString test = v["path"].toString();
+		if(v["folder"] != "0Favorites")
+		{
+			v["folder"] = "0Favorites";
+		}
+		else
+		{
+			QString path = v["path"].toString();
+			QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+			v["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+		}
+		// We remove the node because we will reinsert it once the buffer is full
+		removeAt(index);
+		favBuffer.push_front(v);
 	}
-	else
+	for(int i = 0; i < favBuffer.size();i++)
 	{
-		QString path = v["path"].toString();
-		QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
-		v["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+		insert(favBuffer[i]);
 	}
-	// We remove the node because we will reinsert it once the buffer is full
-	removeAt(index);
-	m_favBuffer.push_front(v);
+	saveData();
 }
 
-void InfoListModel::dumpFavoriteQueue()
+int InfoListModel::getFavoriteButtonVisibility()
 {
-	for(int i = 0; i < m_favBuffer.size();i++)
+	bool favFound = false, nonfavFound=false;
+	for(int i = 0; i < m_currentSelectionList.size();i++)
 	{
-		insert(m_favBuffer[i]);
+		QVariantList index = m_currentSelectionList[i];
+		QVariantMap v = data(index).toMap();
+		if (v["folder"] == "0Favorites")
+			favFound = true;
+		else
+			nonfavFound = true;
 	}
-	// We've re-added all the modified nodes so we empty the buffer for next use
-	m_favBuffer.clear();
-	saveData();
+	// Both favorites and non-favorites selected
+	if (favFound && nonfavFound)
+		return 0;
+	// only non-favorite selected
+	else if (nonfavFound)
+		return 1;
+	// only favorites selected
+	else
+		return 2;
+}
+
+void InfoListModel::addToSelected(QVariantList index)
+{
+	m_currentSelectionList.push_back(index);
+}
+
+void InfoListModel::clearSelected()
+{
+	m_currentSelectionList.clear();
 }
