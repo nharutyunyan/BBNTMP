@@ -117,6 +117,10 @@ NavigationPane {
         attachedObjects: [
             OrientationHandler {
                 id: orientationHandlerMain
+                onOrientationAboutToChange: {
+                    headerImage.imageSource = orientationHandlerMain.orientation != UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
+                    headerShadow.imageSource = orientationHandlerMain.orientation != UIOrientation.Portrait ? "asset:///images/shadow.png" : "asset:///images/shadow_landscape.png"
+                }
             },
             Settings {
                 id: settings
