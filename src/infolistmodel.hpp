@@ -94,6 +94,10 @@ public:
 
     QString folderFieldName(QString fame);
 
+    Q_INVOKABLE void fillFavoriteQueue(QVariantList index);
+
+    Q_INVOKABLE void dumpFavoriteQueue();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
@@ -116,6 +120,7 @@ private:
     QThread* m_producerThread;
     static MovieDecoder movieDecoder;
     Observer* observer;
+    QList<QVariantMap> m_favBuffer;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);
