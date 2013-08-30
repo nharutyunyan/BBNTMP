@@ -146,7 +146,15 @@ ListView {
                 onCreationCompleted: {
                     appear.play();
                 }
-                background: itemRoot.ListItem.selected ? Color.Cyan : Color.Transparent
+                
+                attachedObjects:[
+                    ImagePaintDefinition {
+                        id: frameImage
+                        imageSource: "asset:///images/selected_frame.png"
+                    }
+                ]
+                background: itemRoot.ListItem.selected ? frameImage.imagePaint : Color.Transparent
+                
                 onTouch: {
                     if (event.touchType == TouchType.Down) 
                     	sinkIn.play();
