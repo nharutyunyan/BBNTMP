@@ -23,6 +23,9 @@ ListView {
     property bool displayRemoveMessage: false
     property bool displayHideMessage: false
     property bool deleteDialogShowing : false
+    property bool allowLoadingVideo : true
+    property string numberOfItems: ""
+    property string currentAction: ""
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
@@ -30,6 +33,13 @@ ListView {
 	// Expose the menu to the rest of the application to check if it's open
     contextMenuHandler: ContextMenuHandler {
         id: myContext
+        objectName:"contextHandlerObj"
+        onVisualStateChanged:{
+            if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden)
+            	allowLoadingVideo = true;
+            else
+            	allowLoadingVideo = false;
+        }
     }
     multiSelectAction: MultiSelectActionItem {
     }
@@ -54,17 +64,24 @@ ListView {
 
 	function moveToFolder(folderName) {
         passSelectionToModel();
+        if (folderName == infoListModel.value(listView.selected(), "folder")) 
+        	currentAction = "removed from " + folderName.substr(1).toLowerCase() + ".";
+        else 
+        	currentAction = "added to " + folderName.substr(1).toLowerCase() + ".";
         infoListModel.toggleFolder(folderName);
-	}
+        gridToast.show();
+    }
+
 
     function deleteVideos() {
+        currentAction = "deleted."
         infoListModel.deleteVideos();
+        gridToast.show();
     }
     
     function showDeleteDialog()
     {
         listView.deleteDialogShowing = true;
-        //passSelectionToModel();
         deleteDialog.confirmButton.label = "Delete";
         deleteDialog.show();
     }
@@ -110,6 +127,10 @@ ListView {
         status: "None selected"
         onActiveChanged: {
             listView.isMultiSelecting = active;
+            // Sometimes, the visualstate of myContext does not get updated correctly.
+            // So we allow loading of videos after multi-select is cancelled as well
+            if (!active)
+            	listView.allowLoadingVideo = true;
             offsetList(orientationHandler.orientation == UIOrientation.Portrait)
         }
     }
@@ -170,7 +191,6 @@ ListView {
                         actions: [
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
-                                id: individualFavoriteOption
                                 //To do if UX design needs image here
                                 //imageSource: "asset:///images/Favorite.png"
                                 onTriggered: {
@@ -232,7 +252,7 @@ ListView {
     }
     onSelectionChanged: {
         // Don't load a video if a context menu is showing
-        if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden) 
+        if (listView.allowLoadingVideo) 
         {
 	        // slot called when ListView emits selectionChanged signal
 	        // A slot naming convention is used for automatic connection of list view signals to slots
@@ -253,13 +273,25 @@ ListView {
         // Display on the screen number of selected items
         if (selectionList().length > 1) {
             multiSelectHandler.status = selectionList().length + " items selected";
+            numberOfItems = selectionList().length + " items ";
         } else if (selectionList().length == 1) {
             multiSelectHandler.status = "1 item selected";
+            numberOfItems = "1 item ";
         } else {
             multiSelectHandler.status = "None selected";
+            // Technically the selection is already empty, but calling this method 
+            // seems to ensure that the context menu is in the correct state (hidden)
+            clearSelection();
         }
-        
-        // change label and/or enability of favorite context menu item depending on selection
+
+        if (! listView.deleteDialogShowing) {
+            listView.passSelectionToModel();
+            var visibility = infoListModel.getButtonVisibility("0Favorites");
+            multiFavoriteOption.enabled = visibility;
+            
+            multiHiddenOption.enabled = infoListModel.getButtonVisibility("9Hidden");
+        }
+            // change label and/or enability of favorite context menu item depending on selection
         if (!listView.deleteDialogShowing)
         {
 	        listView.passSelectionToModel();
@@ -273,12 +305,12 @@ ListView {
 	        	case 1:{
 	                multiFavoriteOption.enabled = true;
 	                listView.displayRemoveMessage = false;
-	                break;
+                    break;
 	            }
 	        	case 2:{
 	                multiFavoriteOption.enabled = true;
 	                listView.displayRemoveMessage = true;
-	                break;
+                    break;
 	            }
 	        }
             visibility = infoListModel.getButtonVisibility("9Hidden");
@@ -297,7 +329,7 @@ ListView {
                     listView.displayHideMessage = true;
                     break;
                 }
-            }
+            }     
 	    }
     } // onSelectionChanged
     
@@ -339,6 +371,11 @@ ListView {
                 	listView.deleteVideos();
                 listView.deleteDialogShowing = false;
             }
+        },
+        SystemToast {
+            id: gridToast
+            body: numberOfItems+currentAction
+            position: SystemUiPosition.BottomCenter
         }
     ]
 } // ListView
