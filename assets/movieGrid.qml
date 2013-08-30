@@ -225,7 +225,7 @@ ListView {
     }
     onSelectionChanged: {
         // Don't load a video if a context menu is showing
-        if (myContext.visualState == ContextMenuVisualState.Hidden) 
+        if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden) 
         {
 	        // slot called when ListView emits selectionChanged signal
 	        // A slot naming convention is used for automatic connection of list view signals to slots
