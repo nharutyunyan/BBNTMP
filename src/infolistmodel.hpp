@@ -90,13 +90,17 @@ public:
 
     Q_INVOKABLE void addVideoToRemoved(QVariantList index);
 
-    Q_INVOKABLE void deleteVideos(QVariantList index);
+    Q_INVOKABLE void deleteVideos();
 
     QString folderFieldName(QString fame);
 
-    Q_INVOKABLE void fillFavoriteQueue(QVariantList index);
+    Q_INVOKABLE void addToSelected(QVariantList index);
 
-    Q_INVOKABLE void dumpFavoriteQueue();
+    Q_INVOKABLE int getFavoriteButtonVisibility();
+
+    Q_INVOKABLE void toggleFavorites();
+
+    Q_INVOKABLE void clearSelected();
 
 public:
     InfoListModel(QObject* parent = 0);
@@ -120,7 +124,7 @@ private:
     QThread* m_producerThread;
     static MovieDecoder movieDecoder;
     Observer* observer;
-    QList<QVariantMap> m_favBuffer;
+    QList<QVariantList> m_currentSelectionList;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);

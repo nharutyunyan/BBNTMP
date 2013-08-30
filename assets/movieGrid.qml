@@ -20,6 +20,8 @@ ListView {
 
     property bool released: true
     property bool isMultiSelecting: false
+    property bool displayRemoveMessage: false
+    property bool deleteDialogShowing : false
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
@@ -31,17 +33,27 @@ ListView {
     multiSelectAction: MultiSelectActionItem {
     }
 
-	function addVidsToFavorites(){
-        // This method temporarily removes videos from the model, thus
-        // it is important to go through the targets in descending order
-        // to avoid invalidation of indexes
+	// This function passes the selected videos to the C++ model.
+	// I have no found how to send selectionList() in one shot, so i am passing all the 
+	// videos one by one and store them in the model for easier access.
+	function passSelectionToModel()
+	{
+	    // Make a copy to sort the array
         listView.copyOfSelectedIndexes = listView.selectionList();
+        // Passing the indexes in descending order is important to
+        // avoid invalidation of indexes during deletion of files
         listView.copyOfSelectedIndexes.sort();
-        for (var i = listView.copyOfSelectedIndexes.length-1;i >= 0;i--){
+        
+        infoListModel.clearSelected();
+        for (var i = listView.copyOfSelectedIndexes.length - 1; i >= 0; i --) {
             var index = listView.copyOfSelectedIndexes[i];
-            infoListModel.fillFavoriteQueue(index);
+            infoListModel.addToSelected(index);
         }
-        infoListModel.dumpFavoriteQueue();
+    }
+
+	function addVidsToFavorites(){
+	      passSelectionToModel();
+		  infoListModel.toggleFavorites();
     }
 
     function addVidsToRemoved(selected) {
@@ -53,20 +65,14 @@ ListView {
         infoListModel.saveData();
     }
     
-    function deleteVideos(selected) {
-        for (var i = selected.length-1; i >= 0; i--) {
-            var index = selected[i];
-            infoListModel.deleteVideos(index);
-        }
-        infoListModel.saveData();
+    function deleteVideos() {
+        infoListModel.deleteVideos();
     }
     
     function showDeleteDialog()
     {
-        // When confirmation dialog gains focus, selection is cleared, thus we must copy it first
-        listView.copyOfSelectedIndexes = listView.selectionList();
-        // We must sort the list to delete files in descending order.  Otherwise deleting an earlier index invalidates all later indexes
-        listView.copyOfSelectedIndexes.sort();
+        listView.deleteDialogShowing = true;
+        //passSelectionToModel();
         deleteDialog.showCustom("Delete from device","Move to hidden","Cancel");
     }
     
@@ -84,7 +90,8 @@ ListView {
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
             ActionItem {
-                title: "Add to favorites"
+                title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
+                id: multiFavoriteOption
                 //imageSource: "asset:///images/Favorite.png"
                 onTriggered:{
                     listView.addVidsToFavorites();
@@ -154,7 +161,8 @@ ListView {
 
                         actions: [
                             ActionItem {
-                                title: "Add to favorites"
+                                title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
+                                id: individualFavoriteOption
                                 //To do if UX design needs image here
                                 //imageSource: "asset:///images/Favorite.png"
                                 onTriggered: {
@@ -235,6 +243,30 @@ ListView {
         } else {
             multiSelectHandler.status = "None selected";
         }
+        
+        // change label and/or enability of favorite context menu item depending on selection
+        if (!listView.deleteDialogShowing)
+        {
+	        listView.passSelectionToModel();
+	        var visibility = infoListModel.getFavoriteButtonVisibility();
+	        switch (visibility){
+	            // Both non-favs and favs selected
+	        	case 0:{
+	                multiFavoriteOption.enabled = false;
+	        	    break;
+	        	}
+	        	case 1:{
+	                multiFavoriteOption.enabled = true;
+	                listView.displayRemoveMessage = false;
+	                break;
+	            }
+	        	case 2:{
+	                multiFavoriteOption.enabled = true;
+	                listView.displayRemoveMessage = true;
+	                break;
+	            }
+	        }
+	    }
     } // onSelectionChanged
     
     property Page secondPage
@@ -274,7 +306,8 @@ ListView {
                 if (deleteDialog.result == SystemUiResult.CustomButtonSelection) 
                 	listView.addVidsToRemoved(listView.copyOfSelectedIndexes);
                 else if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection) 
-                	listView.deleteVideos(listView.copyOfSelectedIndexes);
+                	listView.deleteVideos();
+                listView.deleteDialogShowing = false;
             }
         }
     ]
