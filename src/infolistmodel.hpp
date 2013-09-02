@@ -88,17 +88,15 @@ public:
 
     Q_INVOKABLE int getIntIndex(QVariantList index);
 
-    Q_INVOKABLE void addVideoToRemoved(QVariantList index);
-
     Q_INVOKABLE void deleteVideos();
 
     QString folderFieldName(QString fame);
 
     Q_INVOKABLE void addToSelected(QVariantList index);
 
-    Q_INVOKABLE int getFavoriteButtonVisibility();
+    Q_INVOKABLE int getButtonVisibility(QString folderName);
 
-    Q_INVOKABLE void toggleFavorites();
+    Q_INVOKABLE void toggleFolder(QString folderName);
 
     Q_INVOKABLE void clearSelected();
 

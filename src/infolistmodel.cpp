@@ -449,11 +449,6 @@ InfoListModel* InfoListModel::get()
 	return this;
 }
 
-void InfoListModel::addVideoToRemoved(QVariantList index)
-{
-	setValue(index, "folder","removed");
-}
-
 void InfoListModel::deleteVideos()
 {
 	for (int i = 0; i < m_currentSelectionList.size(); i++)
@@ -495,17 +490,17 @@ int InfoListModel::getIntIndex(QVariantList index)
 }
 
 
-void InfoListModel::toggleFavorites()
+void InfoListModel::toggleFolder(QString folderName)
 {
-    QList<QVariantMap> favBuffer;
+    QList<QVariantMap> folBuffer;
 	for (int i = 0; i < m_currentSelectionList.size(); i++)
 	{
 		QVariantList index = m_currentSelectionList[i];
 		QVariantMap v = data(index).toMap();
 		QString test = v["path"].toString();
-		if(v["folder"] != "0Favorites")
+		if(v["folder"] != folderName)
 		{
-			v["folder"] = "0Favorites";
+			v["folder"] = folderName;
 		}
 		else
 		{
@@ -515,34 +510,31 @@ void InfoListModel::toggleFavorites()
 		}
 		// We remove the node because we will reinsert it once the buffer is full
 		removeAt(index);
-		favBuffer.push_front(v);
+		folBuffer.push_front(v);
 	}
-	for(int i = 0; i < favBuffer.size();i++)
+	for(int i = 0; i < folBuffer.size();i++)
 	{
-		insert(favBuffer[i]);
+		insert(folBuffer[i]);
 	}
 	saveData();
 }
 
-int InfoListModel::getFavoriteButtonVisibility()
+int InfoListModel::getButtonVisibility(QString folderName)
 {
-	bool favFound = false, nonfavFound=false;
+	bool folFound = false, nonFolFound=false;
 	for(int i = 0; i < m_currentSelectionList.size();i++)
 	{
 		QVariantList index = m_currentSelectionList[i];
 		QVariantMap v = data(index).toMap();
-		if (v["folder"] == "0Favorites")
-			favFound = true;
+		if (v["folder"] == folderName)
+			folFound = true;
 		else
-			nonfavFound = true;
+			nonFolFound = true;
 	}
-	// Both favorites and non-favorites selected
-	if (favFound && nonfavFound)
+	if (folFound && nonFolFound)
 		return 0;
-	// only non-favorite selected
-	else if (nonfavFound)
+	else if (nonFolFound)
 		return 1;
-	// only favorites selected
 	else
 		return 2;
 }

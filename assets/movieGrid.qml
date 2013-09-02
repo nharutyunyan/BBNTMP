@@ -21,6 +21,7 @@ ListView {
     property bool released: true
     property bool isMultiSelecting: false
     property bool displayRemoveMessage: false
+    property bool displayHideMessage: false
     property bool deleteDialogShowing : false
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
@@ -51,20 +52,11 @@ ListView {
         }
     }
 
-	function addVidsToFavorites(){
-	      passSelectionToModel();
-		  infoListModel.toggleFavorites();
-    }
+	function moveToFolder(folderName) {
+        passSelectionToModel();
+        infoListModel.toggleFolder(folderName);
+	}
 
-    function addVidsToRemoved(selected) {
-        for (var i = 0; i < selected.length; i++) {
-            var index = selected[i];
-            // this function is temporary removed. Will be returned in one of the future patches.
-            //infoListModel.addVideoToRemoved(index);
-        }
-        infoListModel.saveData();
-    }
-    
     function deleteVideos() {
         infoListModel.deleteVideos();
     }
@@ -73,7 +65,8 @@ ListView {
     {
         listView.deleteDialogShowing = true;
         //passSelectionToModel();
-        deleteDialog.showCustom("Delete from device","Move to hidden","Cancel");
+        deleteDialog.confirmButton.label = "Delete";
+        deleteDialog.show();
     }
     
     // Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
@@ -94,7 +87,14 @@ ListView {
                 id: multiFavoriteOption
                 //imageSource: "asset:///images/Favorite.png"
                 onTriggered:{
-                    listView.addVidsToFavorites();
+                    listView.moveToFolder("0Favorites");
+                }
+            },
+            ActionItem {
+                title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
+                id: multiHiddenOption
+                onTriggered:{
+                    listView.moveToFolder("9Hidden");
                 }
             },
             ActionItem {
@@ -174,7 +174,14 @@ ListView {
                                 //To do if UX design needs image here
                                 //imageSource: "asset:///images/Favorite.png"
                                 onTriggered: {
-                                    itemRoot.ListItem.view.addVidsToFavorites();
+                                    itemRoot.ListItem.view.moveToFolder("0Favorites");
+                                }
+                            },
+                            ActionItem {
+                                title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
+                                id: individualHiddenOption
+                                onTriggered:{
+                                    itemRoot.ListItem.view.moveToFolder("9Hidden");
                                 }
                             },
                             ActionItem {
@@ -256,7 +263,7 @@ ListView {
         if (!listView.deleteDialogShowing)
         {
 	        listView.passSelectionToModel();
-	        var visibility = infoListModel.getFavoriteButtonVisibility();
+	        var visibility = infoListModel.getButtonVisibility("0Favorites");
 	        switch (visibility){
 	            // Both non-favs and favs selected
 	        	case 0:{
@@ -274,6 +281,23 @@ ListView {
 	                break;
 	            }
 	        }
+            visibility = infoListModel.getButtonVisibility("9Hidden");
+            switch (visibility){
+                case 0:{
+                    multiHiddenOption.enabled = false;
+                    break;
+                }
+                case 1:{
+                    multiHiddenOption.enabled = true;
+                    listView.displayHideMessage = false;
+                    break;
+                }
+                case 2:{
+                    multiHiddenOption.enabled = true;
+                    listView.displayHideMessage = true;
+                    break;
+                }
+            }
 	    }
     } // onSelectionChanged
     
@@ -306,14 +330,12 @@ ListView {
         MediaPlayer {
             id: videoListScrollBar
         },
-        CustomDialog {
+        SystemDialog {
             id: deleteDialog
             title: "File deletion..."
-            body: "Are you sure you want to remove file(s)?"
+            body: "Are you sure you want to delete file(s)?"
             onFinished: {
-                if (deleteDialog.result == SystemUiResult.CustomButtonSelection) 
-                	listView.addVidsToRemoved(listView.copyOfSelectedIndexes);
-                else if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection) 
+               if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection) 
                 	listView.deleteVideos();
                 listView.deleteDialogShowing = false;
             }
