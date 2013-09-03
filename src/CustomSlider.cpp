@@ -21,6 +21,7 @@
 #include <bb/cascades/ImagePaint>
 #include <bb/cascades/animation/stockcurve.h>
 #include <bb/cascades/ScalingMethod>
+#include <bb/device/DisplayInfo>
 
 
 CustomSlider::CustomSlider(Container* parent)
@@ -221,6 +222,8 @@ void CustomSlider::setSmallCurrentValue(float currentValue)
 
 void CustomSlider::setSmallCordX(float cordX)
 {
+	bb::device::DisplayInfo display;
+	int width = display.pixelSize().width();
 	if(cordX < -20)
 	{
 	 	 m_rootContainerWidth += cordX + 20;
@@ -229,10 +232,10 @@ void CustomSlider::setSmallCordX(float cordX)
 		 m_leftAnimationContainerWidth =  m_rootContainerWidth - m_smallSliderMaxWidth / 2;
 		 m_rightAnimationContainerWidth = m_smallSliderMaxWidth / 2;
 		 m_handleLayoutProperties->setPositionX(m_leftAnimationContainerWidth - m_rootContainerHeight/2);
-	} else if (768 - cordX < m_rootContainerWidth - 20)
+	} else if (width - cordX < m_rootContainerWidth - 20)
 	{
-		m_rightAnimationContainer->setLeftPadding(m_rightAnimationContainer->leftPadding() + ((768 - cordX) - m_rootContainerWidth + 20));
-		m_rootContainerWidth += ((768 - cordX) - m_rootContainerWidth + 20);
+		m_rightAnimationContainer->setLeftPadding(m_rightAnimationContainer->leftPadding() + ((width - cordX) - m_rootContainerWidth + 20));
+		m_rootContainerWidth += ((width - cordX) - m_rootContainerWidth + 20);
 		m_rootContainer->setPreferredWidth(m_rootContainerWidth);
 		m_leftAnimationContainerWidth =  m_smallSliderMaxWidth / 2;
 		m_rightAnimationContainerWidth = m_rootContainerWidth - m_smallSliderMaxWidth / 2;
