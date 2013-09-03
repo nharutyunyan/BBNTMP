@@ -11,8 +11,7 @@
 #include <QStringList>
 #include <QObject>
 #include <QRunnable>
-#include <QThreadPool>
-
+#include <map>
 
 class Observer : public QObject
 {
@@ -22,8 +21,7 @@ public:
 private:
 	void createWatcher();
 	QFileSystemWatcher* watcher;
-	QThreadPool* threadPool;
-	unsigned size;
+	std::map<QString, unsigned int> m_newVideos;
 signals:
 	void directoryChanged(const QString&);
 	void Complate(QString);
