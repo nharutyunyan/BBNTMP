@@ -1,6 +1,5 @@
 import bb.cascades 1.0
 import nutty.slider 1.0
-import "helpers.js" as Helpers
 
 // TODO Clean up if needed
 
@@ -205,8 +204,8 @@ Container {
                     timeArea.verticalAlignment = VerticalAlignment.Top
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Top
                     sliderContainer.positionOfX = 0
-                    sliderContainer.preferredWidth = Helpers.widthOfScreen
-                    slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
+                    sliderContainer.preferredWidth = displayInfo.height
+                    slider.layoutSize = Qt.size(displayInfo.height, height)
                     timeArea.bottomPadding = 0
                     currentTimeLabel.bottomPadding = 0
                     sliderContainer.bottomPadding = 0
@@ -220,8 +219,8 @@ Container {
                     timeArea.verticalAlignment = VerticalAlignment.Bottom
                     currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
                     sliderContainer.positionOfX = currentTimeLabel.preferredWidth
-                    sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
-                    slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
+                    sliderContainer.preferredWidth = displayInfo.width - 2 * timeArea.preferredWidth
+                    slider.layoutSize = Qt.size(displayInfo.width - 2 * timeArea.preferredWidth, height)
                     timeArea.bottomPadding = 30
                     currentTimeLabel.bottomPadding = 30
                     sliderContainer.bottomPadding = 10
@@ -250,8 +249,8 @@ Container {
             timeArea.verticalAlignment = VerticalAlignment.Top
             currentTimeLabel.verticalAlignment = VerticalAlignment.Top
             sliderContainer.positionOfX = 0
-            sliderContainer.preferredWidth = Helpers.widthOfScreen
-            slider.layoutSize = Qt.size(Helpers.widthOfScreen, height)
+            sliderContainer.preferredWidth = displayInfo.height
+            slider.layoutSize = Qt.size(displayInfo.height, height)
             timeArea.rightPadding = 25
             currentTimeLabel.leftPadding = 25
             timeArea.bottomPadding = 0 
@@ -265,8 +264,8 @@ Container {
             timeArea.verticalAlignment = VerticalAlignment.Bottom
             currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
             sliderContainer.positionOfX = currentTimeLabel.preferredWidth
-            sliderContainer.preferredWidth = Helpers.heightOfScreen - 2 * timeArea.preferredWidth
-            slider.layoutSize = Qt.size(Helpers.heightOfScreen - 2 * timeArea.preferredWidth, height)
+            sliderContainer.preferredWidth = displayInfo.width - 2 * timeArea.preferredWidth
+            slider.layoutSize = Qt.size(displayInfo.width - 2 * timeArea.preferredWidth, height)
             timeArea.bottomPadding = 30
             currentTimeLabel.bottomPadding = 30
             sliderContainer.bottomPadding = 10
