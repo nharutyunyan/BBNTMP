@@ -14,6 +14,7 @@
 
 #include "moviedecoder.hpp"
 #include "observer.hpp"
+#include "utility.hpp"
 
 class Producer;
 /*
@@ -110,12 +111,18 @@ public slots:
     void onAllMetadataRead();
     void getVideoFiles(const QString&);
     void fileComplate(QString);
+    void readMetadatas();
+    void checkVideosWaitingThumbnail();
     signals:
         void consumed();
         void finished();
+        void finishedThumbnailGeneration();
         void notifyObserver(QStringList);
+        void setData(QStringList );
 
 private:
+    QThread* m_mediaPlayerThread;
+    utility::MetaDataReader* reader;
     QVariantList m_selectedIndex;
     QString m_file;
     Producer* m_producer;
@@ -123,13 +130,16 @@ private:
     static MovieDecoder movieDecoder;
     Observer* observer;
     QList<QVariantList> m_currentSelectionList;
+    QStringList waitingVideosBuffer;
+    QSet<QString> addedVideos;
+    QVariantList videosWaitingThumbnail;
 
     void updateVideoList();
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
     void getVideoFiles();
-    void readMetadatas(QStringList videoFiles);
     QVariantMap writeVideoMetaData(QString);
+    void insertVideos(QVariantList);
 };
 
 

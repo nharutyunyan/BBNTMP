@@ -39,7 +39,7 @@ void Producer::produce()
 {
 	//if no more data, emit a finished signal
 	if (m_result.isEmpty()) {
-			emit finished();
+			emit finishedCurrentVideos();
 		} else {
 		    QVariantMap v = m_result.data(m_result.last()).toMap();
 		    m_result.removeAt(m_result.last());

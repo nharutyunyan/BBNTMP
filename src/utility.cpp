@@ -47,30 +47,26 @@ MetaDataReader::~MetaDataReader()
 {
 	//Free the resources
 	m_mediaPlayer.reset();
-}
 
-void MetaDataReader::addMetadataReadRequest()
-{
-    if(!m_started)
-    {
-    	m_started = true;
-    	readNextMetadata();
-    }
 }
 
 void MetaDataReader::setData(QStringList videoFiles)
 {
     m_queue.append(videoFiles);
+    if(!m_started)
+    {
+       	m_started = true;
+       	readNextMetadata();
+    }
+
 }
 
 void MetaDataReader::readNextMetadata()
 {
-	// if there is no video files, there is no need to exit the program
     if (m_queue.isEmpty()) {
         //added to start thread
         m_started = false;
         m_mediaPlayer.reset();
-        emit allMetadataRead();
         return;
     }
 
@@ -94,15 +90,12 @@ void MetaDataReader::prepareToRead()
 
 void MetaDataReader::onMetaDataChanged(const QVariantMap& metaData)
 {
-	//Sometimes we are getting empty data, retry is used as a workaround
-	if(metaData.isEmpty() && m_retryCount < MAX_RETRY_COUNT)
-	{
-		prepareToRead();
-	}
-	else
+	if(metaData.value(bb::multimedia::MetaData::Width).toInt() > 0
+	   && metaData.value(bb::multimedia::MetaData::Height).toInt() > 0
+	   && metaData.value(bb::multimedia::MetaData::Duration).toInt() > 0)
 	{
 		emit metadataReady(metaData);
-		readNextMetadata();//switch to the next file
+		readNextMetadata();
 	}
 }
 

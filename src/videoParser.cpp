@@ -66,6 +66,9 @@
 	 videoFile.read(atomName,4);
 	 while(!(atomName[0] == 'm' && atomName[1] == 'd' && atomName[2] == 'a' && atomName[3] == 't'))
 	 {
+		 videoFile.seekg(0, videoFile.end);
+		 if(currentAtomSize > videoFile.tellg())
+			 return 0;
 		 videoFile.seekg(currentAtomSize,videoFile.beg);
 		 videoFile.read(num,4);
 		 videoFile.seekg(currentAtomSize + 4,videoFile.beg);

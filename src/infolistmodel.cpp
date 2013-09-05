@@ -9,7 +9,6 @@
 
 #include <QSet>
 #include <QVariantList>
-#include "utility.hpp"
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
 
@@ -55,15 +54,38 @@ InfoListModel::InfoListModel(QObject* parent)
 	//when producer thread is started, start to produce
 	QObject::connect(m_producerThread, SIGNAL(started()), m_producer,
 			SLOT(produce()));
+	QObject::connect(m_producer, SIGNAL(finishedCurrentVideos()), this,
+					SLOT(checkVideosWaitingThumbnail()));
 
-	QObject::connect(m_producer, SIGNAL(finished()), m_producerThread,
+	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), m_producerThread,
 			SLOT(quit()));
-	QObject::connect(m_producer, SIGNAL(finished()), parent,
+	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
 	observer = new Observer(this);
 	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), observer,
 					SLOT(setNewVideos(QStringList)));
+	m_mediaPlayerThread = new QThread();
+	reader = new MetaDataReader();
+	reader->moveToThread(m_mediaPlayerThread);
+	QObject::connect(reader, SIGNAL(metadataReady(const QVariantMap& )), this, SLOT(onMetadataReady(const QVariantMap& )));
+	QObject::connect(this, SIGNAL(setData(QStringList )), reader, SLOT(setData(QStringList )));
 	getVideoFiles();
+}
+
+void InfoListModel::checkVideosWaitingThumbnail()
+{
+	if(videosWaitingThumbnail.empty())
+	{
+		emit finishedThumbnailGeneration();
+	}
+	else
+	{
+		insertList(videosWaitingThumbnail);
+		videosWaitingThumbnail.clear();
+		saveData();
+		m_producer->updateVideoList(this);
+		emit consumed();
+	}
 }
 
 void InfoListModel::consume(QString filename, QVariantList index)
@@ -87,15 +109,21 @@ void InfoListModel::getVideoFiles(const QString& path)
 	filters <<  "*.avi" <<  "*.mp4";
 	result = getVideoFileList();
 	QSet<QString> set;
-		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-			QVariantMap v = data(indexPath).toMap();
-			set.insert(v["path"].toString());
-		}
+
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		set.insert(v["path"].toString());
+	}
+
 	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
 		bool videoExist = set.contains(*i);
 		if(!videoExist)
 		{
-			newVideos.push_back(*i);
+			if(!addedVideos.contains(*i))
+			{
+				newVideos.push_back(*i);
+				addedVideos.insert(*i);
+			}
 		}
 
 	}
@@ -113,10 +141,9 @@ void InfoListModel::getVideoFiles(const QString& path)
 
 void InfoListModel::fileComplate(QString path)
 {
-	QStringList result (getVideoFileList());
-	updateListWithAddedVideos(result);
-	m_producer->updateVideoList(this);
-	onAllMetadataRead();
+	QStringList new_;
+	new_<<(path);
+	updateListWithAddedVideos(new_);
 }
 
 void InfoListModel::getVideoFiles()
@@ -152,6 +179,22 @@ void InfoListModel::getVideoFiles()
 	}
 }
 
+void InfoListModel::insertVideos(QVariantList newVideos)
+{
+	if(m_producerThread->isRunning())
+	{
+		videosWaitingThumbnail.append(newVideos);
+	}
+	else
+	{
+		videosWaitingThumbnail.append(newVideos);
+		insertList(videosWaitingThumbnail);
+		videosWaitingThumbnail.clear();
+		saveData();
+		onAllMetadataRead();
+	}
+}
+
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
 	// Slight improvement to the video exists check that was below,
@@ -174,6 +217,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 			// Add folder
 			val["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+			bool durationIsCorrect = true;
 			movieDecoder.setContext(0);
 			try{
 				movieDecoder.initialize(i->toStdString());
@@ -185,11 +229,18 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 				}
 				else
 				{
-					//need to read from mediaPlayer in background
+					durationIsCorrect = false;
 				}
 				val["width"] = movieDecoder.getWidth();
 				val["height"] = movieDecoder.getHeight();
-				insert(val);
+				if(durationIsCorrect)
+				{
+					QVariantList list;
+					list<<(val);
+					insertVideos(list);
+				}
+				else
+					waitingVideosBuffer<<(*i);
 			}
 			catch (...){
 				// invalid video! just skip this file.
@@ -197,6 +248,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 
 		}
 	}
+	readMetadatas();
 }
 
 void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
@@ -213,6 +265,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 		QVariantMap v (data(indexPath).toMap());
 		if (!result_set.contains(v["path"].toString())) {
 			// if the video does not exist any more remote its thumbnail as well
+			addedVideos.remove(v["path"].toString());
 			value.push_back(indexPath);
 		}
 	}
@@ -270,20 +323,17 @@ void InfoListModel::saveData()
     }
 }
 
-void InfoListModel::readMetadatas(QStringList videoFiles)
+void InfoListModel::readMetadatas()
 {
-	MetaDataReader* reader = new MetaDataReader(this);
-	if (!reader)
+	if(!waitingVideosBuffer.empty())
 	{
-		qDebug() << "ERROR: Can't allocate memory for MetadataReader \n";
-		return;
+		if(!m_mediaPlayerThread->isRunning())
+		{
+			m_mediaPlayerThread->start();
+		}
+		emit setData(waitingVideosBuffer);
+		waitingVideosBuffer.clear();
 	}
-
-	reader->setData(videoFiles);
-	connect(reader, SIGNAL(metadataReady(const QVariantMap&)), this, SLOT(onMetadataReady(const QVariantMap&)));
-	connect(reader, SIGNAL(allMetadataRead()), this, SLOT(onAllMetadataRead()));
-	if(!videoFiles.isEmpty())
-	    reader->addMetadataReadRequest();
 }
 
 void InfoListModel::onMetadataReady(const QVariantMap& val)
@@ -292,43 +342,23 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	QString path = val[bb::multimedia::MetaData::Uri].toString();
 	if(path.isEmpty())
 	{
-		qDebug() << "Error: No uri in metadata \n";
+
 		return;
 	}
-
 	QVariantMap infoMap;
-
-	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
-	{
-	    infoMap = data(indexPath).toMap();
-		if(path == infoMap["path"])
-		{
-			QString titleInMD = val.value("title").toString();
-			if(!titleInMD.isEmpty() && infoMap.value(bb::multimedia::MetaData::Title).toString() != titleInMD)
-			{
-			    infoMap[bb::multimedia::MetaData::Title] = titleInMD;
-			}
-
-			QString duration = val.value(bb::multimedia::MetaData::Duration).toString();
-			if (!duration.isEmpty() && infoMap.value("duration").toString() != duration)
-			{
-			    infoMap["duration"] = duration;
-			}
-			QString width = val.value(bb::multimedia::MetaData::Width).toString();
-			if (!width.isEmpty() && infoMap.value("width").toString() != width)
-			{
-			    infoMap["width"] = width;
-			}
-			QString height = val.value(bb::multimedia::MetaData::Height).toString();
-			if (!height.isEmpty() && infoMap.value("height").toString() != height)
-			{
-			    infoMap["height"] = height;
-			}
-			//Update the list
-			updateItem(indexPath, infoMap);
-			saveData();
-		}
-	}
+	infoMap["path"] = path;
+	infoMap["position"] = "0";
+	//Get the last path component and set it as title. Might be changed in future to get title from metadata
+	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+	infoMap["title"] = pathElements[pathElements.size()-1];
+	infoMap["thumbURL"] = "asset:///images/BlankThumbnail.png";
+	infoMap["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+	infoMap["duration"] = val.value(bb::multimedia::MetaData::Duration).toString();
+	infoMap["width"] = val.value(bb::multimedia::MetaData::Width).toString();
+	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
+	QVariantList list;
+	list<<(infoMap);
+	insertVideos(list);
 }
 
 void InfoListModel::onAllMetadataRead()

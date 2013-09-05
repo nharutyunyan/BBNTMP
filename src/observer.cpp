@@ -13,9 +13,8 @@
 #include <QThread>
 
 
-Observer::Observer(QObject* parent): QObject(parent), size(0)
+Observer::Observer(QObject* parent): QObject(parent)
 {
-	threadPool = new QThreadPool();
 	createWatcher();
 	QObject::connect(this, SIGNAL(directoryChanged(const QString&)), this->parent(),
 						SLOT(getVideoFiles(const QString&)));
@@ -40,15 +39,22 @@ void Observer::createWatcher()
 
 void Observer::waitForComplate(const QString& path)
 {
-	QFile videoFile(path.toStdString().c_str());
-	VideoParser parser;
-	if(size == 0)
-		size = parser.getVideoSize(path);
-	if(videoFile.size()/size > 0.9)
+	if(m_newVideos.find(path) != m_newVideos.end())
 	{
-		emit Complate(path);
-		watcher->removePath(path);
-		size = 0;
+		QFile videoFile(path.toStdString().c_str());
+		VideoParser parser;
+		if(m_newVideos[path] == 0)
+		{
+			if(parser.getVideoSize(path) == 0)
+				return;
+			m_newVideos[path] = parser.getVideoSize(path);
+		}
+		if(videoFile.size() / m_newVideos[path] > 0.9)
+		{
+			emit Complate(path);
+			watcher->removePath(path);
+			m_newVideos.erase(path);
+		}
 	}
 }
 
@@ -57,6 +63,7 @@ void Observer::setNewVideos(QStringList newVideos)
 	for(QStringList::iterator it = newVideos.begin(); it != newVideos.end(); ++it)
 	{
 		watcher->addPath(*it);
+		m_newVideos[*it] = 0;
 	}
 }
 

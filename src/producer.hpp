@@ -21,7 +21,7 @@ public slots:
     void produce();
 signals:
     void produced(QString data, QVariantList index);
-    void finished();
+    void finishedCurrentVideos();
 
 private:
 	GroupDataModel m_result;
