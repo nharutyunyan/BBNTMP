@@ -26,6 +26,7 @@ ListView {
     property bool allowLoadingVideo : true
     property string numberOfItems: ""
     property string currentAction: ""
+    property bool isQ10: displayInfo.height == 720 ? true : false
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
@@ -102,7 +103,7 @@ ListView {
             ActionItem {
                 title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                 id: multiFavoriteOption
-                //imageSource: "asset:///images/Favorite.png"
+                imageSource: listView.isQ10 ? "asset:///images/GridView/favoriteIcon_Q10.png" : "asset:///images/GridView/favoriteIcon_Z10.png"
                 onTriggered:{
                     listView.moveToFolder("0Favorites");
                 }
@@ -110,13 +111,13 @@ ListView {
             ActionItem {
                 title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
                 id: multiHiddenOption
+                imageSource: listView.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
                 onTriggered:{
                     listView.moveToFolder("9Hidden");
                 }
             },
-            ActionItem {
+            DeleteActionItem {
                 title: "Delete"
-                //imageSource: "asset:///images/Delete.png"
                 onTriggered: {
                    listView.showDeleteDialog();
                 }
@@ -191,8 +192,8 @@ ListView {
                         actions: [
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
-                                //To do if UX design needs image here
-                                //imageSource: "asset:///images/Favorite.png"
+                                id: individualFavoriteOption
+                                imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/favoriteIcon_Q10.png" : "asset:///images/GridView/favoriteIcon_Z10.png"
                                 onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
                                 }
@@ -200,14 +201,13 @@ ListView {
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
                                 id: individualHiddenOption
+                                imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
                                 onTriggered:{
                                     itemRoot.ListItem.view.moveToFolder("9Hidden");
                                 }
                             },
-                            ActionItem {
+                            DeleteActionItem {
                                  title: "Delete"
-                                 //To do if UX design needs image here
-                                 //imageSource: "asset:///images/Delete.png"
                                  onTriggered: {
                                     itemRoot.ListItem.view.showDeleteDialog();
                                 }
