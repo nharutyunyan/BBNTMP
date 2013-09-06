@@ -256,7 +256,7 @@ ListView {
         {
 	        // slot called when ListView emits selectionChanged signal
 	        // A slot naming convention is used for automatic connection of list view signals to slots
-	        if (selected) {
+            if (selected && listView.selected().length != 1) {
 	            infoListModel.setSelectedIndex(listView.selected())
 	            var page = getSecondPage();
 	            console.log("pushing detail " + page)
