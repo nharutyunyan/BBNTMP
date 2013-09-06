@@ -54,7 +54,6 @@ NavigationPane {
 
                     Container {
                         id: movieGridContainer
-                        topPadding: 10
                         layout: DockLayout {
                         }
                         attachedObjects: [
