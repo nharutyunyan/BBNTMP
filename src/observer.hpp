@@ -24,10 +24,10 @@ private:
 	std::map<QString, unsigned int> m_newVideos;
 signals:
 	void directoryChanged(const QString&);
-	void Complate(QString);
+	void Complete(QString);
 public slots:
 	void setNewVideos(QStringList);
-	void waitForComplate(const QString&);
+	void waitForComplete(const QString&);
 };
 
 
