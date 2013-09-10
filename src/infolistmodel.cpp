@@ -130,8 +130,6 @@ void InfoListModel::getVideoFiles(const QString& path)
 	if(newVideos.isEmpty())
 	{
 			updateListWithDeletedVideos(result);
-			m_producer->updateVideoList(this);
-			onAllMetadataRead();
 	}
 	else
 	{
