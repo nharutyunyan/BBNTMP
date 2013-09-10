@@ -25,7 +25,7 @@ MovieDecoder InfoListModel::movieDecoder;
 inline const static QStringList getVideoFileList() {
 	QStringList filters, result;
 
-	filters <<  "*.avi" <<  "*.mp4" << "*.m4v"  <<"*.mov"  << "*.3gp" << "*.3gp2";
+	filters <<  "*.avi" <<  "*.mp4";
 
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
