@@ -13,10 +13,10 @@ class VideoParser
 {
 public:
 	unsigned int getVideoSize(QString);
-	QString getVideoExtantion(QString);
+	QString getVideoFormat(QString);
 private:
 	unsigned int getAviSize(QString);
-	unsigned int getMp4Size(QString);
+	unsigned int getQuickTimeFileSize(QString);
 	unsigned int charToint(char*);
 };
 

@@ -10,15 +10,18 @@
 
  unsigned int VideoParser::getVideoSize(QString path)
  {
-	 QString extantion = getVideoExtantion(path);
-	 if( extantion == "avi")
+	 QString format = getVideoFormat(path);
+	 if( format == "avi")
 		return getAviSize(path);
-	 if(extantion == "mp4")
-		 return getMp4Size(path);
+	 if(format == "QuickTime")
+		 return getQuickTimeFileSize(path);
+	 if(format == "Unknown")
+		 return 0;
  }
 
- QString VideoParser::getVideoExtantion(QString path)
+ QString VideoParser::getVideoFormat(QString path)
  {
+
 	 char* ext = new char[4];
 	 fstream videoFile;
 	 videoFile.open(path.toStdString().c_str(), videoFile.binary|videoFile.in);
@@ -30,16 +33,8 @@
 	 videoFile.read(ext,4);
 	 unsigned int ftyp_size;
 	 if(ext[0] == 'f'&& ext[1] == 't' && ext[2] == 'y' && ext[3] == 'p')
-	 {
-		 char* num = new char[4];
-		 videoFile.seekg(0,videoFile.beg);
-		 videoFile.read(num,4);
-		 ftyp_size = charToint(num);
-	 }
-	 videoFile.seekg(ftyp_size-4,videoFile.beg);
-	 videoFile.read(ext,3);
-	 if(ext[0] == 'm'&& ext[1] == 'p' && ext[2] == '4')
-		 return "mp4";
+		 return "QuickTime";
+	 return "Unknown";
  }
 
  unsigned int VideoParser::getAviSize(QString path)
@@ -52,7 +47,7 @@
 	 return size;
  }
 
- unsigned int VideoParser::getMp4Size(QString path)
+ unsigned int VideoParser::getQuickTimeFileSize(QString path)
  {
 	 unsigned int currentAtomSize;
 	 char* atomName = new char[4];
