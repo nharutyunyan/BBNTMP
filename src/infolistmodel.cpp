@@ -139,7 +139,7 @@ void InfoListModel::getVideoFiles(const QString& path)
 	}
 }
 
-void InfoListModel::fileComplate(QString path)
+void InfoListModel::fileComplete(QString path)
 {
 	QStringList new_;
 	new_<<(path);

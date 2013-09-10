@@ -110,7 +110,7 @@ public slots:
     void onMetadataReady(const QVariantMap& data);
     void onAllMetadataRead();
     void getVideoFiles(const QString&);
-    void fileComplate(QString);
+    void fileComplete(QString);
     void readMetadatas();
     void checkVideosWaitingThumbnail();
     signals:
