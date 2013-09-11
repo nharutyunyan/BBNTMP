@@ -17,7 +17,7 @@ function formatTime(msecs)
 
     return hours + ":" + mins + ":" + secs;
 }
-var seekTimeInSlide = 5*1000;
+var seekTimeInSlide = 10*1000;
 var heightOfSlider = 100;
 var distanceFromSubtitleToBottomOfScreen = 30;
 var widthOfSubtitleButton = 150;
