@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "InfoListModel.hpp"
+
 namespace bb {
     namespace cascades {
         class Application;
@@ -30,11 +32,13 @@ public slots:
     void onThumbnailsGenerationFinished();
     void onThumbnail();
     void onAwake();
+    void onVideoUpdateNotification();
 
 private:
     bb::cascades::AbstractPane *root;
     bool splashScreenMinimalIntervalElapsed;
     bool thumbnailsGenerationFinished;
+    InfoListModel* model;
 };
 
 #endif /* NuttyPlayer_HPP_ */
