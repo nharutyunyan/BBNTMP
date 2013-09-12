@@ -43,8 +43,13 @@ thumbnailsGenerationFinished(false)
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
 
+
 	// Check for videos on the phone in the model
 	onVideoUpdateNotification();
+
+    QmlDocument *qmlSplash = QmlDocument::create("asset:///animatedSplash.qml").parent(this);
+    Application::instance()->setScene(qmlSplash->createRootObject<AbstractPane>());
+
 
     // Start the busy animation
     QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
