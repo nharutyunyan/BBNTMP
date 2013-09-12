@@ -52,6 +52,8 @@ InfoListModel::InfoListModel(QObject* parent)
 	m_producer->moveToThread(m_producerThread);
 
 	//when producer thread is started, start to produce
+	QObject::connect(m_producerThread, SIGNAL(started()), parent,
+					SLOT(loadingIndicatorStart()));
 	QObject::connect(m_producerThread, SIGNAL(started()), m_producer,
 			SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(finishedCurrentVideos()), this,
