@@ -1,5 +1,4 @@
 #include "NuttyPlayer.hpp"
-#include "InfoListModel.hpp"
 #include "HDMIScreen.hpp"
 #include "Settings.hpp"
 #include "Screenshot.hpp"
@@ -34,7 +33,7 @@ thumbnailsGenerationFinished(false)
     qml->setContextProperty("application", app);
     qml->setContextProperty("nuttyplayer", this);
 
-    InfoListModel* model = new InfoListModel(this);
+    model = new InfoListModel(this);
     qml->setContextProperty("infoListModel", model);
 
     passScreenDimensionsToQml(qml);
@@ -44,6 +43,9 @@ thumbnailsGenerationFinished(false)
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
 
+	// Check for videos on the phone in the model
+	onVideoUpdateNotification();
+
     // Start the busy animation
     QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
     if (loadingIndicator)
@@ -51,7 +53,28 @@ thumbnailsGenerationFinished(false)
 
     connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
     connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
+
+
+	connect(model, SIGNAL(itemsChanged(bb::cascades::DataModelChangeType::Type, QSharedPointer< bb::cascades::DataModel::IndexMapper)),
+		  this, SLOT(onVideoUpdateNotification()));
+	connect(model, SIGNAL(itemAdded(QVariantList)), this, SLOT(onVideoUpdateNotification()));
+	connect(model, SIGNAL(itemRemoved(QVariantList)), this, SLOT(onVideoUpdateNotification()));
 }
+
+
+void NuttyPlayer::onVideoUpdateNotification() {
+    // Check for videos on the phone in the model
+
+	Container *noVidLab_cont = root->findChild<Container*>("noVidLabel_obj");
+
+	if(noVidLab_cont) {
+		if(model->size() != 0)
+			noVidLab_cont->setProperty("visible", false);
+		else
+			noVidLab_cont->setProperty("visible", true);
+	}
+}
+
 
 void NuttyPlayer::onThumbnailsGenerationFinished() {
 	thumbnailsGenerationFinished = true;

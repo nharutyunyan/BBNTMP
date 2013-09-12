@@ -54,6 +54,8 @@ NavigationPane {
 
                     Container {
                         id: movieGridContainer
+                        objectName: "movGrid_obj"
+                        visible: true
                         layout: DockLayout {
                         }
                         attachedObjects: [
@@ -68,8 +70,24 @@ NavigationPane {
                         ]
                         background: backgroundImage.imagePaint
                     }
+                    Container {
+                        id: noVidLabelContainer
+                        objectName: "noVidLabel_obj"
+                        visible: true
+
+                        verticalAlignment: VerticalAlignment.Center
+                        horizontalAlignment: HorizontalAlignment.Center
+                        Label {
+                            id: noVidLabel
+                            text: "No Videos. All video files in Videos, Downloads and Camera directories will be shown here."
+                            textStyle.color: Color.White
+                            multiline: true
+                        }
+                    }
                     ImageView {
                         id: headerShadow
+                        objectName: "headShad_obj"
+                        visible: true
                         imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/shadow.png" : "asset:///images/shadow_landscape.png"
                         horizontalAlignment: HorizontalAlignment.Center
                         verticalAlignment: VerticalAlignment.Top
