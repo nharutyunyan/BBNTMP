@@ -129,11 +129,8 @@ void InfoListModel::getVideoFiles(const QString& path)
 		}
 
 	}
-	if(newVideos.isEmpty())
-	{
-			updateListWithDeletedVideos(result);
-	}
-	else
+	updateListWithDeletedVideos(result);
+	if(!newVideos.isEmpty())
 	{
 		emit notifyObserver(newVideos);
 	}
