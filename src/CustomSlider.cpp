@@ -68,6 +68,7 @@ CustomSlider::CustomSlider(Container* parent)
     m_timer = new QTimer(this);
     m_timer->setSingleShot(true);
     createConnections();
+    QObject::connect(&m_eventHandler, SIGNAL(deviceLockStateChanged(bool)),  this, SLOT(reset()));
 }
 
 void CustomSlider::createAnimation()
@@ -346,19 +347,23 @@ void CustomSlider::createConnections()
 
 void CustomSlider::onOrientationAboutToChange(bb::cascades::UIOrientation::Type   uiOrientation)
 {
-        	m_handle->setImage(m_handleOffImg);
-        	m_progressBarImageView->setImage(m_progressBarImage);
-        	setMediaState(false);
-            float handlePosX = m_handleLayoutProperties->positionX();
-        	if(!m_handleLongPressed)
-        		setImmediateValue(fromPosXToValue(handlePosX));
-        	m_handleTouched = false;
-        	if(m_timer->isActive())
-        		m_timer->stop();
-        	m_handleLongPressed = false;
-        	m_handleContainer->setVisible(true);
-            emit handleReleased();
+	reset();
+}
 
+void CustomSlider::reset()
+{
+	m_handle->setImage(m_handleOffImg);
+	m_progressBarImageView->setImage(m_progressBarImage);
+	setMediaState(false);
+	float handlePosX = m_handleLayoutProperties->positionX();
+	if (!m_handleLongPressed)
+		setImmediateValue(fromPosXToValue(handlePosX));
+	m_handleTouched = false;
+	if (m_timer->isActive())
+		m_timer->stop();
+	m_handleLongPressed = false;
+	m_handleContainer->setVisible(true);
+	emit handleReleased();
 }
 
 void CustomSlider::createProgressBar()

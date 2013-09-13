@@ -17,6 +17,7 @@
 #include <bb/cascades/animation/translatetransition.h>
 #include <bb/cascades/animation/parallelanimation.h>
 #include <bb/cascades/StackLayout>
+#include "BpsEventHandler.hpp"
 namespace bb {
     namespace cascades {
         class Container;
@@ -102,6 +103,7 @@ private Q_SLOTS:
     void progressBarTouched(bb::cascades::TouchEvent* event);
     void updateHandlePositionX(float);
     void updateRootContainerPreferredWidth(float width);
+    void reset();
 
 
 private:
@@ -113,6 +115,7 @@ private:
     void update(float);
 
 private:
+    BpsEventHandler m_eventHandler;
     // root container
     Container* m_rootContainer;
     float m_rootContainerWidth;
