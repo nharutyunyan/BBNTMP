@@ -50,12 +50,6 @@ thumbnailsGenerationFinished(false)
     QmlDocument *qmlSplash = QmlDocument::create("asset:///animatedSplash.qml").parent(this);
     Application::instance()->setScene(qmlSplash->createRootObject<AbstractPane>());
 
-
-    // Start the busy animation
-    QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
-    if (loadingIndicator)
-    	((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
-
     connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
     connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
 
@@ -66,6 +60,12 @@ thumbnailsGenerationFinished(false)
 	connect(model, SIGNAL(itemRemoved(QVariantList)), this, SLOT(onVideoUpdateNotification()));
 }
 
+void NuttyPlayer::loadingIndicatorStart()
+{
+	 QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
+	    if (loadingIndicator)
+	    	((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
+}
 
 void NuttyPlayer::onVideoUpdateNotification() {
     // Check for videos on the phone in the model
