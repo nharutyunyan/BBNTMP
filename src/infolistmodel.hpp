@@ -109,7 +109,7 @@ public slots:
     void consume(QString filename, QVariantList index);
     void onMetadataReady(const QVariantMap& data);
     void onAllMetadataRead();
-    void getVideoFiles(const QString&);
+    void getVideoFiles();
     void fileComplete(QString);
     void readMetadatas();
     void checkVideosWaitingThumbnail();
@@ -134,10 +134,9 @@ private:
     QSet<QString> addedVideos;
     QVariantList videosWaitingThumbnail;
 
-    void updateVideoList();
+    void prepareToStart();
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
-    void getVideoFiles();
     QVariantMap writeVideoMetaData(QString);
     void insertVideos(QVariantList);
 };
