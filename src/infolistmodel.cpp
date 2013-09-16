@@ -268,7 +268,8 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 	}
 
 	while(!value.isEmpty()) {
-		dir.remove(data(value.last()).toMap()["thumbURL"].toString());
+		QString tName = data(value.last()).toMap()["thumbURL"].toString();
+		dir.remove(tName.mid(7, tName.length() - 7));
 		removeAt(value.last());
 		value.pop_back();
 	}
