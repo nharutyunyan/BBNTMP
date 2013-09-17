@@ -899,9 +899,8 @@ Page {
                     onTouch: {
                         uiControlsShowTimer.start();
                     }
-                    onBookmarkTouchedChanged: {
-                        myPlayer.seekTime(infoListModel.getVideoPosition());
-                        bookmarkVisible = false;
+                    onBookmarkTouchedChanged: {                       
+                        durationSlider.startBookmarkAnimation();                        
                         bookmarkTimer.stop();
                      }
                     onSlideBarHeightChanged: {

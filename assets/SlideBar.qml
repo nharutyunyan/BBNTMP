@@ -138,7 +138,6 @@ Container {
             implicitLayoutAnimationsEnabled: false
             layoutProperties: AbsoluteLayoutProperties {
                 positionX: bookmarkPositionX
-
             }
             gestureHandlers: [
                 TapHandler {
@@ -147,10 +146,39 @@ Container {
                         bookmarkTouched = ! bookmarkTouched
                     }
                 }
-
             ]
-
-        } //bookmark Icon
+        } //bookmark Icon    
+        animations: [
+            TranslateTransition {
+                id: moveDown
+                toY: 55
+                duration: 100           
+                onEnded: {
+                    
+                    moveUp.play();
+                    
+                }
+            },
+            TranslateTransition {
+                id: moveUp
+                toY: 30
+                duration: 100
+                onEnded: {
+                    myPlayer.seekTime(infoListModel.getVideoPosition());
+                    fadeOut.play();                    
+                }
+            },
+            FadeTransition {
+                id: fadeOut
+                fromOpacity: 1
+                toOpacity: 0
+                duration: 300
+                onEnded: {
+                    bookmarkVisible = false;
+                    bookmark.opacity = 1;
+                }
+            }
+        ]           
     } //bookmark
 
     Container {
@@ -232,6 +260,10 @@ Container {
             }
         }
     ]
+
+	function startBookmarkAnimation() {
+        moveDown.play();
+    }
 
     function setValue(value) {
         slideBar.value = value;
