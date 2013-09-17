@@ -74,11 +74,13 @@ NavigationPane {
                         id: noVidLabelContainer
                         objectName: "noVidLabel_obj"
                         visible: true
-
+                        rightPadding: 17
+                        leftPadding: 17
                         verticalAlignment: VerticalAlignment.Center
                         horizontalAlignment: HorizontalAlignment.Center
                         Label {
                             id: noVidLabel
+                            textStyle.textAlign: TextAlign.Center
                             text: "No Videos. All video files in Videos, Downloads and Camera directories will be shown here."
                             textStyle.color: Color.White
                             multiline: true
