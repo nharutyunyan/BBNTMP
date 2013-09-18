@@ -495,12 +495,16 @@ Page {
                     if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
                     else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
                 }
+                onTouch: {
+                    appContainer.curVolume = (280 + volume.positionY - event.windowY) * 100 / 280;
+                    bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                    volume.setMuteIcons();
+                }
                 Container {
                     layout: AbsoluteLayout {
                     }
 
                     preferredHeight: volume.positionY + 142
-
                     ImageView {
                         layoutProperties: AbsoluteLayoutProperties {
                             positionX: 60
@@ -519,41 +523,37 @@ Page {
                         imageSource: "asset:///images/Player/VolumeActive.png"
                     }
                 }
-                Container {
-                    layout: AbsoluteLayout {
+                ImageView {
+                    id: volumeFull
+                    layoutProperties: AbsoluteLayoutProperties {
+                        positionX: 50
+                        positionY: volume.positionY - 145 - 70
                     }
-                    ImageView {
-                        id: volumeFull
-                        layoutProperties: AbsoluteLayoutProperties {
-                            positionX: 50
-                            positionY: volume.positionY - 145 - 70
-                        }
-                        imageSource: "asset:///images/Player/VolumeFull.png"
-                        horizontalAlignment: HorizontalAlignment.Left
-                        onTouch: {
-                            appContainer.volumeFullorMute = true
-                            appContainer.curVolume = 100;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volume.setMuteIcons();
-                        }
-                    }
-                    ImageView {
-                        id: volumeMute
-                        layoutProperties: AbsoluteLayoutProperties {
-                            positionX: 50
-                            positionY: volume.positionY + 145
-                        }
-                        imageSource: "asset:///images/Player/VolumeMute.png"
-                        horizontalAlignment: HorizontalAlignment.Left
-                        onTouch: {
-                            appContainer.volumeFullorMute = true
-                            appContainer.curVolume = 0;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volume.setMuteIcons();
-                        }
+                    imageSource: "asset:///images/Player/VolumeFull.png"
+                    horizontalAlignment: HorizontalAlignment.Left
+                    onTouch: {
+                        appContainer.volumeFullorMute = true
+                        appContainer.curVolume = 100;
+                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        volume.setMuteIcons();
                     }
                 }
-            }
+                ImageView {
+                    id: volumeMute
+                    layoutProperties: AbsoluteLayoutProperties {
+                        positionX: 50
+                        positionY: volume.positionY + 145
+                    }
+                    imageSource: "asset:///images/Player/VolumeMute.png"
+                    horizontalAlignment: HorizontalAlignment.Left
+                    onTouch: {
+                        appContainer.volumeFullorMute = true
+                        appContainer.curVolume = 0;
+                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        volume.setMuteIcons();
+                    }
+                }
+            } // volume container
          
             ImageView {
                 id: screenPlayPauseImage
