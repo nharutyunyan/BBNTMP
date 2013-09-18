@@ -484,6 +484,8 @@ void InfoListModel::deleteVideos()
 		QVariantList index = m_currentSelectionList[i];
 		QVariantMap v = data(index).toMap();
 		QFile::remove(v["path"].toString());
+		QString tName = v["thumbURL"].toString();
+		QFile::remove(tName.mid(7, tName.length() - 7));
 		removeAt(index);
 	}
 	saveData();
