@@ -665,6 +665,7 @@ Page {
                     objectName: backButtonContainer
                     opacity: 0.5
                     leftPadding: 10
+                    topPadding: 10
 
                     horizontalAlignment: HorizontalAlignment.Left
                     verticalAlignment: VerticalAlignment.Center
