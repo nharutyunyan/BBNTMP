@@ -71,6 +71,7 @@ InfoListModel::InfoListModel(QObject* parent)
 	reader->moveToThread(m_mediaPlayerThread);
 	QObject::connect(reader, SIGNAL(metadataReady(const QVariantMap& )), this, SLOT(onMetadataReady(const QVariantMap& )));
 	QObject::connect(this, SIGNAL(setData(QStringList )), reader, SLOT(setData(QStringList )));
+	prepareToStart();
 	getVideoFiles();
 }
 
@@ -105,7 +106,7 @@ void InfoListModel::consume(QString filename, QVariantList index)
 	saveData();
 }
 
-void InfoListModel::getVideoFiles(const QString& path)
+void InfoListModel::getVideoFiles()
 {
 	QStringList filters, result, newVideos;
 	filters <<  "*.avi" <<  "*.mp4";
@@ -143,37 +144,19 @@ void InfoListModel::fileComplete(QString path)
 	updateListWithAddedVideos(new_);
 }
 
-void InfoListModel::getVideoFiles()
+void InfoListModel::prepareToStart()
 {
-	// need to create the folder for thumbnails here
 	QDir dir;
 	if(!dir.exists(QDir::home().absoluteFilePath("thumbnails/")))
 	{
 		dir.mkpath("data/thumbnails/");
 	}
-	try {
-		QStringList result (getVideoFileList());
-		QFile file(m_file);
-		if (!file.exists()) {
-			if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-				QTextStream stream(&file);
-				stream << "[]" << endl;
-				updateListWithAddedVideos(result);
-				file.close();
-			}
-			saveData();
-			load();
-			onAllMetadataRead();
-		}
-		else
-		{
-			load();
-			updateVideoList();
-			onAllMetadataRead();
-		}
-	} catch (const exception& e) {
-		//do corresponding job
+	QFile file(m_file);
+	if(!file.exists())
+	{
+		file.open(QIODevice::ReadWrite | QIODevice::Text);
 	}
+	load();
 }
 
 void InfoListModel::insertVideos(QVariantList newVideos)
@@ -273,13 +256,6 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 		removeAt(value.last());
 		value.pop_back();
 	}
-}
-
-void InfoListModel::updateVideoList()
- {
-	QStringList result (getVideoFileList());
-	updateListWithAddedVideos(result);
-	updateListWithDeletedVideos(result);
 }
 
 InfoListModel::~InfoListModel()

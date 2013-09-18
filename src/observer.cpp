@@ -17,7 +17,7 @@ Observer::Observer(QObject* parent): QObject(parent)
 {
 	createWatcher();
 	QObject::connect(this, SIGNAL(directoryChanged(const QString&)), this->parent(),
-						SLOT(getVideoFiles(const QString&)));
+						SLOT(getVideoFiles()));
 	QObject::connect(this, SIGNAL(Complete(QString)), this->parent(),
 								SLOT(fileComplete(QString)));
 }
