@@ -465,72 +465,32 @@ Page {
 
             Container {
                 id: volume
-                layout: AbsoluteLayout {
+                layout: StackLayout {
+                    orientation:  LayoutOrientation.TopToBottom
                 }
-                verticalAlignment: orientationHandler.orientation == UIOrientation.Portrait ? VerticalAlignment.Center : VerticalAlignment.Fill
+                leftPadding: 50
+                verticalAlignment: VerticalAlignment.Center //orientationHandler.orientation == UIOrientation.Portrait ? VerticalAlignment.Center : VerticalAlignment.Center
                 visible: false
-
-                property int positionY: orientationHandler.orientation == UIOrientation.Portrait ? 225 : 384
-                property int indicator_length: 280
+                preferredHeight: 2*volumeFuleAndMuteHeight + indicator_length
+                property int volumeFuleAndMuteHeight: 70
+                property int indicator_length: 284
                 property int indicator_count: 16
                 property int indicators_length: 10
                 property int indicators_space: 8
-
-                function coord(vol) {
-                    var pos = vol * (indicator_length / 100);
-                    for (var i = 1; i < indicator_count; i ++) {
-                        var begin = indicators_length * i + indicators_space * (i - 1);
-                        var end = indicators_length * (i + 1) + indicators_space * i;
-                        if (pos >= begin && pos < (end - begin) / 2 + begin) return begin;
-                        if (pos <= end && pos >= (end - begin) / 2 + begin) return end;
-                    }
-                    return -2;
-                }
+                property int currentActiveIndicatorsCount : ((1 - appContainer.curVolume / 100) * volume.indicator_count)
                 
                 // this function changes the icons on the volume bar when the volume reaches its extremes
                 function setMuteIcons()
-                {
-                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
+                {	
+                    if (volumeActive.layoutProperties.positionY == indicator_count*(indicators_length + indicators_space)) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                    if (volumeActive.layoutProperties.positionY == 0) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
                     else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
                 }
-                onTouch: {
-                    appContainer.curVolume = (280 + volume.positionY - event.windowY) * 100 / 280;
-                    bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                    volume.setMuteIcons();
-                }
-                Container {
-                    layout: AbsoluteLayout {
-                    }
 
-                    preferredHeight: volume.positionY + 142
-                    ImageView {
-                        layoutProperties: AbsoluteLayoutProperties {
-                            positionX: 60
-                            positionY: volume.positionY - 140
-                        }
-                        imageSource: "asset:///images/Player/VolumeInactive.png"
-                    }
-                    ImageView {
-                        id: volumeActive
-                        layoutProperties: AbsoluteLayoutProperties {
-                            id: activeVolumeImagelayout
-                            positionX: 60
-                            positionY: volume.positionY + 140 - volume.coord(appContainer.curVolume)
-                        }
-                        implicitLayoutAnimationsEnabled: false
-                        imageSource: "asset:///images/Player/VolumeActive.png"
-                    }
-                }
                 ImageView {
                     id: volumeFull
-                    layoutProperties: AbsoluteLayoutProperties {
-                        positionX: 50
-                        positionY: volume.positionY - 145 - 70
-                    }
                     imageSource: "asset:///images/Player/VolumeFull.png"
-                    horizontalAlignment: HorizontalAlignment.Left
                     onTouch: {
                         appContainer.volumeFullorMute = true
                         appContainer.curVolume = 100;
@@ -538,14 +498,52 @@ Page {
                         volume.setMuteIcons();
                     }
                 }
-                ImageView {
-                    id: volumeMute
-                    layoutProperties: AbsoluteLayoutProperties {
-                        positionX: 50
-                        positionY: volume.positionY + 145
+
+                Container {
+                    preferredHeight: volume.indicator_length
+                    leftPadding: 100
+                    layout: AbsoluteLayout {
+                        
                     }
+                    ImageView {
+                        imageSource: "asset:///images/Player/VolumeInactive.png"
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 10
+                        }
+                        onTouch: 
+                        {
+                            if ( event.localY > 0 && event.localY < volume.indicator_length) 
+                            {
+                                appContainer.curVolume = (1 - event.localY / volume.indicator_length) * 100;
+                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                                volume.setMuteIcons();
+                            } 
+                        }
+                        touchBehaviors: [
+                            TouchBehavior {
+                                TouchReaction {
+                                    eventType: TouchType.Down
+                                    phase: PropagationPhase.AtTarget
+                                    response: TouchResponse.StartTracking
+                                }
+                            }
+                        ]
+                    }
+                    ImageView {
+                        id: volumeActive
+                        layoutProperties: AbsoluteLayoutProperties {
+                            positionX: 10
+                            positionY: volume.currentActiveIndicatorsCount *(volume.indicators_length + volume.indicators_space)
+                        }
+                        overlapTouchPolicy: OverlapTouchPolicy.Allow
+                        implicitLayoutAnimationsEnabled: false
+                        imageSource: "asset:///images/Player/VolumeActive.png"
+                    }
+                }
+                ImageView {
+                    topMargin: 0
+                    id: volumeMute
                     imageSource: "asset:///images/Player/VolumeMute.png"
-                    horizontalAlignment: HorizontalAlignment.Left
                     onTouch: {
                         appContainer.volumeFullorMute = true
                         appContainer.curVolume = 0;
@@ -1134,14 +1132,10 @@ Page {
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getIntIndex(infoListModel.getSelectedIndex()), OrientationSupport.orientation == UIOrientation.Portrait, infoListModel.size());
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
-                        volume.verticalAlignment = VerticalAlignment.Fill
                         durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30
-                        volume.positionY = 384;
                         upperMenu.preferredWidth = displayInfo.width
                     }  else {
-                        volume.verticalAlignment = VerticalAlignment.Center
                         durationSlider.bookmarkPositionX = durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - durationSlider.sliderHandleWidth) - 30
-                        volume.positionY = 225;
                         upperMenu.preferredWidth = displayInfo.height
                     }
                     	videoWindow.initializeVideoScales();
