@@ -423,12 +423,17 @@ Page {
                             foreignWindowControlContainer.touch(event)
                             if(event.touchType == TouchType.Up)
                             {
+                                // no subtitle file was found
+                                if (!subtitleButton.enabled)
+                                {
+                                    noSubToast.show();
+                                }
                                 if (subtitleButtonContainer.opacity != 0) {
                                     uiControlsShowTimer.start();
                                     subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
                                     settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
                                 }
-                                }
+                            }
                     }
                     ImageButton {
                         id: subtitleButton
@@ -768,6 +773,7 @@ Page {
                         rightPadding: 10
                         topPadding: 10
                         property bool hdmiEnabled: false
+                        visible: false
                         enabled: HDMIScreen.connection
 
                         ImageButton {
@@ -960,6 +966,12 @@ Page {
                 onFinished: {
                     backButtonContainer.goBack();
                 }
+            },
+            // Notification displayed to the user when broken file is opened
+            SystemToast {
+                id: noSubToast
+                body: "Subtitles aren't available for this video."
+                position: SystemUiPosition.BottomCenter
             },
             Sheet {
                 id: videoSheet

@@ -13,8 +13,8 @@
 
 using namespace bb::cascades;
 
-const int SPLASHSCREEN_INTERVAL_MIN = 4000;
-const int SPLASHSCREEN_INTERVAL_MAX = 8000;
+const int SPLASHSCREEN_INTERVAL_MIN = 3000;
+const int SPLASHSCREEN_INTERVAL_MAX = 4000;
 
 NuttyPlayer::NuttyPlayer(bb::cascades::Application *app)
 : QObject(app),
