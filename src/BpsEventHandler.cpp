@@ -92,7 +92,7 @@ void BpsEventHandler::event( bps_event_t *event )
     		// The system volume value has been changed.
     		// Synchronize the volume slider value with the system volume value
     	  	float speaker_volume;
-    	    audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &speaker_volume);
+    	    audiomixer_get_output_level(AUDIOMIXER_OUTPUT_DEFAULT, &speaker_volume);
     	    emit speakerVolumeChanged(speaker_volume);
     	}
     }
@@ -102,12 +102,13 @@ void BpsEventHandler::onVolumeValueChanged(float volumeValue)
 {
 	// The volume slider value has been changed
 	// Synchronize the system volume value with the volume slider value
-	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_SPEAKER, volumeValue);
+	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_DEFAULT, volumeValue);
 }
 
 float BpsEventHandler::getVolume()
 {
 	float oldVolume;
-	audiomixer_get_output_level(AUDIOMIXER_OUTPUT_SPEAKER, &oldVolume);
-	return oldVolume;;
+	audiomixer_get_output_level(AUDIOMIXER_OUTPUT_DEFAULT, &oldVolume);
+
+	return oldVolume;
 }
