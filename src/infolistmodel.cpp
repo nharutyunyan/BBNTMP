@@ -26,7 +26,7 @@ inline const static QStringList getVideoFileList() {
 	QStringList filters, result;
 
 	//BB10 presumably supported formats: 3GP, 3GP2, ASF, AVI, F4V, M4V, MKV, MOV, MP4, MPEG4, WMV
-	filters << "*.avi" << "*.mp4" << "*.3gp" << "*.3g2" << "*.asf" << "*.wmv" << "*.mov" << "*.m4v" << "*.mkv" << "*.f4v";    //these are the formats the don't crash the app.
+	filters << "*.avi" << "*.mp4" << "*.3gp" << "*.3g2" << "*.asf" << "*.wmv" << "*.mov" << "*.m4v" << "*.f4v";    //these are the formats the don't crash the app.
 
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
