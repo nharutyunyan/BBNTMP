@@ -153,15 +153,13 @@ Container {
                 id: moveDown
                 toY: 55
                 duration: 100           
-                onEnded: {
-                    
-                    moveUp.play();
-                    
+                onEnded: {                    
+                    moveUp.play();                    
                 }
             },
             TranslateTransition {
                 id: moveUp
-                toY: 30
+                toY: 0
                 duration: 100
                 onEnded: {
                     myPlayer.seekTime(infoListModel.getVideoPosition());
