@@ -969,7 +969,7 @@ Page {
             SystemToast {
                 id: noSubToast
                 body: "Subtitles aren't available for this video."
-                position: SystemUiPosition.BottomCenter
+                position: SystemUiPosition.MiddleCenter
             },
             Sheet {
                 id: videoSheet
