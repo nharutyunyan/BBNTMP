@@ -39,7 +39,7 @@ InfoListModel::InfoListModel(QObject* parent)
 : m_selectedIndex(QVariantList())
 , m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
 {
-    setSortingKeys(QStringList() << "folder");
+    setSortingKeys(QStringList() << "folder" << "title");
     setGrouping(ItemGrouping::ByFullValue);
 
     qDebug() << "Creating InfoListModel object:" << this;
