@@ -28,3 +28,5 @@ var widthOfContextMenu = 112;
 var splashScreenForAnimationPortrait = "asset:///images/SplashScreenAnimationQ10.png";
 var animatedLogoPositionXPortrait = 159;
 var animatedLogoPositionYPortrait = 236;
+var volumeIndicatorLength = 231;
+var volumeBarIndicatorsCount = 13;

@@ -31,4 +31,6 @@ var animatedLogoPositionXPortrait = 185;
 var animatedLogoPositionYPortrait = 537;
 var animatedLogoPositionXLandscape = 411;
 var animatedLogoPositionYLandscape = 300;
+var volumeIndicatorLength = 284;
+var volumeBarIndicatorsCount = 16;
 
