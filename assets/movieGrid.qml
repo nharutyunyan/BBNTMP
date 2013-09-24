@@ -375,7 +375,7 @@ ListView {
         SystemToast {
             id: gridToast
             body: numberOfItems+currentAction
-            position: SystemUiPosition.BottomCenter
+            position: SystemUiPosition.MiddleCenter
         }
     ]
 } // ListView
