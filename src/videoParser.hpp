@@ -9,6 +9,7 @@
 #define VIDEOPARSER_HPP_
 #include <QString>
 #include <QVector>
+#include <QFile>
 
 class VideoParser
 {
@@ -23,7 +24,7 @@ private:
 	unsigned int getQuickTimeFileSize(QString);
 	unsigned int charToint(char*);
 	unsigned long long int getAsf_WmvSize(QString);
-	QString getVideoHeaderGUID(fstream*);
+	QString getVideoHeaderGUID(QFile*);
 	QString getVideoFormat(QString);
 };
 

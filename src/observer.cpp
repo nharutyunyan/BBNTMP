@@ -41,7 +41,7 @@ void Observer::waitForComplete(const QString& path)
 {
 	if(m_newVideos.find(path) != m_newVideos.end())
 	{
-		QFile videoFile(path.toStdString().c_str());
+		QFile videoFile(path);
 		VideoParser parser;
 		if(m_newVideos[path] == 0)
 		{

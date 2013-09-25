@@ -37,25 +37,26 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  {
 
 	 char* ext = new char[4];
-	 fstream videoFile;
-	 videoFile.open(path.toStdString().c_str(), videoFile.binary|videoFile.in);
+	 QFile videoFile(path);
+	 videoFile.open(QIODevice::ReadOnly);
+
 	 if( getVideoHeaderGUID(&videoFile) ==  ASF_Header_Object_GUID)
 		 return "asf_wmv";
 
-	 videoFile.seekg(8,videoFile.beg);
-	 videoFile.read(ext,3);
+	 videoFile.seek(8);
+	 videoFile.read(ext, 3);
 	 if(ext[0] == 'A'&& ext[1] == 'V' && ext[2] == 'I')
 		 return "avi";
 
-	 videoFile.seekg(4,videoFile.beg);
-	 videoFile.read(ext,4);
+	 videoFile.seek(4);
+	 videoFile.read(ext, 4);
 	 unsigned int ftyp_size;
 	 if(ext[0] == 'f'&& ext[1] == 't' && ext[2] == 'y' && ext[3] == 'p')
 		 return "QuickTime";
 	 return "Unknown";
  }
 
- QString VideoParser::getVideoHeaderGUID(fstream* videoFile)
+ QString VideoParser::getVideoHeaderGUID(QFile* videoFile)
   {
 	 QString result("");
  	 unsigned  long long int currentData = 0;
@@ -64,7 +65,7 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  	 int currentPos = 0;
  	 for(int i = 1; i <= QUIDComponentsNumber; ++i)
  	 {
- 		videoFile->seekg(currentPos,videoFile->beg);
+ 		videoFile->seek(currentPos);
  		switch (i) {
  		case 1:
  			GUIDCurrentComponentSize = 4;
@@ -95,10 +96,12 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  unsigned int VideoParser::getAviSize(QString path)
  {
 	 unsigned int size;
-	 fstream videoFile;
-	 videoFile.open(path.toStdString().c_str(), videoFile.binary|videoFile.in);
-	 videoFile.seekg(4,videoFile.beg);
-	 videoFile.read((char*)&size,4);
+
+	 QFile videoFile(path);
+	 videoFile.open(QIODevice::ReadOnly);
+	 videoFile.seek(4);
+	 videoFile.read((char*)&size, 4);
+
 	 return size;
  }
 
@@ -107,22 +110,27 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 	 unsigned int currentAtomSize;
 	 char* atomName = new char[4];
 	 char* num = new char[4];
-	 fstream videoFile;
-	 videoFile.open(path.toStdString().c_str(), videoFile.binary|videoFile.in);
-	 videoFile.seekg(0,videoFile.beg);
-	 videoFile.read(num,4);
+
+	 QFile videoFile(path);
+	 videoFile.open(QIODevice::ReadOnly);
+	 videoFile.seek(0);
+	 videoFile.read(num, 4);
+
 	 currentAtomSize = charToint(num);
-	 videoFile.seekg(4,videoFile.beg);
-	 videoFile.read(atomName,4);
+
+	 videoFile.seek(4);
+	 videoFile.read(atomName, 4);
+
 	 while(!(atomName[0] == 'm' && atomName[1] == 'd' && atomName[2] == 'a' && atomName[3] == 't'))
 	 {
-		 videoFile.seekg(0, videoFile.end);
-		 if(currentAtomSize > videoFile.tellg())
+		 if(currentAtomSize > videoFile.size())
 			 return 0;
-		 videoFile.seekg(currentAtomSize,videoFile.beg);
-		 videoFile.read(num,4);
-		 videoFile.seekg(currentAtomSize + 4,videoFile.beg);
-		 videoFile.read(atomName,4);
+
+		 videoFile.seek(currentAtomSize);
+		 videoFile.read(num, 4);
+		 videoFile.seek(currentAtomSize + 4);
+		 videoFile.read(atomName, 4);
+
 		 currentAtomSize += charToint(num);
 	 }
 	 return currentAtomSize;
@@ -131,31 +139,40 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  unsigned long long int VideoParser::getAsf_WmvSize(QString path)
 {
 	unsigned long long int size = 0;
-	fstream videoFile;
-	videoFile.open(path.toStdString().c_str(), videoFile.binary | videoFile.in);
+
+	 QFile videoFile(path);
+	 videoFile.open(QIODevice::ReadOnly);
+
 	_uint64 currentObjectAdrres = HEADER_OBJECT_DATA_SIZE;
 	_uint64 offset = 0;
 	_uint64 headerObjectSize = 0;
 	uint id = 0;
-	videoFile.seekg(GUID_SIZE, videoFile.beg);
-	videoFile.read((char*) &headerObjectSize, 8);
+
+	 videoFile.seek(GUID_SIZE);
+	 videoFile.read((char*) &headerObjectSize, 8);
+
 	while(currentObjectAdrres < headerObjectSize )
 	{
 		id = 0;
 		offset = 0;
-		videoFile.seekg(currentObjectAdrres, videoFile.beg);
-		videoFile.read((char*) &id, 4);
+
+		 videoFile.seek(currentObjectAdrres);
+		 videoFile.read((char*) &id, 4);
+
 		if(QString::number(id, GUID_SIZE).toUpper() != ASF_File_Properties_Object_GUID_FIRST_COMPONENT)
 		{
-			videoFile.seekg(currentObjectAdrres + GUID_SIZE, videoFile.beg);
+
+			videoFile.seek(currentObjectAdrres + GUID_SIZE);
 			videoFile.read((char*) &offset, 8);
+
 			currentObjectAdrres += offset;
 			continue;
 		}
 		else
 		{
-			videoFile.seekg(currentObjectAdrres + FILE_SIZE_OFFSET, videoFile.beg);
+			videoFile.seek(currentObjectAdrres + FILE_SIZE_OFFSET);
 			videoFile.read((char*) &size, 8);
+
 			break;
 		}
 	}

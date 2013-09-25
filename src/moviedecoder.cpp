@@ -21,7 +21,7 @@ extern "C" {
 static const int THUMBNAIL_SIZE=380;
 static const bool MAINTAIN_ASPECT_RATIO = true;
 
-MovieDecoder::MovieDecoder(const std::string& filename, AVFormatContext* pavContext)
+MovieDecoder::MovieDecoder(const QString& filename, AVFormatContext* pavContext)
 : videoStream(-1)
 , pFormatContext(pavContext)
 , pVideoCodecContext(0)
@@ -58,19 +58,19 @@ void MovieDecoder::setContext(AVFormatContext *pavContext)
     pFormatContext = pavContext;
 }
 
-void MovieDecoder::initialize(const std::string& filename)
+void MovieDecoder::initialize(const QString& filename)
 {
     av_register_all();
     avcodec_register_all();
 
-    std::string inputFile = filename == "-" ? "pipe:" : filename;
+    QString inputFile = filename == "-" ? "pipe:" : filename;
 
-    allowSeek = filename.find("rtsp://") != 0;
+	allowSeek = filename.contains("rtsp://");	//is this necessary ?
 
-	if (avformat_open_input(&pFormatContext, inputFile.c_str(), 0, 0) != 0)
+	if (avformat_open_input(&pFormatContext, inputFile.toStdString().c_str(), 0, 0) != 0)
 	{
 		destroy();
-		throw std::logic_error(std::string("Could not open input file: ") + filename);
+		throw std::logic_error(std::string("Could not open input file: ") + filename.toStdString());
 	}
 
     // This code helps to generate thumbnail for the .avi video files.
@@ -192,7 +192,7 @@ _int64 MovieDecoder::getVideosDuration()
 	return videoDuration;
 }
 
-void MovieDecoder::setVideosDuration(std::string path)
+void MovieDecoder::setVideosDuration(QString path)
 {
 	AVInputFormat* format = pFormatContext->iformat;
 	std::string extension( format->name);
@@ -203,8 +203,7 @@ void MovieDecoder::setVideosDuration(std::string path)
 		{
 		    int time_delay_between_frames;
 			int number_of_frame;
-			std::ifstream f;
-			f.open (path.c_str(),f.binary|f.in);
+			std::ifstream f(path.toStdString().c_str(),f.binary|f.in);
 			f.seekg(32,f.beg);
 			f.read((char*)&time_delay_between_frames,4);
 			f.seekg(48,f.beg);
@@ -225,7 +224,7 @@ void MovieDecoder::setVideosDuration(std::string path)
 		}
 }
 
-int MovieDecoder::getDuration(const std::string& videoFile)
+int MovieDecoder::getDuration(const QString& videoFile)
 {
     if (pFormatContext)
     {
@@ -246,7 +245,7 @@ int MovieDecoder::getDuration(const std::string& videoFile)
     	for (int ix = 0; ix < m_list.size(); ++ix)
     	{
     		QVariantMap v = m_list[ix].toMap();
-    		if (v["path"].toString().compare(videoFile.c_str()) == 0)
+    		if (v["path"].toString().compare(videoFile) == 0)
     		{
     			//found the video, now get the duration!
     			unsigned long long int duration = v["duration"].toString().toULongLong();

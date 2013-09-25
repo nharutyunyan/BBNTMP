@@ -9,6 +9,7 @@
 #define MOVIEDECODER_HPP_
 
 #include <string>
+#include <qstring.h>
 
 // include math.h otherwise it will get included
 // by avformat.h and cause duplicate definition
@@ -28,21 +29,21 @@ struct VideoFrame;
 class MovieDecoder
 {
 public:
-    MovieDecoder(const std::string& filename, AVFormatContext* pavContext = 0);
+    MovieDecoder(const QString& filename, AVFormatContext* pavContext = 0);
     ~MovieDecoder();
     MovieDecoder();
 
-    void initialize(const std::string& filename);
+    void initialize(const QString& filename);
     void destroy();
     void decodeVideoFrame();
     void seek(int timeInSeconds);
-    int getDuration(const std::string& videoFile);
+    int getDuration(const QString& videoFile);
     void getScaledVideoFrame(VideoFrame& videoFrame);
     int getWidth();
     int getHeight();
     void setContext(AVFormatContext* pavContext);
     _int64 getVideosDuration();
-    void setVideosDuration(std::string);
+    void setVideosDuration(QString);
 
 private:
     void initializeVideo();
