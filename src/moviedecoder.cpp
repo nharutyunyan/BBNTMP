@@ -65,7 +65,10 @@ void MovieDecoder::initialize(const QString& filename)
 
     QString inputFile = filename == "-" ? "pipe:" : filename;
 
-	allowSeek = filename.contains("rtsp://");	//is this necessary ?
+    if(filename.startsWith("rtsp://"))
+    	allowSeek = false;
+    else
+    	allowSeek = true;
 
 	if (avformat_open_input(&pFormatContext, inputFile.toStdString().c_str(), 0, 0) != 0)
 	{
@@ -192,7 +195,7 @@ _int64 MovieDecoder::getVideosDuration()
 	return videoDuration;
 }
 
-void MovieDecoder::setVideosDuration(QString path)
+void MovieDecoder::setVideosDuration(const QString& path)
 {
 	AVInputFormat* format = pFormatContext->iformat;
 	std::string extension( format->name);
@@ -203,12 +206,14 @@ void MovieDecoder::setVideosDuration(QString path)
 		{
 		    int time_delay_between_frames;
 			int number_of_frame;
-			std::ifstream f(path.toStdString().c_str(),f.binary|f.in);
-			f.seekg(32,f.beg);
-			f.read((char*)&time_delay_between_frames,4);
-			f.seekg(48,f.beg);
-			f.read((char*)&number_of_frame,4);
-			f.close();
+
+			 QFile tempFile(path);
+			 tempFile.open(QIODevice::ReadOnly);
+			 tempFile.seek(32);
+			 tempFile.read((char*)&time_delay_between_frames,4);
+			 tempFile.seek(48);
+			 tempFile.read((char*)&number_of_frame,4);
+
 			videoDuration = (_int64)time_delay_between_frames * number_of_frame /1000;
 		}
 		else if(extension == "asf")

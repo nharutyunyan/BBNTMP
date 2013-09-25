@@ -43,7 +43,7 @@ public:
     int getHeight();
     void setContext(AVFormatContext* pavContext);
     _int64 getVideosDuration();
-    void setVideosDuration(QString);
+    void setVideosDuration(const QString&);
 
 private:
     void initializeVideo();
