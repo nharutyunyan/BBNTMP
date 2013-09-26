@@ -109,8 +109,7 @@ void InfoListModel::consume(QString filename, QVariantList index)
 
 void InfoListModel::getVideoFiles()
 {
-	QStringList filters, result, newVideos;
-	filters <<  "*.avi" <<  "*.mp4";
+	QStringList result, newVideos;
 	result = getVideoFileList();
 	QSet<QString> set;
 
@@ -201,7 +200,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			bool durationIsCorrect = true;
 			movieDecoder.setContext(0);
 			try{
-				movieDecoder.initialize(i->toStdString());
+				movieDecoder.initialize(*i);
 				_int64 duration = movieDecoder.getVideosDuration();
 
 				if(duration != 0)

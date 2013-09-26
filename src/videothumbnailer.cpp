@@ -19,13 +19,13 @@ static const int SEEK_PERCENTAGE = 20;
 
 MovieDecoder VideoThumbnailer::movieDecoder;
 
-void VideoThumbnailer::generateThumbnail(const string& videoFile, const string& outputFile, AVFormatContext* pAvContext)
+void VideoThumbnailer::generateThumbnail(const QString& videoFile, const string& outputFile, AVFormatContext* pAvContext)
 {
     PngWriter pngWriter (outputFile);
     generateThumbnail(videoFile, pngWriter, outputFile, pAvContext);
 }
 
-void VideoThumbnailer::generateThumbnail(const std::string& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
+void VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
 {
     movieDecoder.setContext(pAvContext);
     try
