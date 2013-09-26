@@ -8,6 +8,8 @@ NavigationPane {
     id: navigationPane
     peekEnabled: false
     backButtonsVisible: false
+    Menu.definition: AppMenu {
+    }
     Page {
         id : mainPage
         property variant currentMoviePosition;
@@ -25,27 +27,7 @@ NavigationPane {
                     ImageView {
                         id: headerImage
                         imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
-                    }
-                    Container {
-                        verticalAlignment: VerticalAlignment.Top
-                        horizontalAlignment: HorizontalAlignment.Right
-                        topPadding: 3
-                        ImageButton {
-                            id: info
-                            defaultImageSource: "asset:///images/appInfo.png"
-                            onClicked : {
-                                linkInvocation.trigger("bb.action.OPEN");
-                            }
-                            attachedObjects: [
-                                Invocation {
-                                    id: linkInvocation
-                                    query {
-                                        uri: "http://www.macadamian.com/"
-                                   }
-                                }
-                            ]
-                        }
-                    }
+                    }  
                 }
 
                 Container {
