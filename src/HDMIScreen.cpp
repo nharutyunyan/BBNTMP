@@ -6,10 +6,22 @@
  */
 
 #include "HDMIScreen.hpp"
+#include <qDebug>
 
 HDMIScreen::HDMIScreen(Application* app, QObject *parent) : QObject(parent) {
     secondaryDisplay = new DisplayInfo(DisplayInfo::secondaryDisplayId(), app);
     m_connection = secondaryDisplay->isAttached();
+    // If we are already connected the HDMI then call the slot directly
+    if ( secondaryDisplay->isAttached() ) {
+        qDebug() << "secondary display name is "
+                 << secondaryDisplay->displayName();
+        qDebug() << "secondary display size is "
+                 << secondaryDisplay->pixelSize().width()
+                 << ", " << secondaryDisplay->pixelSize().height();
+        setConnection(true);
+    }
+
+    // setup signal/slot for changed in the connection
     connect(secondaryDisplay, SIGNAL(attachedChanged(bool)), this, SLOT(setConnection(bool)));
 }
 
