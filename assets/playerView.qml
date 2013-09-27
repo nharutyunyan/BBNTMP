@@ -463,6 +463,15 @@ Page {
                             subtitleButton.setDefaultImageSource("asset:///images/Player/SubtitleButtonInactive.png");
                         }
                     }
+                    animations: [
+                        FadeTransition {
+                            id: subtitleButtonAnimation
+                            fromOpacity: 1.0
+                            toOpacity: 0.0
+                            duration: 500
+                            easingCurve: StockCurve.SineOut
+                        }
+                    ]
                 } //subtitleButtonContainer
             }
 
@@ -571,18 +580,27 @@ Page {
                       FadeTransition {
                           toOpacity: 0.8
                           fromOpacity: 0.0
-                          duration: 800
+                          duration: 500
                           easingCurve: StockCurve.SineOut
                         }  
                     
                       FadeTransition {
+                          delay: 2000
                           toOpacity: 0.0
                           fromOpacity: 0.8
-                          duration: 1500
+                          duration: 1000
                           easingCurve: StockCurve.QuarticOut
                      }
                 }
                 ]
+                onTouch: {
+                    if(myPlayer.mediaState != MediaState.Started){
+                        appContainer.playMediaPlayer();
+	                }
+                    else {
+                        appContainer.pauseMediaPlayer();
+                    }
+                }
             }
         }//contentContainer
 
@@ -808,6 +826,15 @@ Page {
                         id:upperMenuLayout
                     }
                 ]
+                animations: [
+                    FadeTransition {
+                        id: upperMenuAnimation
+                        fromOpacity: 1.0
+                        toOpacity: 0.0
+                        duration: 500
+                        easingCurve: StockCurve.SineOut
+                    }
+                ]
             }
 
             onCreationCompleted: {
@@ -922,6 +949,19 @@ Page {
 
                 } //durationSlider
             }//sliderContainer
+            animations: [
+                FadeTransition {
+                    id: controlsAnimation
+                    fromOpacity: 1.0
+                    toOpacity: 0.0
+                    duration: 500
+                    easingCurve: StockCurve.SineOut
+                    onEnded: {
+                        controlsContainer.visible=false
+                        controlsContainer.opacity=1.0
+                    }
+                }
+            ]
         }//controlsContainer
 
         function playMediaPlayer() {
@@ -942,10 +982,8 @@ Page {
 
         function showPlayPauseButton() {
             if(myPlayer.mediaState != MediaState.Started) {
-                appContainer.playMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
             } else {
-                appContainer.pauseMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
             upperMenu.setOpacity(1);
@@ -1119,9 +1157,12 @@ Page {
                    if(durationSlider.onSlider) {
                        uiControlsShowTimer.start();
                    } else {
-                   subtitleButtonContainer.setOpacity(0);
-                   upperMenu.setOpacity(0);
-                   controlsContainer.setVisible(false);
+                   if (subtitleButton.opacity ==1.0)
+                   subtitleButtonAnimation.play()
+                   if (upperMenu.opacity==1.0)
+                   upperMenuAnimation.play()
+                   if (controlsContainer.opacity==1.0)
+                   controlsAnimation.play()
                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
                    uiControlsShowTimer.stop();
                    volume.visible = false;
