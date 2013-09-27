@@ -6,10 +6,10 @@
  */
 
 #include "subtitleManager.hpp"
-#include <QDebug>
-#include <QFile>
-#include <QStringList>
-#include <QTime>
+#include <qdebug>
+#include <qfile>
+#include <qstringlist>
+#include <qtime>
 #include <stdio.h>
 #include <algorithm>
 

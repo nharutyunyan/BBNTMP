@@ -7,7 +7,7 @@
 
 #include "HDMIVideoPlayer.hpp"
 #include <stdlib.h>
-#include <qDebug>
+#include <qdebug>
 
 
 HDMIVideoPlayer::HDMIVideoPlayer(QObject* parent) :

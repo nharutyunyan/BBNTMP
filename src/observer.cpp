@@ -7,10 +7,10 @@
 
 #include "observer.hpp"
 #include "videoParser.hpp"
-#include <QStringList>
-#include <QFile>
-#include <QDebug>
-#include <QThread>
+#include <qstringlist>
+#include <qfile>
+#include <qdebug>
+#include <qthread>
 
 
 Observer::Observer(QObject* parent): QObject(parent)
