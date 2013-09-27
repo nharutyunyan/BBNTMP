@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "InfoListModel.hpp"
+#include "infolistmodel.hpp"
 
 namespace bb {
     namespace cascades {
