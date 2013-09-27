@@ -20,9 +20,6 @@ STOREPASS=$3
 
 # package the app into a signed deployable bar file
 
-echo CD to $PROJECT
-cd $PROJECT
-
 echo Set environment
 . /opt/bbndk/bbndk-env.sh
 
