@@ -1,5 +1,5 @@
 // List with context menu project template
-#include "infoListModel.hpp"
+#include "infolistmodel.hpp"
 #include <iostream.h>
 
 #include <QFile>

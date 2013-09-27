@@ -30,6 +30,9 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 	 	return getAsf_WmvSize(path);
 	 if(format == "Unknown")
 		return 0;
+
+	 Q_ASSERT(false);
+	 return 0;
  }
 
 
@@ -50,7 +53,6 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 
 	 videoFile.seek(4);
 	 videoFile.read(ext, 4);
-	 unsigned int ftyp_size;
 	 if(ext[0] == 'f'&& ext[1] == 't' && ext[2] == 'y' && ext[3] == 'p')
 		 return "QuickTime";
 	 return "Unknown";
