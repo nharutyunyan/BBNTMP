@@ -1,5 +1,6 @@
 #include "NuttyPlayer.hpp"
 #include "HDMIScreen.hpp"
+#include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
 #include "Screenshot.hpp"
 
@@ -39,6 +40,14 @@ thumbnailsGenerationFinished(false)
     passScreenDimensionsToQml(qml);
     HDMIScreen* hdmi = new HDMIScreen(app);
     qml->setContextProperty("HDMIScreen", hdmi);
+
+    HDMIVideoPlayer* hdmiPlayer = new HDMIVideoPlayer(app);
+    qml->setContextProperty("HDMIPlayer", hdmiPlayer);
+
+    // Connect the HDMI screen to the HDMI player to that it can initialize the
+    // HDMI Screen with BLUE
+    connect (hdmi, SIGNAL(connectionChanged(bool)) , hdmiPlayer, SLOT(onConnectionChanged(bool)));
+    //hdmiPlayer->initExternalDisplay();
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
