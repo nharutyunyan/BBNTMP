@@ -8,7 +8,7 @@
 #ifndef SETTINGS_HPP_
 #define SETTINGS_HPP_
 #include <QSettings>
-#include <qcoreapplication.h>
+#include <QCoreApplication>
 
 class Settings : public QSettings {
     Q_OBJECT

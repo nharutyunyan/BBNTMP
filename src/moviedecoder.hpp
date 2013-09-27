@@ -9,7 +9,7 @@
 #define MOVIEDECODER_HPP_
 
 #include <string>
-#include <qstring.h>
+#include <QString>
 
 // include math.h otherwise it will get included
 // by avformat.h and cause duplicate definition
