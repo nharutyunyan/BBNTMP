@@ -3,8 +3,8 @@
 #include <iostream.h>
 
 #include <QFile>
-#include <Qdir>
-#include <Qtextstream>
+#include <QDir>
+#include <QTextStream>
 #include <iostream>
 
 #include <QSet>
