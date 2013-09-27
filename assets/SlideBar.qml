@@ -9,14 +9,14 @@ Container {
     property real value
     property real fromValue: 0
     property real toValue: 1
-    property bool onSlider : false
+    property bool onSlider: false
     property int height: 105
     property bool pauseHandle
     property variant layoutSize
     property int bookmarkPositionX
-    property bool bookmarkTouched: false 
+    property bool bookmarkTouched: false
     property bool bookmarkVisible: true
-    property int timeAreaWidth: 200 
+    property int timeAreaWidth: 200
     property int timeAreaHeight: 70
     property int sliderHandleWidth: 87
     property real factor: 105
@@ -24,7 +24,7 @@ Container {
     preferredHeight: slideBarHeight
 
     layout: DockLayout {
-        
+
     }
     background: backgroundImage.imagePaint
 
@@ -34,80 +34,75 @@ Container {
         horizontalAlignment: HorizontalAlignment.Center
         property int positionOfX
         CustomSlider {
-        id: slider
-        objectName: "slider"
-        horizontalAlignment: HorizontalAlignment.Fill
-        fromValue: slideBar.fromValue
-        toValue: slideBar.toValue
+            id: slider
+            objectName: "slider"
+            horizontalAlignment: HorizontalAlignment.Fill
+            fromValue: slideBar.fromValue
+            toValue: slideBar.toValue
 
-        onHandleLongPressed: {
-            onSlider = true;
-            if(slider.toValue > my.minTime) {
+            onHandleLongPressed: {
+                onSlider = true;
+                if (slider.toValue > my.minTime) {
 
- 				smallStepSlider.smallCurrentValue = slider.value; 
-                smallStepSlider.visible = true;
-                if(slider.value - my.dt < slider.fromValue) {
-                    smallStepSlider.fromValue = slider.fromValue;
-                    smallStepSlider.toValue = slider.value + my.dt;
-                    smallStepSlider.value = slider.value;
-                    smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor)* (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
-                }
-                else if(slider.value + my.dt > slider.toValue) {
-                    smallStepSlider.fromValue = slider.value - my.dt;
-                    smallStepSlider.toValue = slider.toValue;
-                    smallStepSlider.value = slider.value;
-                    smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor)* (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
-                }
-                else {
-                    smallStepSlider.fromValue = slider.value - my.dt;
-                    smallStepSlider.toValue = slider.value + my.dt;
-                    smallStepSlider.value = slider.value;
-                    smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth , slideBar.height)
-                }
-
-                smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + sliderContainer.positionOfX;
-                my.longPressInitX = positionX;
-                my.handlLongPressed = true;
-                
-                if (OrientationSupport.orientation == UIOrientation.Portrait) 
-                {
-                    smallStepSlider.smallCordX = smallStepSlider.layoutProperties.positionX;
-                    if(smallStepSlider.layoutProperties.positionX < -20)
-                    {
-                        smallStepSlider.layoutProperties.positionX = -20;
+                    smallStepSlider.smallCurrentValue = slider.value;
+                    smallStepSlider.visible = true;
+                    if (slider.value - my.dt < slider.fromValue) {
+                        smallStepSlider.fromValue = slider.fromValue;
+                        smallStepSlider.toValue = slider.value + my.dt;
+                        smallStepSlider.value = slider.value;
+                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
+                    } else if (slider.value + my.dt > slider.toValue) {
+                        smallStepSlider.fromValue = slider.value - my.dt;
+                        smallStepSlider.toValue = slider.toValue;
+                        smallStepSlider.value = slider.value;
+                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
+                    } else {
+                        smallStepSlider.fromValue = slider.value - my.dt;
+                        smallStepSlider.toValue = slider.value + my.dt;
+                        smallStepSlider.value = slider.value;
+                        smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth, slideBar.height)
                     }
-                }
-                smallStepSlider.animation = true;
-                seekInterval.start();
+
+                    smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + sliderContainer.positionOfX;
+                    my.longPressInitX = positionX;
+                    my.handlLongPressed = true;
+
+                    if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                        smallStepSlider.smallCordX = smallStepSlider.layoutProperties.positionX;
+                        if (smallStepSlider.layoutProperties.positionX < -20) {
+                            smallStepSlider.layoutProperties.positionX = -20;
+                        }
+                    }
+                    smallStepSlider.animation = true;
+                    seekInterval.start();
+                } else
+                    slider.setLongPressEnabled(false);
             }
-            else
-                slider.setLongPressEnabled(false);
-        }
 
-        onMediaStateChanged: {
+            onMediaStateChanged: {
 
-            slideBar.pauseHandle = mediaState
-        }
+                slideBar.pauseHandle = mediaState
+            }
 
-        onMove: {
-            if(slider.toValue > my.minTime )
-                smallStepSlider.value = smallStepSlider.fromSmallSliderPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
+            onMove: {
+                if (slider.toValue > my.minTime)
+                    smallStepSlider.value = smallStepSlider.fromSmallSliderPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
                 slider.value = slideBar.value = smallStepSlider.value;
-        }
+            }
 
-        onHandleReleased: {
-            seekInterval.stop();
-            onSlider = false;
-            my.handlLongPressed = false;
-            smallStepSlider.visible = false;
-        }
+            onHandleReleased: {
+                seekInterval.stop();
+                onSlider = false;
+                my.handlLongPressed = false;
+                smallStepSlider.visible = false;
+            }
 
-        onImmediateValueChanged: {
-            slideBar.immediateValue = immediateValue;
-            slideBar.value = value;
+            onImmediateValueChanged: {
+                slideBar.immediateValue = immediateValue;
+                slideBar.value = value;
+            }
         }
     }
-}
 
     TimeArea {
         id: timeArea
@@ -126,9 +121,10 @@ Container {
     }
 
     Container {
+        translationX: bookmarkPositionX
         id: bookmark
         verticalAlignment: VerticalAlignment.Top
-        layout: AbsoluteLayout {
+        layout: DockLayout {
         }
         implicitLayoutAnimationsEnabled: false
         ImageView {
@@ -136,9 +132,9 @@ Container {
             visible: bookmarkVisible
             imageSource: "asset:///images/Player/BookmarkIcon.png"
             implicitLayoutAnimationsEnabled: false
-            layoutProperties: AbsoluteLayoutProperties {
-                positionX: bookmarkPositionX
-            }
+            //            layoutProperties: AbsoluteLayoutProperties {
+            //                positionX: bookmarkPositionX
+            //            }
             gestureHandlers: [
                 TapHandler {
                     onTapped: {
@@ -147,53 +143,160 @@ Container {
                     }
                 }
             ]
-        } //bookmark Icon    
+
+        } //bookmark Icon
         animations: [
-            TranslateTransition {
-                id: moveDown
-                toY: 55
-                duration: 100           
-                onEnded: {                    
-                    moveUp.play();                    
+            //cartwheel
+            SequentialAnimation {
+                id: customAnimation
+                ParallelAnimation {
+                    TranslateTransition {
+                        id: transAnim
+                        fromX: 0.0
+                        toX: bookmarkPositionX
+                        duration: bookmarkPositionX * 5
+                        easingCurve: StockCurve.BounceOut
+                    }
+                    RotateTransition {
+                        fromAngleZ: 0.0
+                        toAngleZ: 360
+                        duration: transAnim.duration
+                        easingCurve: StockCurve.QuarticOut
+                    }
                 }
-            },
-            TranslateTransition {
-                id: moveUp
-                toY: 0
-                duration: 100
+                SequentialAnimation {
+                    TranslateTransition {
+                        toY: 30.0
+                        duration: 100
+                    }
+                    TranslateTransition {
+                        toY: 0.0
+                        duration: 100
+                    }
+                }
                 onEnded: {
                     myPlayer.seekTime(infoListModel.getVideoPosition());
-                    fadeOut.play();                    
-                }
-            },
-            FadeTransition {
-                id: fadeOut
-                fromOpacity: 1
-                toOpacity: 0
-                duration: 300
-                onEnded: {
-                    bookmarkVisible = false;
-                    bookmark.opacity = 1;
+                    bookmarkVisible = false
+                    bookmark.opacity = 1.0
                 }
             }
-        ]           
+
+        //grow and flip
+        //            SequentialAnimation {
+        //                id: customAnimation
+        //                ScaleTransition {
+        //                    fromX: 1.0
+        //                    fromY: 1.0
+        //                    toX: 1.5
+        //                    toY: 1.5
+        //                    duration: 1000
+        //                }
+        //                ParallelAnimation {
+        //                    TranslateTransition {
+        //                        toY: 20
+        //                        duration: 1000
+        //                    }
+        //                    SequentialAnimation {
+        //                        ScaleTransition {
+        //                            fromY: 1.5
+        //                            toY: -1.5
+        //                            duration: 1000
+        //                        }
+        //                        ParallelAnimation {
+        //                            delay: 50
+        //                            ScaleTransition {
+        //                                fromY: -1.5
+        //                                fromX: 1.5
+        //                                toY: 1.0
+        //                                toX: 1.0
+        //                                duration: 500
+        //                            }
+        //                            TranslateTransition {
+        //                                toY: 0.0
+        //                                duration: 500
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //drop and spin
+        //            SequentialAnimation {
+        //                id: customAnimation
+        //                repeatCount: 10
+        //                ParallelAnimation {
+        //                    ScaleTransition {
+        //                        toX: 0.0
+        //                        duration: 200
+        //                        easingCurve: StockCurve.DoubleBounceInOut
+        //                    }
+        //
+        //                    TranslateTransition {
+        //                        toY: 40
+        //                        duration: 200
+        //                    }
+        //                }
+        //                ParallelAnimation {
+        //                    ScaleTransition {
+        //                        toX: -1.0
+        //                        duration: 200
+        //                        easingCurve: StockCurve.DoubleBounceInOut
+        //                    }
+        //
+        //                    TranslateTransition {
+        //                        toY: 0
+        //                        duration: 200
+        //                    }
+        //                }
+        //            }
+
+        ]
+        //        animations: [
+        //            TranslateTransition {
+        //                id: moveDown
+        //                toY: 55
+        //                duration: 100
+        //                onEnded: {
+        //                    moveUp.play();
+        //                }
+        //            },
+        //            TranslateTransition {
+        //                id: moveUp
+        //                toY: 0
+        //                duration: 100
+        //                onEnded: {
+        //                    myPlayer.seekTime(infoListModel.getVideoPosition());
+        //                    fadeOut.play();
+        //                }
+        //            },
+        //            FadeTransition {
+        //                id: fadeOut
+        //                fromOpacity: 1
+        //                toOpacity: 0
+        //                duration: 300
+        //                onEnded: {
+        //                    bookmarkVisible = false;
+        //                    bookmark.opacity = 1;
+        //                }
+        //            }
+        //        ]
     } //bookmark
 
     Container {
-        id : smallSliderContainer
+        id: smallSliderContainer
         verticalAlignment: VerticalAlignment.Center
         horizontalAlignment: HorizontalAlignment.Fill
         implicitLayoutAnimationsEnabled: false
-            layout: AbsoluteLayout {
+        layout: AbsoluteLayout {
         }
         CustomSlider {
             id: smallStepSlider
-            objectName : "smallStepSlider"
-            smallSliderMaxWidth : my.smallStepSliderWidth
+            objectName: "smallStepSlider"
+            smallSliderMaxWidth: my.smallStepSliderWidth
             background: "asset:///images/Player/SliderPrecision.png"
             visible: false
-        	 layoutProperties: AbsoluteLayoutProperties {
-        	 }
+            layoutProperties: AbsoluteLayoutProperties {
+            }
         }
     }
 
@@ -207,7 +310,7 @@ Container {
             property int minTime: 60 * 1000 // min time to show small steps slider
             property bool handlLongPressed: false
         },
-        
+
         QTimer {
             id: seekInterval
             interval: 200
@@ -259,8 +362,8 @@ Container {
         }
     ]
 
-	function startBookmarkAnimation() {
-        moveDown.play();
+    function startBookmarkAnimation() {
+        customAnimation.play()
     }
 
     function setValue(value) {
@@ -283,7 +386,7 @@ Container {
             slider.layoutSize = Qt.size(displayInfo.height, height)
             timeArea.rightPadding = 25
             currentTimeLabel.leftPadding = 25
-            timeArea.bottomPadding = 0 
+            timeArea.bottomPadding = 0
             currentTimeLabel.bottomPadding = 0
             sliderContainer.bottomPadding = 0
             smallSliderContainer.bottomPadding = 0
