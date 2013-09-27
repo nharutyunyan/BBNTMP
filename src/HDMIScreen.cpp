@@ -6,7 +6,7 @@
  */
 
 #include "HDMIScreen.hpp"
-#include <qdebug>
+#include <QDebug>
 
 HDMIScreen::HDMIScreen(Application* app, QObject *parent) : QObject(parent) {
     secondaryDisplay = new DisplayInfo(DisplayInfo::secondaryDisplayId(), app);
