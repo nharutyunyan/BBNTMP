@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <QVariantList>
-#include <Qdir>
+#include <QDir>
 #include <bb/data/JsonDataAccess>
 #include <fstream>
 
