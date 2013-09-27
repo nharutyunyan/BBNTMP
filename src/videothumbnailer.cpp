@@ -27,6 +27,8 @@ void VideoThumbnailer::generateThumbnail(const QString& videoFile, const string&
 
 void VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
 {
+	Q_UNUSED(outputFile);
+
     movieDecoder.setContext(pAvContext);
     try
     {

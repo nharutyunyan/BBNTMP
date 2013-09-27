@@ -29,8 +29,8 @@ CustomSlider::CustomSlider(Container* parent)
      m_rootContainerHeight(105),
      m_progressBarContainerHeight(15),
      m_fromValue(0.0),
-     m_coordinateX(0.0),
      m_toValue(1.0),
+     m_coordinateX(0.0),
      m_objectName("")
 {
     setUpdateInterval(0);
@@ -124,6 +124,8 @@ void CustomSlider::setObjectName(QString name)
 
 void CustomSlider::setAnimation(bool state)
 {
+	Q_UNUSED(state)
+
 	m_progressBarContainer->setVisible(false);
 	m_leftContainer->setTranslationX(m_leftAnimationContainerWidth);
 	m_rightContainer->setTranslationX(-m_rightAnimationContainerWidth);
@@ -345,8 +347,10 @@ void CustomSlider::createConnections()
     Q_UNUSED(result);
 }
 
-void CustomSlider::onOrientationAboutToChange(bb::cascades::UIOrientation::Type   uiOrientation)
+void CustomSlider::onOrientationAboutToChange(bb::cascades::UIOrientation::Type uiOrientation)
 {
+	Q_UNUSED(uiOrientation)
+
 	reset();
 }
 
