@@ -16,8 +16,8 @@
 
 using namespace bb::cascades;
 
-const int SPLASHSCREEN_INTERVAL_MIN = 3000;
-const int SPLASHSCREEN_INTERVAL_MAX = 4000;
+const int SPLASHSCREEN_INTERVAL_MIN = 1000;
+const int SPLASHSCREEN_INTERVAL_MAX = 2000;
 
 const QString UUID = "8929e8d9-8ab0-43d7-8945-83e702a1dec0";
 
