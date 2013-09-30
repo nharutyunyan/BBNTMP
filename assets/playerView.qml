@@ -69,6 +69,7 @@ Page {
                                                      // gestures handling for "zoom out" and "seek 5 seconds" 
         property bool videoScrollBarIsClosing : false;    // If the video Scroll bar is in closing process
         property int bookmarkMinTime : 60000
+        property int retryCount : 5
         
         function setDimensionsFromOrientation(pOrientation)
         {
@@ -632,6 +633,7 @@ Page {
                     pgPlayer.currentLenght = item.duration;
 
                     if (appContainer.playMediaPlayer() == MediaError.None) {
+                        appContainer.retryCount = 5;
                         videoWindow.visible = true;
                         contentContainer.visible = true;
                         durationSlider.toValue = item.duration;
@@ -703,7 +705,7 @@ Page {
                         infoListModel.setVideoPosition(myPlayer.position);
                         appContainer.curVolume = bpsEventHandler.getVolume();
                         pgPlayer.destroy();
-                        myPlayer.stop();
+                        navigationPane.pop();
                     }
                 } //backButtonContainer
                 Container {
@@ -1060,8 +1062,15 @@ Page {
                onMediaStateChanged: {
                    if(myPlayer.mediaState == MediaState.Stopped) {
                        appContainer.curVolume = bpsEventHandler.getVolume();
-                       navigationPane.pop();
-                       pgPlayer.destroy();
+                       if(appContainer.retryCount != 0)
+                       {
+                           appContainer.playMediaPlayer();
+                           --appContainer.retryCount;
+                       }
+                       else
+                       {
+                            invalidToast.show();
+                       }
                    }
                }
            },
