@@ -489,8 +489,8 @@ Page {
                 visible: false
                 preferredHeight: 2*volumeFuleAndMuteHeight + indicator_length
                 property int volumeFuleAndMuteHeight: 70
-                property int indicator_length: 284
-                property int indicator_count: 16
+                property int indicator_length: Helpers.volumeIndicatorLength
+                property int indicator_count: Helpers.volumeBarIndicatorsCount
                 property int indicators_length: 10
                 property int indicators_space: 8
                 property int currentActiveIndicatorsCount : ((1 - appContainer.curVolume / 100) * volume.indicator_count)
