@@ -178,6 +178,7 @@ Page {
                 }
             } //videoWindow
                 onTouch: {
+                    
                     if (! appContainer.isPinchZoom) {
                         if (OrientationSupport.orientation == UIOrientation.Portrait) {
                             appContainer.heightOfScreen = displayInfo.width;
@@ -849,6 +850,9 @@ Page {
                     easingCurve: StockCurve.CubicOut
                     fromY: - videoListScrollLayout.layoutFrame.height
                     toY: 0
+                    onStarted: {
+                        bpsEventHandler.startVibration();
+                    }
                 },
                 TranslateTransition {
                     id: videoListDisappearAnimation
@@ -1073,7 +1077,7 @@ Page {
            Screenshot {
                id: screenshot
            },
-
+           
            BpsEventHandler {
                id: bpsEventHandler
                property bool locked: false
@@ -1099,7 +1103,7 @@ Page {
                     bpsEventHandler.locked = false;
                 }
 
-                onSpeakerVolumeChanged: {
+                onSpeakerVolumeChanged: {                    
                     appContainer.curVolume = bpsEventHandler.getVolume();
                     volume.setMuteIcons();
                     uiControlsShowTimer.start();
@@ -1122,6 +1126,7 @@ Page {
                     }
                 }
             },
+           
 
            MediaKeyWatcher {
                id: keyWatcher
@@ -1182,6 +1187,7 @@ Page {
 
            OrientationHandler {
                onOrientationAboutToChange: {
+                    
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getIntIndex(infoListModel.getSelectedIndex()), OrientationSupport.orientation == UIOrientation.Portrait, infoListModel.size());
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
@@ -1244,7 +1250,7 @@ Page {
         onCreationCompleted: {
             settings.setValue("inPlayerView", true);
             Application.thumbnail.connect(onThumbnail);
-            initTimer.start();
+            initTimer.start();            
         }
 
         function onThumbnail() {
