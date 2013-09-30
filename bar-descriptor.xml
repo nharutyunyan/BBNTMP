@@ -52,8 +52,8 @@
     <!-- <copyright></copyright> -->
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
-    <author>Macadamian</author>
-    <authorId>gYAAgP5hDCK1pzQEjK25hypc4Kg</authorId>
+    <author>macadamian</author>
+    <authorId>gYAAgIIBWnegbH49hJCp3w3fZ5A</authorId>
     
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -71,8 +71,9 @@
     </icon>
     <splashScreens>
        <image></image>
-       <image>SplashScreenLandscape.png</image>
        <image>SplashScreenPortrait.png</image>
+       <image>SplashScreenLandscape.png</image>
+       <image>SplashScreenQ10.png</image>
     </splashScreens>
     <configuration id="com.qnx.qcc.toolChain.1536335078" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
@@ -111,8 +112,9 @@
         <include name="*.qm"/>
     </asset>
 
-    <asset path="assets/images/SplashScreenLandscape.png">SplashScreenLandscape.png</asset>
     <asset path="assets/images/SplashScreenPortrait.png">SplashScreenPortrait.png</asset>
+    <asset path="assets/images/SplashScreenLandscape.png">SplashScreenLandscape.png</asset>
+    <asset path="assets/images/SplashScreenQ10.png">SplashScreenQ10.png</asset>
     
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>

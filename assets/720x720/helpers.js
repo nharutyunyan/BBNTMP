@@ -25,10 +25,6 @@ var differentScreenWidthAndSubtitleWidth = 300;
 // 112 magic number is my estimated width of the context menu, this is based on Q10. 
 // TODO : find real size for all platforms ?
 var widthOfContextMenu = 112;
-var splashScreenForAnimationPortrait = "asset:///images/SplashScreenAnimationPortrait.png";
-var splashScreenForAnimationLandscape = "asset:///images/SplashScreenAnimationLandscape.png";
-var animatedLogoPositionXPortrait = 185;
-var animatedLogoPositionYPortrait = 537;
-var animatedLogoPositionXLandscape = 411;
-var animatedLogoPositionYLandscape = 300;
-
+var splashScreenForAnimationPortrait = "asset:///images/SplashScreenAnimationQ10.png";
+var animatedLogoPositionXPortrait = 159;
+var animatedLogoPositionYPortrait = 236;
