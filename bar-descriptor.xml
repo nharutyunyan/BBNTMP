@@ -119,6 +119,7 @@
     <permission>run_when_backgrounded</permission>
     <permission>access_shared</permission>
     <permission>play_audio</permission>
+    <permission>bbm_connect</permission>
     <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
 
 </qnx>

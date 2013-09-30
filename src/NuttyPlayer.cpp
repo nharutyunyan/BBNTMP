@@ -3,6 +3,8 @@
 #include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
 #include "Screenshot.hpp"
+#include "RegistrationHandler.hpp"
+#include "BbmAppShare.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
@@ -16,6 +18,8 @@ using namespace bb::cascades;
 
 const int SPLASHSCREEN_INTERVAL_MIN = 3000;
 const int SPLASHSCREEN_INTERVAL_MAX = 4000;
+
+const QString UUID = "8929e8d9-8ab0-43d7-8945-83e702a1dec0";
 
 NuttyPlayer::NuttyPlayer(bb::cascades::Application *app)
 : QObject(app),
@@ -51,7 +55,9 @@ thumbnailsGenerationFinished(false)
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
-
+    RegistrationHandler* bbmReg = new RegistrationHandler(UUID);
+    bbmReg->registerApplication();
+    qml->setContextProperty("_appShare", new BbmAppShare(this, UUID));
 
 	// Check for videos on the phone in the model
 	onVideoUpdateNotification();
