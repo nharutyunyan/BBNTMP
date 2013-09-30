@@ -100,6 +100,22 @@ ListView {
         actions: [
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
+            InvokeActionItem {
+                title: qsTr("Share")
+                ActionBar.placement: ActionBarPlacement.OnBar
+                query {
+                    mimeType: "text/plain"
+                    invokeActionId: "bb.action.SHARE"
+                }
+                onTriggered: {
+                    data = "These movie are great: ";
+                    for (var i = listView.copyOfSelectedIndexes.length - 1; i >= 0; i --) {
+                        data += infoListModel.data(listView.copyOfSelectedIndexes[i]).title
+                        if(i != 0)
+                        	data += ",  ";
+                    }
+                }
+            },
             ActionItem {
                 title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                 id: multiFavoriteOption
@@ -190,6 +206,17 @@ ListView {
                         subtitle: "Menu Action Set."
 
                         actions: [
+                            InvokeActionItem {
+                                title: qsTr("Share")
+                                ActionBar.placement: ActionBarPlacement.OnBar
+                                query {
+                                    mimeType: "text/plain"
+                                    invokeActionId: "bb.action.SHARE"
+                                }
+                                onTriggered: {
+                                    data = " This movie is great: " + ListItemData.title;
+                                }
+                            },
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                                 id: individualFavoriteOption
