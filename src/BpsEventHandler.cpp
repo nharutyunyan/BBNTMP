@@ -115,8 +115,8 @@ float BpsEventHandler::getVolume()
 
 	return oldVolume;
 }
-void BpsEventHandler::startVibration()
+void BpsEventHandler::startVibration(int intensity, int duration)
 {
-	vibration_request(50,500);
+	vibration_request(intensity,duration);
 }
 

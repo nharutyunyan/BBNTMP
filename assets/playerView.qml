@@ -852,9 +852,6 @@ Page {
                     easingCurve: StockCurve.CubicOut
                     fromY: - videoListScrollLayout.layoutFrame.height
                     toY: 0
-                    onStarted: {
-                        bpsEventHandler.startVibration();
-                    }
                 },
                 TranslateTransition {
                     id: videoListDisappearAnimation

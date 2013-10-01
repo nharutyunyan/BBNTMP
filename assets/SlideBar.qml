@@ -43,7 +43,7 @@ Container {
             onHandleLongPressed: {
                 onSlider = true;
                 if (slider.toValue > my.minTime) {
-
+                    bpsEventHandler.startVibration(20,200);
                     smallStepSlider.smallCurrentValue = slider.value;
                     smallStepSlider.visible = true;
                     if (slider.value - my.dt < slider.fromValue) {
@@ -296,7 +296,7 @@ Container {
             background: "asset:///images/Player/SliderPrecision.png"
             visible: false
             layoutProperties: AbsoluteLayoutProperties {
-            }
+            }            
         }
     }
 
