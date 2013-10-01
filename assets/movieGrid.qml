@@ -14,7 +14,7 @@ ListView {
         headerMode: ListHeaderMode.Standard
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
         spacingAfterHeader: 5
-        verticalCellSpacing: 0
+        verticalCellSpacing: 0        
     }
     horizontalAlignment: HorizontalAlignment.Center
     
@@ -29,6 +29,9 @@ ListView {
     property bool isQ10: displayInfo.height == 720 ? true : false
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
+
+    property variant favorites: infoListModel.getFavoriteVideos()
+    property int currentFrame: 0
 
     // Expose the menu to the rest of the application to check if it's open
     contextMenuHandler: ContextMenuHandler {
@@ -129,6 +132,7 @@ ListView {
                 imageSource: favoriteIcon()
                 onTriggered: {
                     listView.moveToFolder("0Favorites");
+                    listView.updateActiveFrame();
                 }
             },
             //            ActionItem {
@@ -159,8 +163,83 @@ ListView {
         }
     }
 
-    listItemComponents: [
-        ListItemComponent {
+    leadingVisual: Container {
+        layout: DockLayout {
+        }
+        id: activeFrame
+        leftPadding: orientationHandler.orientation == UIOrientation.Portrait ? 0 : 256
+        Container {
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Center
+            ImageView {
+                id: frame
+                imageSource: listView.favorites[listView.currentFrame]['thumbURL']
+                scalingMethod: ScalingMethod.AspectFill
+                preferredWidth: listView.isQ10 ? 720 : 768 // 16x
+                preferredHeight: listView.isQ10 ? 405 : 432 // 9x
+            }
+        }
+        Container {
+            verticalAlignment: VerticalAlignment.Bottom
+            horizontalAlignment: HorizontalAlignment.Center
+            background: titleBackground.imagePaint
+
+            preferredHeight: 70
+            preferredWidth: listView.isQ10 ? 720 : 768
+
+            Container {
+                horizontalAlignment: HorizontalAlignment.Center
+                Label {
+                    id: length
+                    textStyle.fontSize: FontSize.XSmall
+                    text: Helpers.formatTime(listView.favorites[listView.currentFrame]['duration'])
+                    textStyle.color: Color.White
+                }
+            }
+            Container {
+                verticalAlignment: VerticalAlignment.Bottom
+                horizontalAlignment: HorizontalAlignment.Fill
+                Label {
+                    horizontalAlignment: HorizontalAlignment.Center
+                    id: title
+                    text: listView.favorites[listView.currentFrame]['title']
+                    textStyle.color: Color.White
+                    textStyle.fontSize: FontSize.Medium
+                }
+            }
+        }
+        attachedObjects: [
+            ImagePaintDefinition {
+                id: titleBackground
+                imageSource: "asset:///images/GridView/TimeFrame.png"
+            }, 
+            QTimer {
+                id: updateFrame
+                singleShot: false
+                interval: 2000
+                onTimeout: {
+                    if (listView.currentFrame >= listView.favorites.length - 1) {
+                        listView.currentFrame = 0;
+                    } else {
+                        listView.currentFrame = listView.currentFrame + 1;
+                    }                    
+                }                
+            }
+        ]
+        
+        onCreationCompleted: {
+            listView.updateActiveFrame();
+        }  
+    }
+    
+    function updateActiveFrame(){        
+        listView.favorites = infoListModel.getFavoriteVideos();
+        updateFrame.stop();
+        updateFrame.start();
+    }
+
+    listItemComponents: [        
+        ListItemComponent {            
             type: "header"
             Container {
                 leftPadding: 5
@@ -257,6 +336,7 @@ ListView {
                                 imageSource: itemRoot.ListItem.view.favoriteIcon()
                                 onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
+                                    itemRoot.ListItem.view.updateActiveFrame();
                                 }
                             },
                             //                            ActionItem {
