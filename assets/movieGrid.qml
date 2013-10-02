@@ -96,17 +96,28 @@ ListView {
             listView.preferredWidth = displayInfo.width - offset;
     }
 
+    function favoriteIcon() {
+        if (! listView.displayRemoveMessage && ! listView.isQ10) 
+        	return "asset:///images/GridView/favoriteIcon_add_Z10.png";
+        if (! listView.displayRemoveMessage && listView.isQ10) 
+        	return "asset:///images/GridView/favoriteIcon_add_Q10.png";
+        if (listView.displayRemoveMessage && listView.isQ10) 
+        	return "asset:///images/GridView/favoriteIcon_remove_Q10.png";
+        if (listView.displayRemoveMessage && ! listView.isQ10) 
+        	return "asset:///images/GridView/favoriteIcon_remove_Z10.png";        
+    }
+
     multiSelectHandler {
-        actions: [
+        actions: [            
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
             ActionItem {
                 title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                 id: multiFavoriteOption
-                imageSource: listView.isQ10 ? "asset:///images/GridView/favoriteIcon_Q10.png" : "asset:///images/GridView/favoriteIcon_Z10.png"
+                imageSource: favoriteIcon() 
                 onTriggered:{
                     listView.moveToFolder("0Favorites");
-                }
+                }               
             },
             ActionItem {
                 title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
@@ -193,7 +204,7 @@ ListView {
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                                 id: individualFavoriteOption
-                                imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/favoriteIcon_Q10.png" : "asset:///images/GridView/favoriteIcon_Z10.png"
+                                imageSource: itemRoot.ListItem.view.favoriteIcon()
                                 onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
                                 }
