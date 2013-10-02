@@ -1,6 +1,7 @@
 import bb.cascades 1.0
 
 MenuDefinition {
+    property Page aboutPage
     actions: [
         ActionItem {
             title: qsTr("Invite") 
@@ -10,19 +11,28 @@ MenuDefinition {
             }
         },        
         ActionItem {
+            enabled: !navigationPane.isAboutPage
             title: qsTr("About") 
             onTriggered: {
-                linkInvocation.trigger("bb.action.OPEN");
+                navigationPane.push(getAboutPage());
+                navigationPane.backButtonsVisible = true;
+                navigationPane.isAboutPage = true;
             }
             imageSource: "asset:///images/appInfo.png"
-            attachedObjects: [
-                Invocation {
-                    id: linkInvocation
-                    query {
-                        uri: "http://www.macadamian.com/"
-                    }
-                }
-            ]
         }
     ]
+    attachedObjects: [
+        ComponentDefinition {
+            id: aboutPageDefinition
+            source: "aboutPage.qml"
+        }
+    ]
+    function getAboutPage()
+    {
+        if(!aboutPage)
+        {
+        	aboutPage = aboutPageDefinition.createObject();
+        }
+        return aboutPage;
+    }
 }

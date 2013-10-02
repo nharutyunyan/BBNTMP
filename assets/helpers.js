@@ -33,4 +33,6 @@ var animatedLogoPositionXLandscape = 411;
 var animatedLogoPositionYLandscape = 300;
 var volumeIndicatorLength = 284;
 var volumeBarIndicatorsCount = 16;
+var aboutPageLinesHeightInPortrait = 2;
+var aboutPageLinesHeightInLandscape = 1.5;
 
