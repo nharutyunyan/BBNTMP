@@ -8,6 +8,7 @@ NavigationPane {
     id: navigationPane
     peekEnabled: false
     backButtonsVisible: false
+    property bool isAboutPage: false
     Menu.definition: AppMenu {
     }
     Page {
