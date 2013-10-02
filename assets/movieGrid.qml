@@ -206,6 +206,11 @@ ListView {
                                     itemRoot.ListItem.view.moveToFolder("9Hidden");
                                 }
                             },
+                            InvokeActionItem {
+                                id: shareAction
+                                query.uri: "file://" + ListItemData.path
+                                query.invokeActionId: "bb.action.SHARE"
+                            },
                             DeleteActionItem {
                                  title: "Delete"
                                  onTriggered: {
@@ -249,6 +254,8 @@ ListView {
     onTriggered: {
         clearSelection();
         select(indexPath);
+        
+        
     }
     onSelectionChanged: {
         // Don't load a video if a context menu is showing

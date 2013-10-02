@@ -3,11 +3,13 @@ BASEDIR =  $$quote($$_PRO_FILE_PWD_)
 
 device {
     CONFIG(debug, debug|release) {
-        SOURCES +=  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+        SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
@@ -22,11 +24,13 @@ device {
                  $$quote($$BASEDIR/src/videoParser.cpp) \
                  $$quote($$BASEDIR/src/videothumbnailer.cpp)
 
-        HEADERS +=  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+        HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
@@ -44,11 +48,13 @@ device {
     }
 
     CONFIG(release, debug|release) {
-        SOURCES +=  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+        SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
@@ -63,11 +69,13 @@ device {
                  $$quote($$BASEDIR/src/videoParser.cpp) \
                  $$quote($$BASEDIR/src/videothumbnailer.cpp)
 
-        HEADERS +=  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+        HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
@@ -87,11 +95,13 @@ device {
 
 simulator {
     CONFIG(debug, debug|release) {
-        SOURCES +=  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+        SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
@@ -106,11 +116,13 @@ simulator {
                  $$quote($$BASEDIR/src/videoParser.cpp) \
                  $$quote($$BASEDIR/src/videothumbnailer.cpp)
 
-        HEADERS +=  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+        HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
+                 $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
