@@ -7,8 +7,7 @@ Container {
     background: backgroundImage.imagePaint
     Container {
         ImageView {
-            imageSource: "file:" + screenshot.getFilename()
-            translationY: 20
+            imageSource: infoListModel.getSelectedVideoThumbnail();
             scalingMethod: ScalingMethod.AspectFill
         }
     }
@@ -28,9 +27,6 @@ Container {
         ImagePaintDefinition {
             id: backgroundImage
             imageSource: "asset:///images/Player/VideoBG.png"
-        },
-        Screenshot {
-            id: screenshot
         }
     ]
 }

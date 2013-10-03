@@ -548,7 +548,6 @@ void InfoListModel::clearSelected() {
 	m_currentSelectionList.clear();
 }
 
-
 void InfoListModel::setIsDrillDown(bool isDrillDown) {
 	m_drillDown = isDrillDown;
 }
@@ -577,4 +576,11 @@ QVariantList InfoListModel::getFavoriteVideos()
 		}
 	}
 	return favoriteVideos;
+}
+
+QString InfoListModel::getSelectedVideoThumbnail(){
+	const QString flagName("thumbURL");
+	QVariant v = value(m_selectedIndex, flagName);
+	QString retValue =  v.toString();
+	return retValue;
 }

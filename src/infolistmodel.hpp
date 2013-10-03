@@ -105,6 +105,8 @@ public:
 
     Q_INVOKABLE QVariantList getFavoriteVideos();
 
+    Q_INVOKABLE QString getSelectedVideoThumbnail();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();

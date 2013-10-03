@@ -2,7 +2,6 @@
 #include "HDMIScreen.hpp"
 #include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
-#include "Screenshot.hpp"
 #include "RegistrationHandler.hpp"
 #include "BbmAppShare.hpp"
 
@@ -176,6 +175,7 @@ void NuttyPlayer::onThumbnail() {
 
     if(settings.value("inPlayerView").value<bool>()) {
 		qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
+		qmlCover->setContextProperty("infoListModel", model);
 		isEnabled = true;
     } else {
     	QVariantList favorites = model->getFavoriteVideos();
@@ -185,9 +185,9 @@ void NuttyPlayer::onThumbnail() {
     	}
     }
 	if (isEnabled && !qmlCover->hasErrors() ) {
-		Container *coverContainer = qmlCover->createRootObject<Container>();
-		SceneCover *sceneCover = SceneCover::create().content(coverContainer);
-		Application::instance()->setCover(sceneCover);
+        Container *coverContainer = qmlCover->createRootObject<Container>();
+        SceneCover *sceneCover = SceneCover::create().content(coverContainer);
+        Application::instance()->setCover(sceneCover);
 	}
 
 }

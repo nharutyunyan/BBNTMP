@@ -20,7 +20,6 @@
 #include "infolistmodel.hpp"
 #include "CustomSlider.hpp"
 #include "Settings.hpp"
-#include "Screenshot.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -54,7 +53,6 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     qmlRegisterType<InfoListModel>("nuttyPlayer", 1, 0, "InfoListModel");
     qmlRegisterType<CustomSlider>("nutty.slider", 1, 0, "CustomSlider");
     qmlRegisterType<Settings>("nuttyPlayer", 1, 0, "Settings");
-    qmlRegisterType<Screenshot>("nuttyPlayer", 1, 0, "Screenshot");
     qmlRegisterType<bb::system::phone::Phone>("bb.system.phone", 1, 0, "Phone");
 
     QTranslator translator;
