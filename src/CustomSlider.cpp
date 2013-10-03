@@ -400,8 +400,18 @@ void CustomSlider::createProgressBar()
     m_progressBarImageView->setImage(m_progressBarImage);
     m_progressBarImageView->setImplicitLayoutAnimationsEnabled(false);
 
+    m_bookmarkProgressBar = ImageView::create()
+                                    .preferredHeight(m_progressBarContainerHeight)
+                                    .horizontal(HorizontalAlignment::Left)
+                                    .vertical(VerticalAlignment::Center);
+    m_bookmarkProgressBar->setVisible(false);
+    m_bookmarkProgressBar->setOpacity(0.3);
+    m_bookmarkProgressBar->setImage(m_progressBarImage);
+    m_bookmarkProgressBar->setImplicitLayoutAnimationsEnabled(false);
+
     m_progressBarContainer->add(barImageView);
     m_progressBarContainer->add(m_progressBarImageView);
+    m_progressBarContainer->add(m_bookmarkProgressBar);
 }
 
 void CustomSlider::createHandle()
@@ -668,4 +678,13 @@ QSize CustomSlider::layoutSize() const
     return m_layoutSize;
 }
 
+void CustomSlider::hideBookmarkProgressBar()
+{
+	m_bookmarkProgressBar->setVisible(false);
+}
 
+void CustomSlider::showBookmarkProgressBar(float positionX)
+{
+	m_bookmarkProgressBar->setVisible(true);
+	m_bookmarkProgressBar->setPreferredWidth(positionX);
+}

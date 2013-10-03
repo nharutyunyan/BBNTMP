@@ -68,6 +68,8 @@ public:
     QSize layoutSize() const;
     Q_INVOKABLE float handleLocalX() const;
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
+    Q_INVOKABLE void showBookmarkProgressBar(float positionX);
+    Q_INVOKABLE void hideBookmarkProgressBar();
 
 public Q_SLOTS:
 	void setSmallSliderMaxWidth(float);
@@ -134,6 +136,7 @@ private:
     Container* m_progressBarContainer;
     const float m_progressBarContainerHeight;
     ImageView* m_progressBarImageView;
+    ImageView* m_bookmarkProgressBar;
     Image m_progressBarImage;
     Image m_progressBarImagePressed;
     ParallelAnimation* m_animation;

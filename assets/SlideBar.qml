@@ -143,143 +143,44 @@ Container {
                     }
                 }
             ]
-
-        } //bookmark Icon
-        animations: [
-            //cartwheel
-            SequentialAnimation {
-                id: customAnimation
-                ParallelAnimation {
-                    TranslateTransition {
-                        id: transAnim
-                        fromX: 0.0
-                        toX: bookmarkPositionX
-                        duration: bookmarkPositionX * 5
-                        easingCurve: StockCurve.BounceOut
-                    }
-                    RotateTransition {
-                        fromAngleZ: 0.0
-                        toAngleZ: 360
-                        duration: transAnim.duration
-                        easingCurve: StockCurve.QuarticOut
-                    }
-                }
-                SequentialAnimation {
-                    TranslateTransition {
-                        toY: 30.0
-                        duration: 100
-                    }
-                    TranslateTransition {
-                        toY: 0.0
-                        duration: 100
-                    }
-                }
-                onEnded: {
-                    myPlayer.seekTime(infoListModel.getVideoPosition());
-                    bookmarkVisible = false
-                    bookmark.opacity = 1.0
+            onVisibleChanged: {
+                if (visible) {
+                    slider.showBookmarkProgressBar(bookmarkPositionX-10);
+                } else {
+                    slider.hideBookmarkProgressBar();
                 }
             }
 
-        //grow and flip
-        //            SequentialAnimation {
-        //                id: customAnimation
-        //                ScaleTransition {
-        //                    fromX: 1.0
-        //                    fromY: 1.0
-        //                    toX: 1.5
-        //                    toY: 1.5
-        //                    duration: 1000
-        //                }
-        //                ParallelAnimation {
-        //                    TranslateTransition {
-        //                        toY: 20
-        //                        duration: 1000
-        //                    }
-        //                    SequentialAnimation {
-        //                        ScaleTransition {
-        //                            fromY: 1.5
-        //                            toY: -1.5
-        //                            duration: 1000
-        //                        }
-        //                        ParallelAnimation {
-        //                            delay: 50
-        //                            ScaleTransition {
-        //                                fromY: -1.5
-        //                                fromX: 1.5
-        //                                toY: 1.0
-        //                                toX: 1.0
-        //                                duration: 500
-        //                            }
-        //                            TranslateTransition {
-        //                                toY: 0.0
-        //                                duration: 500
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //drop and spin
-        //            SequentialAnimation {
-        //                id: customAnimation
-        //                repeatCount: 10
-        //                ParallelAnimation {
-        //                    ScaleTransition {
-        //                        toX: 0.0
-        //                        duration: 200
-        //                        easingCurve: StockCurve.DoubleBounceInOut
-        //                    }
-        //
-        //                    TranslateTransition {
-        //                        toY: 40
-        //                        duration: 200
-        //                    }
-        //                }
-        //                ParallelAnimation {
-        //                    ScaleTransition {
-        //                        toX: -1.0
-        //                        duration: 200
-        //                        easingCurve: StockCurve.DoubleBounceInOut
-        //                    }
-        //
-        //                    TranslateTransition {
-        //                        toY: 0
-        //                        duration: 200
-        //                    }
-        //                }
-        //            }
-
+        } //bookmark Icon
+        animations: [
+            TranslateTransition {
+                id: moveDown
+                toY: 40
+                duration: 100
+                onEnded: {
+                    moveUp.play();
+                }
+            },
+            TranslateTransition {
+                id: moveUp
+                toY: 15
+                duration: 100
+                onEnded: {
+                    myPlayer.seekTime(infoListModel.getVideoPosition());
+                    fadeOut.play();
+                }
+            },
+            FadeTransition {
+                id: fadeOut
+                fromOpacity: 1
+                toOpacity: 0
+                duration: 600
+                onEnded: {
+                    bookmarkVisible = false;
+                    bookmark.opacity = 1;
+                }
+            }
         ]
-        //        animations: [
-        //            TranslateTransition {
-        //                id: moveDown
-        //                toY: 55
-        //                duration: 100
-        //                onEnded: {
-        //                    moveUp.play();
-        //                }
-        //            },
-        //            TranslateTransition {
-        //                id: moveUp
-        //                toY: 0
-        //                duration: 100
-        //                onEnded: {
-        //                    myPlayer.seekTime(infoListModel.getVideoPosition());
-        //                    fadeOut.play();
-        //                }
-        //            },
-        //            FadeTransition {
-        //                id: fadeOut
-        //                fromOpacity: 1
-        //                toOpacity: 0
-        //                duration: 300
-        //                onEnded: {
-        //                    bookmarkVisible = false;
-        //                    bookmark.opacity = 1;
-        //                }
-        //            }
-        //        ]
     } //bookmark
 
     Container {
@@ -363,7 +264,7 @@ Container {
     ]
 
     function startBookmarkAnimation() {
-        customAnimation.play()
+        moveDown.play()
     }
 
     function setValue(value) {
