@@ -7,12 +7,11 @@ import "helpers.js" as Helpers
 NavigationPane {
     id: navigationPane
     peekEnabled: false
-    property bool isAboutPage: false
     Menu.definition: AppMenu {
     }
     Page {
-        id : mainPage
-        property variant currentMoviePosition;
+        id: mainPage
+        property variant currentMoviePosition
         content: Container {
             id: globalContainer
             layout: DockLayout {
@@ -127,5 +126,8 @@ NavigationPane {
                 id: settings
             }
         ]
+    }
+    onPopTransitionEnded: {
+        Application.setMenuEnabled(true)
     }
 }

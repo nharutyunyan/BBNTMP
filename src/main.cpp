@@ -10,6 +10,7 @@
 #include <bb/cascades/QmlDocument>
 #include <iostream>
 #include <QVariantList>
+#include <bb/system/phone/Phone>
 
 #include "BpsEventHandler.hpp"
 #include "exceptions.hpp"
@@ -54,6 +55,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     qmlRegisterType<CustomSlider>("nutty.slider", 1, 0, "CustomSlider");
     qmlRegisterType<Settings>("nuttyPlayer", 1, 0, "Settings");
     qmlRegisterType<Screenshot>("nuttyPlayer", 1, 0, "Screenshot");
+    qmlRegisterType<bb::system::phone::Phone>("bb.system.phone", 1, 0, "Phone");
 
     QTranslator translator;
     QString locale_string = QLocale().name();
