@@ -28,6 +28,7 @@ BpsEventHandler::BpsEventHandler(QObject* parent)
 
 BpsEventHandler::~BpsEventHandler()
 {
+	navigator_request_swipe_start();
     bps_shutdown();
 }
 

@@ -1182,6 +1182,7 @@ Page {
             id: subtitleActionItem
             ActionBar.placement: ActionBarPlacement.OnBar
             title: qsTr("Subtitles") + Retranslate.onLanguageChanged
+            imageSource: "asset:///images/Player/subt_icon_off.png"
             onTriggered: {
                 if (! subtitleButtonContainer.videoHasSubtitles) {
                     noSubToast.show();
