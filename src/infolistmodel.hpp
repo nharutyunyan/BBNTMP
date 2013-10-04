@@ -101,6 +101,8 @@ public:
 
     Q_INVOKABLE void clearSelected();
 
+    Q_INVOKABLE void setIsDrillDown(bool isDrillDown);
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
@@ -113,6 +115,7 @@ public slots:
     void fileComplete(QString);
     void readMetadatas();
     void checkVideosWaitingThumbnail();
+    int childCount(const QVariantList &indexPath);
     signals:
         void consumed();
         void finished();
@@ -133,6 +136,7 @@ private:
     QStringList waitingVideosBuffer;
     QSet<QString> addedVideos;
     QVariantList videosWaitingThumbnail;
+    bool m_drillDown;
 
     void prepareToStart();
     void updateListWithDeletedVideos(const QStringList& result);
