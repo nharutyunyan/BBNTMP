@@ -12,23 +12,25 @@ NavigationPane {
     Menu.definition: AppMenu {
     }
     Page {
-        id : mainPage
-        property variant currentMoviePosition;
+        id: mainPage
+        property variant currentMoviePosition
         content: Container {
             id: globalContainer
-            layout: DockLayout{}
-		        
-                Container {
-                id: movieGridPage
-                layout: StackLayout{}
+            layout: DockLayout {
+            }
 
-				Container {
+            Container {
+                id: movieGridPage
+                layout: StackLayout {
+                }
+
+                Container {
                     layout: DockLayout {
                     }
                     ImageView {
                         id: headerImage
                         imageSource: orientationHandlerMain.orientation == UIOrientation.Portrait ? "asset:///images/title.png" : "asset:///images/title_landscape.png"
-                    }  
+                    }
                 }
 
                 Container {
@@ -89,14 +91,14 @@ NavigationPane {
                 preferredWidth: 250
             }
         } // global container
-        
-        property variant movieGridObj;
+
+        property variant movieGridObj
         onCreationCompleted: {
             // this slot is called when declarative scene is created
             // write post creation initialization here
             console.log("Page - onCreationCompleted()")
             if (! movieGridObj)
-                 movieGridObj = movieGrid.createObject();
+                movieGridObj = movieGrid.createObject();
             movieGridObj.dataModel = infoListModel.get();
             movieGridContainer.add(movieGridObj);
             // enable layout to adapt to the device rotation
