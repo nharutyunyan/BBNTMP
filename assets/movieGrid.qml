@@ -22,40 +22,38 @@ ListView {
     property bool isMultiSelecting: false
     property bool displayRemoveMessage: false
     property bool displayHideMessage: false
-    property bool deleteDialogShowing : false
-    property bool allowLoadingVideo : true
+    property bool deleteDialogShowing: false
+    property bool allowLoadingVideo: true
     property string numberOfItems: ""
     property string currentAction: ""
     property bool isQ10: displayInfo.height == 720 ? true : false
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
-
-	// Expose the menu to the rest of the application to check if it's open
+    // Expose the menu to the rest of the application to check if it's open
     contextMenuHandler: ContextMenuHandler {
         id: myContext
-        objectName:"contextHandlerObj"
-        onVisualStateChanged:{
+        objectName: "contextHandlerObj"
+        onVisualStateChanged: {
             if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden)
-            	allowLoadingVideo = true;
+                allowLoadingVideo = true;
             else
-            	allowLoadingVideo = false;
+                allowLoadingVideo = false;
         }
     }
     multiSelectAction: MultiSelectActionItem {
     }
 
-	// This function passes the selected videos to the C++ model.
-	// I have no found how to send selectionList() in one shot, so i am passing all the 
-	// videos one by one and store them in the model for easier access.
-	function passSelectionToModel()
-	{
-	    // Make a copy to sort the array
+    // This function passes the selected videos to the C++ model.
+    // I have no found how to send selectionList() in one shot, so i am passing all the
+    // videos one by one and store them in the model for easier access.
+    function passSelectionToModel() {
+        // Make a copy to sort the array
         listView.copyOfSelectedIndexes = listView.selectionList();
         // Passing the indexes in descending order is important to
         // avoid invalidation of indexes during deletion of files
         listView.copyOfSelectedIndexes.sort();
-        
+
         infoListModel.clearSelected();
         for (var i = listView.copyOfSelectedIndexes.length - 1; i >= 0; i --) {
             var index = listView.copyOfSelectedIndexes[i];
@@ -63,33 +61,31 @@ ListView {
         }
     }
 
-	function moveToFolder(folderName) {
+    function moveToFolder(folderName) {
         passSelectionToModel();
-        if (folderName == infoListModel.value(listView.selected(), "folder")) 
-        	currentAction = "removed from " + folderName.substr(1).toLowerCase() + ".";
-        else 
-        	currentAction = "added to " + folderName.substr(1).toLowerCase() + ".";
+        if (folderName == infoListModel.value(listView.selected(), "folder"))
+            currentAction = "removed from " + folderName.substr(1).toLowerCase() + ".";
+        else
+            currentAction = "added to " + folderName.substr(1).toLowerCase() + ".";
         infoListModel.toggleFolder(folderName);
         gridToast.show();
     }
-
 
     function deleteVideos() {
         currentAction = "deleted."
         infoListModel.deleteVideos();
         gridToast.show();
     }
-    
-    function showDeleteDialog()
-    {
+
+    function showDeleteDialog() {
         listView.deleteDialogShowing = true;
         deleteDialog.confirmButton.label = "Delete";
         deleteDialog.show();
     }
-    
+
     // Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
-	function offsetList(isOrientationPortrait){
-	    var offset = listView.isMultiSelecting ? Helpers.widthOfContextMenu : 0;
+    function offsetList(isOrientationPortrait) {
+        var offset = listView.isMultiSelecting ? Helpers.widthOfContextMenu : 0;
         if (isOrientationPortrait)
             listView.preferredWidth = displayInfo.height - offset;
         else
@@ -97,18 +93,18 @@ ListView {
     }
 
     function favoriteIcon() {
-        if (! listView.displayRemoveMessage && ! listView.isQ10) 
-        	return "asset:///images/GridView/favoriteIcon_add_Z10.png";
-        if (! listView.displayRemoveMessage && listView.isQ10) 
-        	return "asset:///images/GridView/favoriteIcon_add_Q10.png";
-        if (listView.displayRemoveMessage && listView.isQ10) 
-        	return "asset:///images/GridView/favoriteIcon_remove_Q10.png";
-        if (listView.displayRemoveMessage && ! listView.isQ10) 
-        	return "asset:///images/GridView/favoriteIcon_remove_Z10.png";        
+        if (! listView.displayRemoveMessage && ! listView.isQ10)
+            return "asset:///images/GridView/favoriteIcon_add_Z10.png";
+        if (! listView.displayRemoveMessage && listView.isQ10)
+            return "asset:///images/GridView/favoriteIcon_add_Q10.png";
+        if (listView.displayRemoveMessage && listView.isQ10)
+            return "asset:///images/GridView/favoriteIcon_remove_Q10.png";
+        if (listView.displayRemoveMessage && ! listView.isQ10)
+            return "asset:///images/GridView/favoriteIcon_remove_Z10.png";
     }
 
     multiSelectHandler {
-        actions: [            
+        actions: [
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
             InvokeActionItem {
@@ -122,43 +118,43 @@ ListView {
                     data = "These movie are great: ";
                     for (var i = listView.copyOfSelectedIndexes.length - 1; i >= 0; i --) {
                         data += infoListModel.data(listView.copyOfSelectedIndexes[i]).title
-                        if(i != 0)
-                        	data += ",  ";
+                        if (i != 0)
+                            data += ",  ";
                     }
                 }
             },
             ActionItem {
                 title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                 id: multiFavoriteOption
-                imageSource: favoriteIcon() 
-                onTriggered:{
+                imageSource: favoriteIcon()
+                onTriggered: {
                     listView.moveToFolder("0Favorites");
-                }               
+                }
             },
             ActionItem {
                 title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
                 id: multiHiddenOption
                 imageSource: listView.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
-                onTriggered:{
+                onTriggered: {
                     listView.moveToFolder("9Hidden");
                 }
             },
             DeleteActionItem {
                 title: "Delete"
                 onTriggered: {
-                   listView.showDeleteDialog();
+                    listView.showDeleteDialog();
                 }
             }
         ]
 
-        // Set the initial status text of multiple selection mode. 
+        // Set the initial status text of multiple selection mode.
         status: "None selected"
         onActiveChanged: {
             listView.isMultiSelecting = active;
             // Sometimes, the visualstate of myContext does not get updated correctly.
             // So we allow loading of videos after multi-select is cancelled as well
-            if (!active)
-            	listView.allowLoadingVideo = true;
+            if (! active)
+                listView.allowLoadingVideo = true;
             offsetList(orientationHandler.orientation == UIOrientation.Portrait)
         }
     }
@@ -166,51 +162,52 @@ ListView {
     listItemComponents: [
         ListItemComponent {
             type: "header"
-            Container{
+            Container {
                 leftPadding: 5
-	            Label {
-	                text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
-	                textStyle.color: Color.create("#dddddd")
-	            }
-	            Container{
-	                minHeight:3
-	                background: Color.create("#ff8811")
-	                Divider{}
-	            }
+                Label {
+                    text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+                    textStyle.color: Color.create("#dddddd")
+                }
+                Container {
+                    minHeight: 3
+                    background: Color.create("#ff8811")
+                    Divider {
+                    }
+                }
             }
         },
 
         ListItemComponent {
             type: "item"
-            Container{
+            Container {
                 id: itemRoot
-	            ThumbnailItem {
-	                imageSource: ListItemData.thumbURL
-	                movieTitle: " " + ListItemData.title
-	                movieLength: ListItemData.duration
-	                isVideoBarItem: false
-	            }
+                ThumbnailItem {
+                    imageSource: ListItemData.thumbURL
+                    movieTitle: " " + ListItemData.title
+                    movieLength: ListItemData.duration
+                    isVideoBarItem: false
+                }
                 opacity: 0.0
 
                 onCreationCompleted: {
                     appear.play();
                 }
-                
-                attachedObjects:[
+
+                attachedObjects: [
                     ImagePaintDefinition {
                         id: frameImage
                         imageSource: "asset:///images/selected_frame.png"
                     }
                 ]
                 background: itemRoot.ListItem.selected ? frameImage.imagePaint : Color.Transparent
-                
+
                 onTouch: {
-                    if (event.touchType == TouchType.Down) 
-                    	sinkIn.play();
-                    else if(event.touchType == TouchType.Cancel || event.touchType == TouchType.Up)
-                    	popOut.play();
+                    if (event.touchType == TouchType.Down)
+                        sinkIn.play();
+                    else if (event.touchType == TouchType.Cancel || event.touchType == TouchType.Up)
+                        popOut.play();
                 }
-                
+
                 contextActions: [
                     ActionSet {
                         title: "Menu Action Set"
@@ -240,7 +237,7 @@ ListView {
                                 title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
                                 id: individualHiddenOption
                                 imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
-                                onTriggered:{
+                                onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("9Hidden");
                                 }
                             },
@@ -250,12 +247,12 @@ ListView {
                                 query.invokeActionId: "bb.action.SHARE"
                             },
                             DeleteActionItem {
-                                 title: "Delete"
-                                 onTriggered: {
+                                title: "Delete"
+                                onTriggered: {
                                     itemRoot.ListItem.view.showDeleteDialog();
                                 }
                             }
-                        ]                   
+                        ]
                     } // end of ActionSet
                 ] // end of contextActions list
 
@@ -269,14 +266,14 @@ ListView {
                     },
                     //This makes the thumbnail "sink in" when tapped before loading the video
                     ScaleTransition {
-                        id : sinkIn                    
+                        id: sinkIn
                         toX: 0.95
                         toY: 0.95
                         easingCurve: StockCurve.Linear
                         duration: 100
                     },
                     ScaleTransition {
-                        id : popOut
+                        id: popOut
                         fromX: 0.95
                         fromY: 0.95
                         toX: 1
@@ -292,29 +289,27 @@ ListView {
     onTriggered: {
         clearSelection();
         select(indexPath);
-        
-        
+
     }
     onSelectionChanged: {
         // Don't load a video if a context menu is showing
-        if (listView.allowLoadingVideo) 
-        {
-	        // slot called when ListView emits selectionChanged signal
-	        // A slot naming convention is used for automatic connection of list view signals to slots
+        if (listView.allowLoadingVideo) {
+            // slot called when ListView emits selectionChanged signal
+            // A slot naming convention is used for automatic connection of list view signals to slots
             if (selected && listView.selected().length != 1) {
-	            infoListModel.setSelectedIndex(listView.selected())
-	            var page = getSecondPage();
-	            console.log("pushing detail " + page)
-	            //variables for passing selected video path and length to videoScrollList
-	            var currentPath = listView.dataModel.data(indexPath).path;
-	            page.currentPath = currentPath;
-	            var currentLenght = listView.dataModel.data(indexPath).duration;
-	            page.currentLenght = currentLenght;
-	            navigationPane.push(page);
-	            clearSelection();
-	        }
+                infoListModel.setSelectedIndex(listView.selected())
+                var page = getSecondPage();
+                console.log("pushing detail " + page)
+                //variables for passing selected video path and length to videoScrollList
+                var currentPath = listView.dataModel.data(indexPath).path;
+                page.currentPath = currentPath;
+                var currentLenght = listView.dataModel.data(indexPath).duration;
+                page.currentLenght = currentLenght;
+                navigationPane.push(page);
+                clearSelection();
+            }
         }
-        
+
         // Display on the screen number of selected items
         if (selectionList().length > 1) {
             multiSelectHandler.status = selectionList().length + " items selected";
@@ -324,7 +319,7 @@ ListView {
             numberOfItems = "1 item ";
         } else {
             multiSelectHandler.status = "None selected";
-            // Technically the selection is already empty, but calling this method 
+            // Technically the selection is already empty, but calling this method
             // seems to ensure that the context menu is in the correct state (hidden)
             clearSelection();
         }
@@ -333,51 +328,56 @@ ListView {
             listView.passSelectionToModel();
             var visibility = infoListModel.getButtonVisibility("0Favorites");
             multiFavoriteOption.enabled = visibility;
-            
+
             multiHiddenOption.enabled = infoListModel.getButtonVisibility("9Hidden");
         }
-            // change label and/or enability of favorite context menu item depending on selection
-        if (!listView.deleteDialogShowing)
-        {
-	        listView.passSelectionToModel();
-	        var visibility = infoListModel.getButtonVisibility("0Favorites");
-	        switch (visibility){
-	            // Both non-favs and favs selected
-	        	case 0:{
-	                multiFavoriteOption.enabled = false;
-	        	    break;
-	        	}
-	        	case 1:{
-	                multiFavoriteOption.enabled = true;
-	                listView.displayRemoveMessage = false;
-                    break;
-	            }
-	        	case 2:{
-	                multiFavoriteOption.enabled = true;
-	                listView.displayRemoveMessage = true;
-                    break;
-	            }
-	        }
+        // change label and/or enability of favorite context menu item depending on selection
+        if (! listView.deleteDialogShowing) {
+            listView.passSelectionToModel();
+            var visibility = infoListModel.getButtonVisibility("0Favorites");
+            switch (visibility) {
+                // Both non-favs and favs selected
+                case 0:
+                    {
+                        multiFavoriteOption.enabled = false;
+                        break;
+                    }
+                case 1:
+                    {
+                        multiFavoriteOption.enabled = true;
+                        listView.displayRemoveMessage = false;
+                        break;
+                    }
+                case 2:
+                    {
+                        multiFavoriteOption.enabled = true;
+                        listView.displayRemoveMessage = true;
+                        break;
+                    }
+            }
             visibility = infoListModel.getButtonVisibility("9Hidden");
-            switch (visibility){
-                case 0:{
-                    multiHiddenOption.enabled = false;
-                    break;
-                }
-                case 1:{
-                    multiHiddenOption.enabled = true;
-                    listView.displayHideMessage = false;
-                    break;
-                }
-                case 2:{
-                    multiHiddenOption.enabled = true;
-                    listView.displayHideMessage = true;
-                    break;
-                }
-            }     
-	    }
+            switch (visibility) {
+                case 0:
+                    {
+                        multiHiddenOption.enabled = false;
+                        break;
+                    }
+                case 1:
+                    {
+                        multiHiddenOption.enabled = true;
+                        listView.displayHideMessage = false;
+                        break;
+                    }
+                case 2:
+                    {
+                        multiHiddenOption.enabled = true;
+                        listView.displayHideMessage = true;
+                        break;
+                    }
+            }
+        }
     } // onSelectionChanged
-    
+
     property Page secondPage
     function getSecondPage() {
         if (! secondPage) {
@@ -412,15 +412,15 @@ ListView {
             title: "File deletion..."
             body: "Are you sure you want to delete file(s)?"
             onFinished: {
-               if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection) 
-                	listView.deleteVideos();
+                if (deleteDialog.result == SystemUiResult.ConfirmButtonSelection)
+                    listView.deleteVideos();
                 listView.deleteDialogShowing = false;
             }
         },
         SystemToast {
             id: gridToast
-            body: numberOfItems+currentAction
+            body: numberOfItems + currentAction
             position: SystemUiPosition.MiddleCenter
         }
     ]
-} // ListView
+}// ListView
