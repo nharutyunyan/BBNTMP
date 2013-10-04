@@ -35,13 +35,13 @@ using namespace bb::cascades;
 class CustomSlider : public bb::cascades::CustomControl {
     Q_OBJECT
 
-    Q_PROPERTY(float smallSliderMaxWidth WRITE setSmallSliderMaxWidth FINAL)
-    Q_PROPERTY(float smallCurrentValue  WRITE setSmallCurrentValue FINAL)
-    Q_PROPERTY(float smallCordX  WRITE setSmallCordX FINAL)
-    Q_PROPERTY(QString objectName  WRITE setObjectName FINAL)
-    Q_PROPERTY(bool animation  WRITE setAnimation FINAL)
-    Q_PROPERTY(QString background  WRITE setBackground FINAL)
-    Q_PROPERTY(QSize layoutSize  WRITE setLayoutSize FINAL)
+    Q_PROPERTY(float smallSliderMaxWidth READ smallSliderMaxWidth WRITE setSmallSliderMaxWidth FINAL)
+    Q_PROPERTY(float smallCurrentValue READ smallCurrentValue  WRITE setSmallCurrentValue FINAL)
+    Q_PROPERTY(float smallCordX READ smallCordX  WRITE setSmallCordX FINAL)
+    Q_PROPERTY(QString objectName READ objectName  WRITE setObjectName FINAL)
+    Q_PROPERTY(bool animation READ animation  WRITE setAnimation FINAL)
+    Q_PROPERTY(QString background READ background  WRITE setBackground FINAL)
+    Q_PROPERTY(QSize layoutSize READ layoutSize  WRITE setLayoutSize FINAL)
     Q_PROPERTY(bool mediaState READ  mediaState WRITE setMediaState NOTIFY mediaStateChanged FINAL)
     Q_PROPERTY(float value READ value WRITE setValue FINAL)
     Q_PROPERTY(float fromValue READ fromValue WRITE setFromValue NOTIFY fromValueChanged FINAL)
@@ -59,6 +59,13 @@ public:
     float fromValue() const;
     float toValue() const;
     float immediateValue() const;
+    float smallSliderMaxWidth() const;
+    float smallCurrentValue() const;
+    float smallCordX() const;
+    QString objectName() const;
+    bool animation() const;
+    QString background() const;
+    QSize layoutSize() const;
     Q_INVOKABLE float handleLocalX() const;
     Q_INVOKABLE void setLongPressEnabled(bool enabled);
 
@@ -165,6 +172,10 @@ private:
     bool m_handleLongPressed;
     QString m_objectName;
     float m_smallSliderMaxWidth;
+    float m_smallCurrentValue;
+    float m_smallCordX;
+    QString m_background;
+    QSize m_layoutSize;
 
     AbsoluteLayoutProperties* m_handleLayoutProperties;
     Container* m_leftAnimationContainer;

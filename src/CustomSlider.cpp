@@ -632,3 +632,40 @@ void CustomSlider::setLongPressEnabled(bool enabled)
 	m_handleContainer->setVisible(true);
     m_handleLongPressed = enabled;
 }
+
+float CustomSlider::smallSliderMaxWidth() const
+{
+    return m_smallSliderMaxWidth;
+}
+
+float CustomSlider::smallCurrentValue() const
+{
+    return m_smallCurrentValue;
+}
+
+float CustomSlider::smallCordX() const
+{
+    return m_smallCordX;
+}
+
+QString CustomSlider::objectName() const
+{
+    return m_objectName;
+}
+
+bool CustomSlider::animation() const
+{
+    return m_animation;
+}
+
+QString CustomSlider::background() const
+{
+    return m_background;
+}
+
+QSize CustomSlider::layoutSize() const
+{
+    return m_layoutSize;
+}
+
+
