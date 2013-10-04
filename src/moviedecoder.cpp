@@ -22,7 +22,8 @@ static const int THUMBNAIL_SIZE=380;
 static const bool MAINTAIN_ASPECT_RATIO = true;
 
 MovieDecoder::MovieDecoder(const QString& filename, AVFormatContext* pavContext)
-: videoStream(-1)
+: videoDuration(-1)
+, videoStream(-1)
 , pFormatContext(pavContext)
 , pVideoCodecContext(0)
 , pVideoCodec(0)
@@ -31,7 +32,6 @@ MovieDecoder::MovieDecoder(const QString& filename, AVFormatContext* pavContext)
 , pFrameBuffer(0)
 , pPacket(0)
 , allowSeek(true)
-,videoDuration(-1)
 {
     initialize(filename);
 }
