@@ -131,14 +131,14 @@ ListView {
                     listView.moveToFolder("0Favorites");
                 }
             },
-            ActionItem {
-                title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
-                id: multiHiddenOption
-                imageSource: listView.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
-                onTriggered: {
-                    listView.moveToFolder("9Hidden");
-                }
-            },
+            //            ActionItem {
+            //                title: listView.displayHideMessage ? "Move to original folder" : "Move to hidden"
+            //                id: multiHiddenOption
+            //                imageSource: listView.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
+            //                onTriggered:{
+            //                    listView.moveToFolder("9Hidden");
+            //                }
+            //            },
             DeleteActionItem {
                 title: "Delete"
                 onTriggered: {
@@ -233,14 +233,14 @@ ListView {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
                                 }
                             },
-                            ActionItem {
-                                title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
-                                id: individualHiddenOption
-                                imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
-                                onTriggered: {
-                                    itemRoot.ListItem.view.moveToFolder("9Hidden");
-                                }
-                            },
+                            //                            ActionItem {
+                            //                                title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
+                            //                                id: individualHiddenOption
+                            //                                imageSource: itemRoot.ListItem.view.isQ10 ? "asset:///images/GridView/hideIcon_Q10.png" : "asset:///images/GridView/hideIcon_Z10.png"
+                            //                                onTriggered:{
+                            //                                    itemRoot.ListItem.view.moveToFolder("9Hidden");
+                            //                                }
+                            //                            },
                             InvokeActionItem {
                                 id: shareAction
                                 query.uri: "file://" + ListItemData.path
@@ -328,8 +328,7 @@ ListView {
             listView.passSelectionToModel();
             var visibility = infoListModel.getButtonVisibility("0Favorites");
             multiFavoriteOption.enabled = visibility;
-
-            multiHiddenOption.enabled = infoListModel.getButtonVisibility("9Hidden");
+            //multiHiddenOption.enabled = infoListModel.getButtonVisibility("9Hidden");
         }
         // change label and/or enability of favorite context menu item depending on selection
         if (! listView.deleteDialogShowing) {
@@ -355,26 +354,26 @@ ListView {
                         break;
                     }
             }
-            visibility = infoListModel.getButtonVisibility("9Hidden");
-            switch (visibility) {
-                case 0:
-                    {
-                        multiHiddenOption.enabled = false;
-                        break;
-                    }
-                case 1:
-                    {
-                        multiHiddenOption.enabled = true;
-                        listView.displayHideMessage = false;
-                        break;
-                    }
-                case 2:
-                    {
-                        multiHiddenOption.enabled = true;
-                        listView.displayHideMessage = true;
-                        break;
-                    }
-            }
+            //            visibility = infoListModel.getButtonVisibility("9Hidden");
+            //            switch (visibility) {
+            //                case 0:
+            //                    {
+            //                        multiHiddenOption.enabled = false;
+            //                        break;
+            //                    }
+            //                case 1:
+            //                    {
+            //                        multiHiddenOption.enabled = true;
+            //                        listView.displayHideMessage = false;
+            //                        break;
+            //                    }
+            //                case 2:
+            //                    {
+            //                        multiHiddenOption.enabled = true;
+            //                        listView.displayHideMessage = true;
+            //                        break;
+            //                    }
+            //            }
         }
     } // onSelectionChanged
 
