@@ -1143,6 +1143,7 @@ Page {
             appContainer.curVolume = bpsEventHandler.getVolume();
             pgPlayer.destroy();
             navigationPane.pop();
+            navigationPane.peekEnabled = true
         }
 
         function onThumbnail() {
@@ -1195,4 +1196,7 @@ Page {
             }
         }
     ]
+    onCreationCompleted: {
+        navigationPane.peekEnabled = false
+    }
 }// Page
