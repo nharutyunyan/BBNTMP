@@ -103,6 +103,8 @@ public:
 
     Q_INVOKABLE void setIsDrillDown(bool isDrillDown);
 
+    Q_INVOKABLE QVariantList getFavoriteVideos();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();

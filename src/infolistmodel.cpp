@@ -548,6 +548,33 @@ void InfoListModel::clearSelected() {
 	m_currentSelectionList.clear();
 }
 
+
 void InfoListModel::setIsDrillDown(bool isDrillDown) {
 	m_drillDown = isDrillDown;
+}
+
+QVariantList InfoListModel::getFavoriteVideos()
+{
+	QVariantList favoriteVideos;
+
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (v["folder"]=="0Favorites") {
+			favoriteVideos.push_back(v);
+		}
+	}
+
+	if (favoriteVideos.length()==0) {
+		int i = 0;
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap v = data(indexPath).toMap();
+			favoriteVideos.push_back(v);
+			if (i<10) {
+				i++;
+			} else {
+				break;
+			}
+		}
+	}
+	return favoriteVideos;
 }

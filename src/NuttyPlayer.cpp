@@ -171,15 +171,25 @@ void NuttyPlayer::passScreenDimensionsToQml(bb::cascades::QmlDocument *qml){
 
 void NuttyPlayer::onThumbnail() {
     Settings settings;
-    if(!settings.value("inPlayerView").value<bool>()) {
-        return;
+    QmlDocument *qmlCover;
+    bool isEnabled = false;
+
+    if(settings.value("inPlayerView").value<bool>()) {
+		qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
+		isEnabled = true;
+    } else {
+    	QVariantList favorites = model->getFavoriteVideos();
+    	if (favorites.length()!= 0) {
+			qmlCover = QmlDocument::create("asset:///minimizedMovieGrid.qml").parent(this);
+			isEnabled = true;
+    	}
     }
-    QmlDocument *qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
-    if (!qmlCover->hasErrors()) {
-        Container *coverContainer = qmlCover->createRootObject<Container>();
-        SceneCover *sceneCover = SceneCover::create().content(coverContainer);
-        Application::instance()->setCover(sceneCover);
-    }
+	if (isEnabled && !qmlCover->hasErrors() ) {
+		Container *coverContainer = qmlCover->createRootObject<Container>();
+		SceneCover *sceneCover = SceneCover::create().content(coverContainer);
+		Application::instance()->setCover(sceneCover);
+	}
+
 }
 
 void NuttyPlayer::onAwake() {
