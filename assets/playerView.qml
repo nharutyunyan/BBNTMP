@@ -954,7 +954,7 @@ Page {
                         }
                     }
                 }
-            },
+           },
 
             SubtitleManager {
                 id: subtitleManager
@@ -962,10 +962,6 @@ Page {
 
             Settings {
                 id: settings
-            },
-
-            Screenshot {
-                id: screenshot
             },
 
             BpsEventHandler {
@@ -1151,7 +1147,6 @@ Page {
             subtitleButtonContainer.setOpacity(0);
             upperMenu.setOpacity(0);
             controlsContainer.setVisible(false);
-            screenshot.makeScreenShot();
         }
 
     } //appContainer

@@ -10,7 +10,6 @@ device {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
-                 $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
@@ -31,7 +30,6 @@ device {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
-                 $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
@@ -55,7 +53,6 @@ device {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
-                 $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
@@ -76,7 +73,6 @@ device {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
-                 $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
@@ -102,7 +98,6 @@ simulator {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
-                 $$quote($$BASEDIR/src/Screenshot.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
@@ -123,7 +118,6 @@ simulator {
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
-                 $$quote($$BASEDIR/src/Screenshot.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
