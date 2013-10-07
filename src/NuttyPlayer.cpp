@@ -175,7 +175,6 @@ void NuttyPlayer::onThumbnail() {
 
     if(settings.value("inPlayerView").value<bool>()) {
 		qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
-		qmlCover->setContextProperty("infoListModel", model);
 		isEnabled = true;
     } else {
     	QVariantList favorites = model->getFavoriteVideos();
@@ -185,6 +184,8 @@ void NuttyPlayer::onThumbnail() {
     	}
     }
 	if (isEnabled && !qmlCover->hasErrors() ) {
+		passScreenDimensionsToQml(qmlCover);
+		qmlCover->setContextProperty("infoListModel", model);
         Container *coverContainer = qmlCover->createRootObject<Container>();
         SceneCover *sceneCover = SceneCover::create().content(coverContainer);
         Application::instance()->setCover(sceneCover);

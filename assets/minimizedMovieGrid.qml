@@ -6,10 +6,11 @@ Container {
     layout: DockLayout {
     }
     id: minimizedMovieGrid
+
+    property bool isQ10: displayInfo.height == 720 ? true : false
+
     property variant favorites: infoListModel.getFavoriteVideos()
     property int currentFrame: 0
-    preferredHeight: 720  
-    preferredWidth: 720    
 
     Container {
         horizontalAlignment: HorizontalAlignment.Center
@@ -18,7 +19,7 @@ Container {
             id: frame
             imageSource: favorites[currentFrame]['thumbURL']
             scalingMethod: ScalingMethod.AspectFill
-            preferredHeight: 400
+            preferredHeight: isQ10 ? 215 : 400
         }
     }
     Container {
@@ -56,9 +57,6 @@ Container {
             id: titleBackground
             imageSource: "asset:///images/GridView/TimeFrame.png"
         },        
-        InfoListModel {
-            id: infoListModel
-        },
         QTimer {
             id: updateFrame
             singleShot: false

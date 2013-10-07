@@ -1,32 +1,28 @@
 import bb.cascades 1.0
 import nuttyPlayer 1.0
 
-Container {
+Container {    
     layout: DockLayout {
     }
-    background: backgroundImage.imagePaint
+    property bool isQ10: displayInfo.height == 720 ? true : false
     Container {
+        horizontalAlignment: HorizontalAlignment.Center
+        verticalAlignment: VerticalAlignment.Center
         ImageView {
             imageSource: infoListModel.getSelectedVideoThumbnail();
             scalingMethod: ScalingMethod.AspectFill
+            preferredHeight: isQ10 ? 215 : 400
         }
     }
     Container {
         horizontalAlignment: HorizontalAlignment.Center
         verticalAlignment: VerticalAlignment.Center
-        topPadding: 40
         ImageView {
             id: minimizedPlay
             opacity: 0.7
-            scaleX: 0.8
-            scaleY: 0.8
+            scaleX: isQ10 ? 0.6 : 0.8  
+            scaleY: isQ10 ? 0.6 : 0.8
             imageSource: "asset:///images/Player/Play.png"
         }
     }
-    attachedObjects: [
-        ImagePaintDefinition {
-            id: backgroundImage
-            imageSource: "asset:///images/Player/VideoBG.png"
-        }
-    ]
 }
