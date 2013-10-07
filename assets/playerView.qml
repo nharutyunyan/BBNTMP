@@ -4,6 +4,7 @@ import bb.system 1.0
 import nuttyPlayer 1.0
 import bpsEventHandler 1.0
 import nutty.slider 1.0
+import customtimer 1.0
 import "helpers.js" as Helpers
 
 Page {
@@ -945,13 +946,7 @@ Page {
 
                 onMediaStateChanged: {
                     if (myPlayer.mediaState == MediaState.Stopped) {
-                        appContainer.curVolume = bpsEventHandler.getVolume();
-                        if (appContainer.retryCount != 0) {
-                            appContainer.playMediaPlayer();
-                            -- appContainer.retryCount;
-                        } else {
-                            invalidToast.show();
-                        }
+                        elapsedTimer.restart()
                     }
                 }
            },
@@ -1035,6 +1030,25 @@ Page {
                 }
             },
 
+            CustomElapsedTimer {
+                id: elapsedTimer
+                onIntervalChanged: {
+                    if(interval < 1000)
+                    {
+                      appContainer.curVolume = bpsEventHandler.getVolume();
+                       if (appContainer.retryCount != 0) {
+                          appContainer.playMediaPlayer();
+                          -- appContainer.retryCount;
+                        } else {
+                          invalidToast.show();
+                        }
+                    }
+                    else{
+                        appContainer.goBack()
+                    }
+                }
+            },
+
             QTimer {
                 id: uiControlsShowTimer
                 singleShot: true
@@ -1089,6 +1103,7 @@ Page {
                 singleShot: true
                 interval: 1
                 onTimeout: {
+                    elapsedTimer.start();
                     myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
                     myPlayer.prepare();
                     if (appContainer.playMediaPlayer() == MediaError.None) {
