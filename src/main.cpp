@@ -20,6 +20,7 @@
 #include "infolistmodel.hpp"
 #include "CustomSlider.hpp"
 #include "Settings.hpp"
+#include "CustomElapsedTimer.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -47,6 +48,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 		qInstallMsgHandler(myMessageOutput);
 	#endif
 */
+    qmlRegisterType<CustomElapsedTimer>("customtimer", 1, 0, "CustomElapsedTimer");
     qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
     qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
     qmlRegisterType<BpsEventHandler>("bpsEventHandler", 1, 0, "BpsEventHandler");
