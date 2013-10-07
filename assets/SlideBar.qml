@@ -14,6 +14,7 @@ Container {
     property bool pauseHandle
     property variant layoutSize
     property int bookmarkPositionX
+    property int progressBarPositionX
     property bool bookmarkTouched: false
     property bool bookmarkVisible: true
     property int timeAreaWidth: 200
@@ -145,17 +146,18 @@ Container {
             ]
             onVisibleChanged: {
                 if (visible) {
-                    slider.showBookmarkProgressBar(bookmarkPositionX-10);
+                    slider.showBookmarkProgressBar(progressBarPositionX);
                 } else {
                     slider.hideBookmarkProgressBar();
                 }
             }
 
         } //bookmark Icon
+
         animations: [
             TranslateTransition {
                 id: moveDown
-                toY: 40
+                toY: OrientationSupport.orientation == UIOrientation.Portrait? 40 : 15  
                 duration: 100
                 onEnded: {
                     moveUp.play();
@@ -163,7 +165,7 @@ Container {
             },
             TranslateTransition {
                 id: moveUp
-                toY: 15
+                toY: OrientationSupport.orientation == UIOrientation.Portrait ? 15 : 7
                 duration: 100
                 onEnded: {
                     myPlayer.seekTime(infoListModel.getVideoPosition());
@@ -278,6 +280,13 @@ Container {
 
     function enabled(en) {
     }
+    
+    onProgressBarPositionXChanged: {
+        if (bookmarkVisible) {
+            slider.showBookmarkProgressBar(progressBarPositionX);
+        }
+    }
+    
     onCreationCompleted: {
         if (OrientationSupport.orientation == UIOrientation.Portrait) {
             timeArea.verticalAlignment = VerticalAlignment.Top
