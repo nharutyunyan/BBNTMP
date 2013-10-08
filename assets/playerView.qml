@@ -665,6 +665,8 @@ Page {
                         }
                     ]
                 } // videoTitleContainer
+                /*
+                 *  HDMI code is disabled
                 Container {
                     layout: StackLayout {
                         orientation: LayoutOrientation.TopToBottom
@@ -709,6 +711,7 @@ Page {
                         }
                     } //hdmiButtonContainer
                 }
+                */
                 implicitLayoutAnimationsEnabled: false
 
                 attachedObjects: [
