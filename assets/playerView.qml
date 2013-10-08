@@ -793,6 +793,7 @@ Page {
                     verticalAlignment: VerticalAlignment.Center
 
                     bookmarkPositionX: getBookmarkPosition()
+                    progressBarPositionX: getProgressBarPosition()
                     bookmarkVisible: false
                     toValue: pgPlayer.currentLenght
                     layoutProperties: StackLayoutProperties {
@@ -832,7 +833,10 @@ Page {
 
                     function getBookmarkPosition() {
                         return OrientationSupport.orientation == UIOrientation.Landscape ? timeAreaWidth + sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * timeAreaWidth - sliderHandleWidth) - 30 : sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - sliderHandleWidth) - 30
-
+                    }
+                    
+                    function getProgressBarPosition() {
+                        return OrientationSupport.orientation == UIOrientation.Landscape ? (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * timeAreaWidth - sliderHandleWidth) : (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - sliderHandleWidth) 
                     }
 
                 } //durationSlider
@@ -1085,11 +1089,13 @@ Page {
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getIntIndex(infoListModel.getSelectedIndex()), OrientationSupport.orientation == UIOrientation.Portrait, infoListModel.size());
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
-                        durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30
-                        upperMenu.preferredWidth = displayInfo.width
+                        durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30;
+                        durationSlider.progressBarPositionX = (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth);
+                        upperMenu.preferredWidth = displayInfo.width;
                     } else {
                         durationSlider.bookmarkPositionX = durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - durationSlider.sliderHandleWidth) - 30
-                        upperMenu.preferredWidth = displayInfo.height
+                        durationSlider.progressBarPositionX = (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - durationSlider.sliderHandleWidth);
+                        upperMenu.preferredWidth = displayInfo.height;
                     }
                     videoWindow.initializeVideoScales();
                     if (controlsContainer.visible == false) {
