@@ -21,6 +21,7 @@
 #include "CustomSlider.hpp"
 #include "Settings.hpp"
 #include "CustomElapsedTimer.hpp"
+#include "System.hpp"
 
 using namespace bb::cascades;
 using namespace utility;
@@ -40,6 +41,7 @@ void myMessageOutput(QtMsgType type, const char* msg)
 */
 
 
+
 Q_DECL_EXPORT int main(int argc, char **argv)
 {
     Application app(argc, argv);
@@ -56,6 +58,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     qmlRegisterType<CustomSlider>("nutty.slider", 1, 0, "CustomSlider");
     qmlRegisterType<Settings>("nuttyPlayer", 1, 0, "Settings");
     qmlRegisterType<bb::system::phone::Phone>("bb.system.phone", 1, 0, "Phone");
+    qmlRegisterType<System>("system", 1, 0, "System");
 
     QTranslator translator;
     QString locale_string = QLocale().name();

@@ -1,9 +1,12 @@
 import bb.cascades 1.0
 import bb.system.phone 1.0
+import system 1.0
 import "helpers.js" as Helpers
 
 Page {
+    
     Container {
+
         background: Color.White
 
         ImageView {
@@ -18,7 +21,7 @@ Page {
             rightPadding: leftPadding
             Container {
                 layoutProperties: StackLayoutProperties {
-                    spaceQuota: -1
+                    spaceQuota: 2.5
                 }
                 Label {
                     text: qsTr("Nutty Player is a video player application that supports a wide range of formats. Offers custom movie library filters, Subtitles, Captions, Touch Screen navigation and an intuitive user interface.") + Retranslate.onLanguageChanged
@@ -28,7 +31,7 @@ Page {
             }
             Container {
                 layoutProperties: StackLayoutProperties {
-                    spaceQuota: 1
+                    spaceQuota: 0
                 }
                 Label {
                     text: "<html><a href=\"http://macadamian.com\">Macadamian Technologies</a></html>"
@@ -52,7 +55,7 @@ Page {
 
             Container {
                 layoutProperties: StackLayoutProperties {
-                    spaceQuota: 1
+                    spaceQuota: system.isQ10() ? 1 : 4 
                 }
                 Label {
                     text: qsTr("Version %1").arg(AppInfo.version) + Retranslate.onLanguageChanged
@@ -79,6 +82,10 @@ Page {
         },
         Phone {
             id: phone
-        }
+        },
+        System {
+            id: system
+        } 
     ]
+       
 }
