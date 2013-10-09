@@ -559,11 +559,6 @@ void InfoListModel::clearSelected()
 	m_currentSelectionList.clear();
 }
 
-
-void InfoListModel::setIsDrillDown(bool isDrillDown) {
-	m_drillDown = isDrillDown;
-}
-
 QVariantList InfoListModel::getFavoriteVideos()
 {
 	QVariantList favoriteVideos;
