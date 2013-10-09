@@ -17,7 +17,7 @@ ListView {
         verticalCellSpacing: 0        
     }
     horizontalAlignment: HorizontalAlignment.Center
-    
+
     property bool released: true
     property bool isMultiSelecting: false
     property bool displayRemoveMessage: false
@@ -260,39 +260,12 @@ ListView {
             type: "item"
             Container {
                 id: itemRoot
-                layout: DockLayout {
-                    
+                ThumbnailItem {
+                    imageSource: ListItemData.thumbURL
+                    movieTitle: " " + ListItemData.title
+                    movieLength: ListItemData.duration
+                    isVideoBarItem: false
                 }
-                
-	            ThumbnailItem {
-	                imageSource: ListItemData.thumbURL
-	                movieTitle: " " + ListItemData.title
-	                movieLength: ListItemData.duration
-	                isVideoBarItem: false
-	                
-                    onTouch: {
-                        if (event.touchType == TouchType.Down) 
-                            sinkIn.play();
-                        else if(event.touchType == TouchType.Cancel || event.touchType == TouchType.Up)
-                            popOut.play();
-                    }
-	            }
-	            
-                Container {
-                    visible: itemRoot.ListItem.indexPath[1] == 3 ? true : false
-                    horizontalAlignment: HorizontalAlignment.Right
-                    verticalAlignment: VerticalAlignment.Bottom
-                    ImageView {
-                        imageSource: "asset:///images/GridView/DrillDown.png"
-                        scalingMethod: ScalingMethod.AspectFit
-                    }
-                    gestureHandlers: TapHandler {
-                        onTapped: {
-                            var drillDown = itemRoot.ListItem.view.getDrillDown(ListItemData.folder)
-                        }
-                    }
-                }
-                
                 opacity: 0.0
 
                 onCreationCompleted: {
@@ -306,13 +279,14 @@ ListView {
                     }
                 ]
                 background: itemRoot.ListItem.selected ? frameImage.imagePaint : Color.Transparent
-                
+
                 onTouch: {
                     if (event.touchType == TouchType.Down)
                         sinkIn.play();
                     else if (event.touchType == TouchType.Cancel || event.touchType == TouchType.Up)
                         popOut.play();
                 }
+
                 contextActions: [
                     ActionSet {
                         title: "Menu Action Set"
@@ -490,14 +464,6 @@ ListView {
         }
         return secondPage;
     }
-    
-    function getDrillDown(folder){
-        var page = drillDownList.createObject()
-        infoListModel.setIsDrillDown(true);
-        page.selectedFolder = folder
-        page.groupDataModel = infoListModel.get();
-        navigationPane.push(page)
-    }
     attachedObjects: [
         OrientationHandler {
             id: orientationHandler
@@ -516,10 +482,6 @@ ListView {
         ComponentDefinition {
             id: secondPageDefinition
             source: "playerView.qml"
-        },
-        ComponentDefinition {
-            id: drillDownList
-            source: "movieList.qml"
         },
         MediaPlayer {
             id: videoListScrollBar

@@ -6,6 +6,7 @@ import "helpers.js" as Helpers
 
 NavigationPane {
     id: navigationPane
+    peekEnabled: false
     Menu.definition: AppMenu {
     }
     Page {
