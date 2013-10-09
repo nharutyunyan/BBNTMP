@@ -225,7 +225,7 @@ void MovieDecoder::setVideosDuration(const QString& path)
 			videoDuration = pFormatContext->duration / 1000;
 		}
 		else {
-			videoDuration = -1;
+			videoDuration = 0;
 		}
 }
 
