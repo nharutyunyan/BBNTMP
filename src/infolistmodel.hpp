@@ -101,8 +101,6 @@ public:
 
     Q_INVOKABLE void clearSelected();
 
-    Q_INVOKABLE void setIsDrillDown(bool isDrillDown);
-
     Q_INVOKABLE QVariantList getFavoriteVideos();
 
     Q_INVOKABLE QString getSelectedVideoThumbnail();
