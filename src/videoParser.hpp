@@ -20,6 +20,9 @@ public:
 private:
 	QString ASF_Header_Object_GUID;
 	QString ASF_File_Properties_Object_GUID_FIRST_COMPONENT;
+	QString MKV_EBML_ID;
+	QString MKV_FIRST_SEGMENT_ID;
+	unsigned int getMkvSize(QString);
 	unsigned int getAviSize(QString);
 	unsigned int getQuickTimeFileSize(QString);
 	unsigned int charToint(char*);

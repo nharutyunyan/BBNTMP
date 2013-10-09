@@ -11,12 +11,15 @@
 #define GUID_SIZE 16
 #define FILE_SIZE_OFFSET 40
 #define HEADER_OBJECT_DATA_SIZE 30
+#define  EBML_HEADER_SIZE 47
 
 
 VideoParser::VideoParser()
 {
 	ASF_Header_Object_GUID = "75B22630-668E-11CF-D9A6-6CCE6200AA00";
 	ASF_File_Properties_Object_GUID_FIRST_COMPONENT = "8CABDCA1";
+	MKV_EBML_ID = "1A45DFA3";
+	MKV_FIRST_SEGMENT_ID = "18538067";
 }
 
 unsigned long long int VideoParser::getVideoSize(QString path)
@@ -28,6 +31,8 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 		return getQuickTimeFileSize(path);
 	 if(format == "asf_wmv")
 	 	return getAsf_WmvSize(path);
+	 if(format == "mkv")
+		 return getMkvSize(path);
 	 if(format == "Unknown")
 		return 0;
 
@@ -55,6 +60,10 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 	 videoFile.read(ext, 4);
 	 if(ext[0] == 'f'&& ext[1] == 't' && ext[2] == 'y' && ext[3] == 'p')
 		 return "QuickTime";
+	 videoFile.seek(0);
+	 videoFile.read(ext, 4);
+	 if(QString::number(charToint(ext), 16).toUpper() == MKV_EBML_ID)
+		 return "mkv";
 	 return "Unknown";
  }
 
@@ -94,6 +103,28 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  	 }
  	 return result;
   }
+
+ unsigned int VideoParser::getMkvSize(QString path)
+ {
+	 char* data = new char[4];
+	 unsigned int seekPosition = EBML_HEADER_SIZE;
+	 QFile videoFile(path);
+	 videoFile.open(QIODevice::ReadOnly);
+	 videoFile.seek(seekPosition);
+	 videoFile.read(data, 4);
+	 seekPosition += 4;
+
+	 if(QString::number(charToint(data), 16) == MKV_FIRST_SEGMENT_ID)
+	 {
+		 seekPosition += 4;
+		 videoFile.seek(seekPosition);
+		 videoFile.read(data, 4);
+		 seekPosition +=4;
+		 return charToint(data) + seekPosition;
+	 }
+
+	 return 0;
+ }
 
  unsigned int VideoParser::getAviSize(QString path)
  {
