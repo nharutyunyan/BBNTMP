@@ -21,6 +21,7 @@ public Q_SLOTS:
     void shareApp();
 
 private:
+    QUuid uuid;
     // BBM Social Platform Context used to gain access to BBM functionality.
     bb::platform::bbm::Context* m_context;
 };
