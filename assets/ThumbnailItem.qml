@@ -7,7 +7,7 @@ Container {
 
     verticalAlignment: VerticalAlignment.Fill
     horizontalAlignment: HorizontalAlignment.Fill
-
+    
     property bool isVideoBarItem: false
 
     property alias imageSource: thumbImage.imageSource
@@ -19,7 +19,7 @@ Container {
     property int sub: 70
 
     Container {
-        layout: StackLayout {
+	    layout: StackLayout {
         }
 
         leftPadding: 5
@@ -27,21 +27,22 @@ Container {
         topPadding: 5
         bottomPadding: 5
 
-        Container {
-            layout: DockLayout {
-            }
+	    Container {
+	        layout: DockLayout {
+	        }
 
             ImageView {
-                id: thumbImage
-                verticalAlignment: VerticalAlignment.Fill
-                horizontalAlignment: HorizontalAlignment.Fill
-                scalingMethod: ScalingMethod.AspectFill
-                preferredHeight: height
-                preferredWidth: width
-                maxHeight: height
-                maxWidth: width
-                leftPadding: 2
-            }
+	            id: thumbImage
+	            verticalAlignment: VerticalAlignment.Fill
+	            horizontalAlignment: HorizontalAlignment.Fill
+	            scalingMethod: ScalingMethod.AspectFill
+	            preferredHeight: height
+	            preferredWidth: width
+	            maxHeight: height
+	            maxWidth: width
+	            leftPadding: 2
+	        }
+
             Container {
                 verticalAlignment: VerticalAlignment.Bottom
                 horizontalAlignment: HorizontalAlignment.Right
