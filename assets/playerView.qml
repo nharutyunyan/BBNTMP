@@ -541,13 +541,6 @@ Page {
                         }
                     }
                 ]
-                onTouch: {
-                    if (myPlayer.mediaState != MediaState.Started) {
-                        appContainer.playMediaPlayer();
-                    } else {
-                        appContainer.pauseMediaPlayer();
-                    }
-                }
                 onImageSourceChanged: {
                     if (imageSource == "asset:///images/Player/Play.png") {
                         playPauseActionItem.title = qsTr("Play") + Retranslate.onLanguageChanged;
@@ -877,8 +870,10 @@ Page {
 
         function showPlayPauseButton() {
             if (myPlayer.mediaState != MediaState.Started) {
+                appContainer.playMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
             } else {
+                appContainer.pauseMediaPlayer();
                 screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
             upperMenu.setOpacity(1);
