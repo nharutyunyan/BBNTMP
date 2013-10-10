@@ -173,10 +173,27 @@ ListView {
             verticalAlignment: VerticalAlignment.Center
             ImageView {
                 id: frame
+                implicitLayoutAnimationsEnabled: false
                 imageSource: listView.favorites[listView.currentFrame]['thumbURL']
                 scalingMethod: ScalingMethod.AspectFill
                 preferredWidth: listView.isQ10 ? 720 : 768 // 16x
-                preferredHeight: listView.isQ10 ? 405 : 432 // 9x
+                preferredHeight: listView.isQ10 ? 405 : 432 // 9x                
+                onTouch: {          
+                    listView.selectAll();
+                    var indexes = listView.selectionList();
+                    listView.clearSelection();
+                    for (var i = indexes.length - 1; i >= 0; i --) {
+                        var data = listView.dataModel.data(indexes[i]);                        
+                        if (data.path == listView.favorites[listView.currentFrame]['path']) {
+                            infoListModel.setSelectedIndex(indexes[i]);
+                        }
+                    }                    	
+                    	
+                    var page = listView.getSecondPage();
+                    page.currentPath = listView.favorites[listView.currentFrame]['path'];
+                    page.currentLenght = listView.favorites[listView.currentFrame]['duration'];
+                    navigationPane.push(page);
+                }
             }
         }
         Container {
@@ -191,6 +208,7 @@ ListView {
                 horizontalAlignment: HorizontalAlignment.Center
                 Label {
                     id: length
+                    implicitLayoutAnimationsEnabled: false
                     textStyle.fontSize: FontSize.XSmall
                     text: Helpers.formatTime(listView.favorites[listView.currentFrame]['duration'])
                     textStyle.color: Color.White
@@ -200,8 +218,9 @@ ListView {
                 verticalAlignment: VerticalAlignment.Bottom
                 horizontalAlignment: HorizontalAlignment.Fill
                 Label {
-                    horizontalAlignment: HorizontalAlignment.Center
                     id: title
+                    implicitLayoutAnimationsEnabled: false
+                    horizontalAlignment: HorizontalAlignment.Center
                     text: listView.favorites[listView.currentFrame]['title']
                     textStyle.color: Color.White
                     textStyle.fontSize: FontSize.Medium
@@ -216,7 +235,7 @@ ListView {
             QTimer {
                 id: updateFrame
                 singleShot: false
-                interval: 2000
+                interval: 4000
                 onTimeout: {
                     if (listView.currentFrame >= listView.favorites.length - 1) {
                         listView.currentFrame = 0;
@@ -464,6 +483,7 @@ ListView {
         }
         return secondPage;
     }
+
     attachedObjects: [
         OrientationHandler {
             id: orientationHandler

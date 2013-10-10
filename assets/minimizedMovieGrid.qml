@@ -17,6 +17,7 @@ Container {
         verticalAlignment: VerticalAlignment.Center
         ImageView {
             id: frame
+            implicitLayoutAnimationsEnabled: false
             imageSource: favorites[currentFrame]['thumbURL']
             scalingMethod: ScalingMethod.AspectFill
             preferredHeight: isQ10 ? 215 : 400
@@ -43,9 +44,10 @@ Container {
         Container {
             verticalAlignment: VerticalAlignment.Bottom
             horizontalAlignment: HorizontalAlignment.Fill
-            Label {
+            Label {                
+                id: title
+                implicitLayoutAnimationsEnabled: false
                 horizontalAlignment: HorizontalAlignment.Right
-                id: title 
                 text: favorites[currentFrame]['title'] 
                 textStyle.color: Color.White
                 textStyle.fontSize: FontSize.XSmall
@@ -60,7 +62,7 @@ Container {
         QTimer {
             id: updateFrame
             singleShot: false
-            interval: 2000
+            interval: 4000
             onTimeout: {                
                 if (currentFrame == favorites.length - 1) {
                     currentFrame = 0;
