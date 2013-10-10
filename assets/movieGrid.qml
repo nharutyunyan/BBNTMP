@@ -321,11 +321,6 @@ ListView {
                             //                                    itemRoot.ListItem.view.moveToFolder("9Hidden");
                             //                                }
                             //                            },
-                            InvokeActionItem {
-                                id: shareAction
-                                query.uri: "file://" + ListItemData.path
-                                query.invokeActionId: "bb.action.SHARE"
-                            },
                             DeleteActionItem {
                                 title: "Delete"
                                 onTriggered: {
