@@ -1,6 +1,6 @@
 import bb.cascades 1.0
 import nutty.slider 1.0
-
+import "helpers.js" as Helpers
 // TODO Clean up if needed
 
 Container {
@@ -17,32 +17,45 @@ Container {
     property int progressBarPositionX
     property bool bookmarkTouched: false
     property bool bookmarkVisible: true
-    property int timeAreaWidth: 200
+    property int timeAreaWidth: 180
     property int timeAreaHeight: 70
     property int sliderHandleWidth: 87
     property real factor: 105
     property real slideBarHeight
-    preferredHeight: slideBarHeight
+    preferredHeight: slideBarHeight + 50
 
     layout: DockLayout {
 
     }
-    background: backgroundImage.imagePaint
-
     Container {
+        preferredHeight: slideBarHeight
+        layout: DockLayout {
+        
+        }
+    background: backgroundImage.imagePaint
+    verticalAlignment: VerticalAlignment.Bottom
+    horizontalAlignment: HorizontalAlignment.Fill
+
+    
+    Container {
+        layout: StackLayout {
+            
+        }
         id: sliderContainer
         verticalAlignment: VerticalAlignment.Bottom
         horizontalAlignment: HorizontalAlignment.Center
         property int positionOfX
+
         CustomSlider {
             id: slider
             objectName: "slider"
             horizontalAlignment: HorizontalAlignment.Fill
+            verticalAlignment: VerticalAlignment.Bottom
             fromValue: slideBar.fromValue
             toValue: slideBar.toValue
 
             onHandleLongPressed: {
-                onSlider = true;
+                slideBar.onSlider = true;
                 if (slider.toValue > my.minTime) {
                     bpsEventHandler.startVibration(20,200);
                     smallStepSlider.smallCurrentValue = slider.value;
@@ -93,7 +106,7 @@ Container {
 
             onHandleReleased: {
                 seekInterval.stop();
-                onSlider = false;
+                slideBar.onSlider = false;
                 my.handlLongPressed = false;
                 smallStepSlider.visible = false;
             }
@@ -104,86 +117,26 @@ Container {
             }
         }
     }
-
+    Container {
+        layout: DockLayout {
+        }
+        horizontalAlignment: HorizontalAlignment.Fill
+        verticalAlignment: VerticalAlignment.Center
+        preferredHeight: slideBar.height
+        overlapTouchPolicy: OverlapTouchPolicy.Allow
     TimeArea {
         id: timeArea
         timeInMsc: slideBar.toValue
-        preferredWidth: timeAreaWidth
-        preferredHeight: height
         horizontalAlignment: HorizontalAlignment.Right
+        
     }
 
     TimeArea {
         id: currentTimeLabel
         timeInMsc: slideBar.value
-        preferredWidth: timeAreaWidth
-        preferredHeight: height
         horizontalAlignment: HorizontalAlignment.Left
     }
-
-    Container {
-        translationX: bookmarkPositionX
-        id: bookmark
-        verticalAlignment: VerticalAlignment.Top
-        layout: DockLayout {
-        }
-        implicitLayoutAnimationsEnabled: false
-        ImageView {
-            id: bookmarkIcon
-            visible: bookmarkVisible
-            imageSource: "asset:///images/Player/BookmarkIcon.png"
-            implicitLayoutAnimationsEnabled: false
-            //            layoutProperties: AbsoluteLayoutProperties {
-            //                positionX: bookmarkPositionX
-            //            }
-            gestureHandlers: [
-                TapHandler {
-                    onTapped: {
-                        console.log("bookmark touched =====")
-                        bookmarkTouched = ! bookmarkTouched
-                    }
-                }
-            ]
-            onVisibleChanged: {
-                if (visible) {
-                    slider.showBookmarkProgressBar(progressBarPositionX);
-                } else {
-                    slider.hideBookmarkProgressBar();
-                }
-            }
-
-        } //bookmark Icon
-
-        animations: [
-            TranslateTransition {
-                id: moveDown
-                toY: OrientationSupport.orientation == UIOrientation.Portrait? 40 : 15  
-                duration: 100
-                onEnded: {
-                    moveUp.play();
-                }
-            },
-            TranslateTransition {
-                id: moveUp
-                toY: OrientationSupport.orientation == UIOrientation.Portrait ? 15 : 7
-                duration: 100
-                onEnded: {
-                    myPlayer.seekTime(infoListModel.getVideoPosition());
-                    fadeOut.play();
-                }
-            },
-            FadeTransition {
-                id: fadeOut
-                fromOpacity: 1
-                toOpacity: 0
-                duration: 600
-                onEnded: {
-                    bookmarkVisible = false;
-                    bookmark.opacity = 1;
-                }
-            }
-        ]
-    } //bookmark
+}
 
     Container {
         id: smallSliderContainer
@@ -199,10 +152,78 @@ Container {
             background: "asset:///images/Player/SliderPrecision.png"
             visible: false
             layoutProperties: AbsoluteLayoutProperties {
+                positionY: 10
             }            
         }
     }
-
+}
+	
+	
+Container {
+    topPadding: Helpers.bookmarkPaddingYInPortrait
+    translationX: slideBar.bookmarkPositionX
+    id: bookmark
+    verticalAlignment: VerticalAlignment.Top
+    layout: DockLayout {
+    }
+    implicitLayoutAnimationsEnabled: false
+    ImageView {
+        id: bookmarkIcon
+        visible: slideBar.bookmarkVisible
+        imageSource: "asset:///images/Player/BookmarkIcon.png"
+        implicitLayoutAnimationsEnabled: false
+        //            layoutProperties: AbsoluteLayoutProperties {
+        //                positionX: bookmarkPositionX
+        //            }
+        gestureHandlers: [
+            TapHandler {
+                onTapped: {
+                    console.log("bookmark touched =====")
+                    slideBar.bookmarkTouched = ! slideBar.bookmarkTouched
+                }
+            }
+        ]
+        onVisibleChanged: {
+            if (visible) {
+                slider.showBookmarkProgressBar(progressBarPositionX);
+            } else {
+                slider.hideBookmarkProgressBar();
+            }
+        }
+    
+    } //bookmark Icon
+    
+    animations: [
+        TranslateTransition {
+            id: moveDown
+            toY: OrientationSupport.orientation == UIOrientation.Portrait? Helpers.bookmarkAnimationForwardYPortrait : 45  
+            duration: 100
+            onEnded: {
+                moveUp.play();
+            }
+        },
+        TranslateTransition {
+            id: moveUp
+            toY: OrientationSupport.orientation == UIOrientation.Portrait ? Helpers.bookmarkAnimationBackYPortrait : 7
+            duration: 100
+            onEnded: {
+                myPlayer.seekTime(infoListModel.getVideoPosition());
+                fadeOut.play();
+            }
+        },
+        FadeTransition {
+            id: fadeOut
+            fromOpacity: 1
+            toOpacity: 0
+            duration: 600
+            onEnded: {
+                slideBar.bookmarkVisible = false;
+                bookmark.opacity = 1;
+            }
+        }
+    ]
+} //bookmark
+	
     attachedObjects: [
         // Dummy component for local variables
         ComponentDefinition {
@@ -238,28 +259,32 @@ Container {
                     sliderContainer.positionOfX = 0
                     sliderContainer.preferredWidth = displayInfo.height
                     slider.layoutSize = Qt.size(displayInfo.height, height)
-                    timeArea.bottomPadding = 0
-                    currentTimeLabel.bottomPadding = 0
-                    sliderContainer.bottomPadding = 0
+                    sliderContainer.bottomPadding = -10
                     smallSliderContainer.bottomPadding = 0
-                    timeArea.rightPadding = 25
-                    currentTimeLabel.leftPadding = 25
+                    timeArea.rightPadding = Helpers.timeAreasHorizontalPaddingInPortrait
+                    currentTimeLabel.leftPadding = Helpers.timeAreasHorizontalPaddingInPortrait
+                    timeArea.topPadding = Helpers.timeAreasVerticalPaddingInPortrait;
+                    currentTimeLabel.topPadding = Helpers.timeAreasVerticalPaddingInPortrait;
                     smallSliderContainer.verticalAlignment = VerticalAlignment.Bottom
-                    smallStepSlider.layoutProperties.positionY = 0
-                    slideBar.slideBarHeight = 180;
+                    smallStepSlider.layoutProperties.positionY = 35
+                    slideBar.slideBarHeight = 130;
+                    bookmark.topPadding = Helpers.bookmarkPaddingYInPortrait
                 } else {
-                    timeArea.verticalAlignment = VerticalAlignment.Bottom
-                    currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-                    sliderContainer.positionOfX = currentTimeLabel.preferredWidth
-                    sliderContainer.preferredWidth = displayInfo.width - 2 * timeArea.preferredWidth
-                    slider.layoutSize = Qt.size(displayInfo.width - 2 * timeArea.preferredWidth, height)
-                    timeArea.bottomPadding = 30
-                    currentTimeLabel.bottomPadding = 30
-                    sliderContainer.bottomPadding = 10
+                    timeArea.verticalAlignment = VerticalAlignment.Center
+                    currentTimeLabel.verticalAlignment = VerticalAlignment.Center
+                    sliderContainer.positionOfX = slideBar.timeAreaWidth
+                    sliderContainer.preferredWidth = displayInfo.width - 2 * slideBar.timeAreaWidth
+                    slider.layoutSize = Qt.size(displayInfo.width - 2 * slideBar.timeAreaWidth, height)
+                    currentTimeLabel.leftPadding = Helpers.timeAreasHorizontalPaddingInLandscape
+                    timeArea.rightPadding = Helpers.timeAreasHorizontalPaddingInLandscape
+                    timeArea.topPadding = Helpers.timeAreasVerticalPaddingInLandscape
+                    currentTimeLabel.topPadding = Helpers.timeAreasVerticalPaddingInLandscape
+                    sliderContainer.bottomPadding = 0
                     smallSliderContainer.bottomPadding = 10
                     smallSliderContainer.verticalAlignment = VerticalAlignment.Center
-                    smallStepSlider.layoutProperties.positionY = 25
-                    slideBar.slideBarHeight = 150;
+                    smallStepSlider.layoutProperties.positionY = 10
+                    slideBar.slideBarHeight = 115;
+                    bookmark.topPadding = Helpers.bookmarkPaddingYInLandscape;
                 }
             }
         }
@@ -281,11 +306,6 @@ Container {
     function enabled(en) {
     }
     
-    onProgressBarPositionXChanged: {
-        if (bookmarkVisible) {
-            slider.showBookmarkProgressBar(progressBarPositionX);
-        }
-    }
     
     onCreationCompleted: {
         if (OrientationSupport.orientation == UIOrientation.Portrait) {
@@ -294,28 +314,40 @@ Container {
             sliderContainer.positionOfX = 0
             sliderContainer.preferredWidth = displayInfo.height
             slider.layoutSize = Qt.size(displayInfo.height, height)
-            timeArea.rightPadding = 25
-            currentTimeLabel.leftPadding = 25
-            timeArea.bottomPadding = 0
-            currentTimeLabel.bottomPadding = 0
+            timeArea.rightPadding = Helpers.timeAreasHorizontalPaddingInPortrait
+            currentTimeLabel.leftPadding = Helpers.timeAreasHorizontalPaddingInPortrait
+            timeArea.topPadding = Helpers.timeAreasVerticalPaddingInPortrait;
+            currentTimeLabel.topPadding = Helpers.timeAreasVerticalPaddingInPortrait;
+            sliderContainer.bottomPadding = -10
+            smallSliderContainer.verticalAlignment = VerticalAlignment.Top
+            smallStepSlider.layoutProperties.positionY = 35
+            slideBar.slideBarHeight = 130;
+            bookmark.topPadding = Helpers.bookmarkPaddingYInPortrait
+        } else { 
+            timeArea.verticalAlignment = VerticalAlignment.Center
+            currentTimeLabel.verticalAlignment = VerticalAlignment.Center
+            sliderContainer.positionOfX = slideBar.timeAreaWidth
+            sliderContainer.preferredWidth = displayInfo.width - 2 * slideBar.timeAreaWidth 
+            slider.layoutSize = Qt.size(displayInfo.width - 2 * slideBar.timeAreaWidth, height)
+            currentTimeLabel.leftPadding = Helpers.timeAreasHorizontalPaddingInLandscape
+            timeArea.rightPadding = Helpers.timeAreasHorizontalPaddingInLandscape
+            timeArea.topPadding = Helpers.timeAreasVerticalPaddingInLandscape
+            currentTimeLabel.topPadding = Helpers.timeAreasVerticalPaddingInLandscape
             sliderContainer.bottomPadding = 0
-            smallSliderContainer.bottomPadding = 0
-            smallSliderContainer.verticalAlignment = VerticalAlignment.Bottom
-            smallStepSlider.layoutProperties.positionY = 0
-            slideBar.slideBarHeight = 180;
-        } else {
-            timeArea.verticalAlignment = VerticalAlignment.Bottom
-            currentTimeLabel.verticalAlignment = VerticalAlignment.Bottom
-            sliderContainer.positionOfX = currentTimeLabel.preferredWidth
-            sliderContainer.preferredWidth = displayInfo.width - 2 * timeArea.preferredWidth
-            slider.layoutSize = Qt.size(displayInfo.width - 2 * timeArea.preferredWidth, height)
-            timeArea.bottomPadding = 30
-            currentTimeLabel.bottomPadding = 30
-            sliderContainer.bottomPadding = 10
             smallSliderContainer.verticalAlignment = VerticalAlignment.Center
-            smallStepSlider.layoutProperties.positionY = 25
-            slideBar.slideBarHeight = 150;
+            smallStepSlider.layoutProperties.positionY = 10
+            slideBar.slideBarHeight = 115;
+            bookmark.topPadding = Helpers.bookmarkPaddingYInLandscape;
         }
     }
 
+	onProgressBarPositionXChanged: {
+    	if (slideBar.bookmarkVisible) {
+        	slider.showBookmarkProgressBar(progressBarPositionX);
+        	}
+    }
+   
 }
+
+
+

@@ -433,6 +433,8 @@ Page {
                 layout: StackLayout {
                     orientation: LayoutOrientation.TopToBottom
                 }
+                scaleX: Helpers.volumeBarScaleX
+                scaleY: Helpers.volumeBarScaleY
                 leftPadding: 50
                 verticalAlignment: VerticalAlignment.Center //orientationHandler.orientation == UIOrientation.Portrait ? VerticalAlignment.Center : VerticalAlignment.Center
                 visible: false
