@@ -456,10 +456,13 @@ Page {
                     id: volumeFull
                     imageSource: "asset:///images/Player/VolumeFull.png"
                     onTouch: {
-                        appContainer.volumeFullorMute = true
-                        appContainer.curVolume = 100;
-                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        volume.setMuteIcons();
+                        if(event.touchType == TouchType.Down)
+                        {
+                        	appContainer.volumeFullorMute = true
+                        	appContainer.curVolume = 100;
+                        	bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        	volume.setMuteIcons();
+                        }
                     }
                 }
 
@@ -484,7 +487,7 @@ Page {
                         touchBehaviors: [
                             TouchBehavior {
                                 TouchReaction {
-                                    eventType: TouchType.Down
+                                    eventType: TouchType.Down | TouchType.Move
                                     phase: PropagationPhase.AtTarget
                                     response: TouchResponse.StartTracking
                                 }
@@ -506,11 +509,15 @@ Page {
                     topMargin: 0
                     id: volumeMute
                     imageSource: "asset:///images/Player/VolumeMute.png"
+                   
                     onTouch: {
-                        appContainer.volumeFullorMute = true
-                        appContainer.curVolume = 0;
-                        bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        volume.setMuteIcons();
+                        if(event.touchType == TouchType.Down)
+                        {
+                        	appContainer.volumeFullorMute = true
+                        	appContainer.curVolume = 0;
+                        	bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                        	volume.setMuteIcons();
+                        }
                     }
                 }
             } // volume container
