@@ -9,7 +9,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <QDebug>
+
+#include <mm/renderer.h>
+#include <bps/mmrenderer.h>
 #include <bps/screen.h>
+#include <errno.h>
+#include <sys/strm.h>
 
 // I/O devices
 static int app_id = 0;
@@ -20,7 +25,7 @@ char window_id_name[PATH_MAX];
 char window_group_name[PATH_MAX];
 char video_device_url[PATH_MAX];
 
-static const char *audio_device_url    = "audio:default";
+static const char *audio_device_url = "audio:default";
 
 // Name of video context
 char video_context_name[PATH_MAX];
@@ -30,7 +35,7 @@ static const char *video_context_name_template = "samplevideocontextname_%d";
 
 void initWindowIds() {
     int rc;
-    srand(time(0));
+    srand(1);
     app_id = rand();
 
     rc = snprintf(video_context_name, PATH_MAX, video_context_name_template, app_id);
@@ -65,7 +70,8 @@ HDMIVideoPlayer::HDMIVideoPlayer(QObject* parent) :
     m_videoDeviceOutputId(-1),
     m_audioDeviceOutputId(-1),
     m_isPlaying(false),
-    m_isPaused(false) {
+    m_isPaused(false),
+    m_isStopped(true) {
 
     memset(m_screenSize, 0, sizeof(m_screenSize));
 }
@@ -89,7 +95,7 @@ void HDMIVideoPlayer::onConnectionChanged(bool connected) {
 }
 
 void HDMIVideoPlayer::play(const QString & videoURL) {
-    strm_dict_t*          dict = NULL;
+    strm_dict_t* dict = NULL;
 
     if(m_isPlaying) {
         //stop();
@@ -117,7 +123,8 @@ void HDMIVideoPlayer::play(const QString & videoURL) {
 
     /* Do some work to make the aspect ratio correct.
      */
-    dict = initDisplayRect(m_screenSize[0], m_screenSize[1]);
+    computeVideoSize();
+    dict = initDisplayRect(m_videoSize[0], m_videoSize[1]);
     if (NULL == dict) {
         qDebug() << "initDisplayRect failed";
         return;
@@ -213,7 +220,7 @@ void HDMIVideoPlayer::initExternalDisplay() {
 
     // Fill the buffer with with Macadamian Orange
     // TODO: Could we display the Macadamian logo in the background?
-    int fill_attributes[3] = {SCREEN_BLIT_COLOR, 0xffE85623, SCREEN_BLIT_END};
+    int fill_attributes[3] = {SCREEN_BLIT_COLOR, 0xff000000, SCREEN_BLIT_END};
     if (screen_fill(m_screenContext, temp_buffer[0], fill_attributes) != 0) {
         return;
     }
@@ -232,7 +239,9 @@ void HDMIVideoPlayer::initExternalDisplay() {
 
     bps_initialize();
     subscribe(screen_get_domain());
+    subscribe(mmrenderer_get_domain());
     screen_request_events(m_screenContext);
+    mmrenderer_request_events(video_context_name, 0, 0);
 }
 
 void HDMIVideoPlayer::pushWindow2SecondScreen(screen_window_t screen_window) {
@@ -267,7 +276,6 @@ void HDMIVideoPlayer::pushWindow2SecondScreen(screen_window_t screen_window) {
 }
 
 strm_dict_t* HDMIVideoPlayer::initDisplayRect(int width, int height) {
-    // TODO: How can we detect the size of the video so it is not stretched?
     char buffer[16];
     strm_dict_t *dict = strm_dict_new();
 
@@ -276,10 +284,10 @@ strm_dict_t* HDMIVideoPlayer::initDisplayRect(int width, int height) {
     }
 
     //fullscreen is the default.
-    dict = strm_dict_set(dict, "video_dest_x", "0");
+    dict = strm_dict_set(dict, "video_dest_x", videoOffset(m_screenSize[0], m_videoSize[0]));
     if (NULL == dict)
         goto fail;
-    dict = strm_dict_set(dict, "video_dest_y", "0");
+    dict = strm_dict_set(dict, "video_dest_y", videoOffset(m_screenSize[1], m_videoSize[1]));
     if (NULL == dict)
         goto fail;
     dict = strm_dict_set(dict, "video_dest_w", itoa(width, buffer, 10));
@@ -354,6 +362,17 @@ void HDMIVideoPlayer::event(bps_event_t *event) {
             }
         }
     }
+    if (bps_event_get_code(event) == MMRENDERER_STATUS_UPDATE) {
+        m_position = QString(mmrenderer_event_get_position(event)).toInt();
+        emit positionChanged();
+    }
+    if (bps_event_get_code(event) == MMRENDERER_STATE_CHANGE) {
+        if(mmrenderer_event_get_state(event) == MMR_STOPPED)
+            m_isStopped = true;
+        else
+            m_isStopped = false;
+        emit stoppedChanged(m_isStopped);
+    }
 }
 
 void HDMIVideoPlayer::stop() {
@@ -427,11 +446,54 @@ void HDMIVideoPlayer::pause(bool pause) {
 
     qDebug() << "************* pause *****************";
     // Set the speed to 0 to pause the video initially
-    if (mmr_speed_set(m_mmrContext, pause?0:1000) != 0) {
+    if (mmr_speed_set(m_mmrContext, pause ? 0 : 1000) != 0) {
         qDebug() << "mmr_set_speed(0) failed";
         return;
     }
 
     m_isPaused = pause;
     emit pausedChanged(m_isPaused);
+}
+
+void HDMIVideoPlayer::seekToValue(QString value)
+{
+    value.truncate(value.indexOf('.'));
+    mmr_seek(m_mmrContext, value.toAscii().data());
+    m_position = value.toInt();
+    emit positionChanged();
+}
+
+void HDMIVideoPlayer::computeVideoSize()
+{
+    float coefX = (float)((float)m_screenSize[0] / (float)m_videoSize[0]);
+    float coefY = (float)((float)m_screenSize[1] / (float)m_videoSize[1]);
+    if(coefX > coefY) {
+        m_videoSize[0] *= coefY;
+        m_videoSize[1] *= coefY;
+    } else {
+        m_videoSize[0] *= coefX;
+        m_videoSize[1] *= coefX;
+    }
+    qDebug() << "Video Window Size : " << m_videoSize[0] << "x" << m_videoSize[1];
+}
+
+void HDMIVideoPlayer::setVideoSize(int width, int height)
+{
+    m_videoSize[0] = width;
+    m_videoSize[1] = height;
+}
+
+char* HDMIVideoPlayer::videoOffset(int screenDim, int videoDim)
+{
+    return QString::number((screenDim - videoDim) / 2).toLocal8Bit().data();
+}
+
+int HDMIVideoPlayer::position()
+{
+    return m_position;
+}
+
+bool HDMIVideoPlayer::stopped()
+{
+    return m_isStopped;
 }

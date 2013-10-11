@@ -207,7 +207,11 @@ Container {
             toY: OrientationSupport.orientation == UIOrientation.Portrait ? Helpers.bookmarkAnimationBackYPortrait : 7
             duration: 100
             onEnded: {
-                myPlayer.seekTime(infoListModel.getVideoPosition());
+                if(HDMIScreen.connection) {
+                    HDMIPlayer.seekToValue(infoListModel.getVideoPosition().toString())
+                } else {
+                    myPlayer.seekTime(infoListModel.getVideoPosition());
+                }
                 myPlayer.valueChangedBySeek = false;
                 fadeOut.play();
             }

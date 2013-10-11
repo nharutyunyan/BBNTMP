@@ -5,12 +5,14 @@ device {
     CONFIG(debug, debug|release) {
         SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
+                 $$quote($$BASEDIR/src/System.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
                  $$quote($$BASEDIR/src/main.cpp) \
@@ -25,12 +27,14 @@ device {
 
         HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
+                 $$quote($$BASEDIR/src/System.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
                  $$quote($$BASEDIR/src/moviedecoder.hpp) \
@@ -48,12 +52,14 @@ device {
     CONFIG(release, debug|release) {
         SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
+                 $$quote($$BASEDIR/src/System.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
                  $$quote($$BASEDIR/src/main.cpp) \
@@ -68,12 +74,14 @@ device {
 
         HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
+                 $$quote($$BASEDIR/src/System.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
                  $$quote($$BASEDIR/src/moviedecoder.hpp) \
@@ -93,12 +101,14 @@ simulator {
     CONFIG(debug, debug|release) {
         SOURCES +=  $$quote($$BASEDIR/src/BbmAppShare.cpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.cpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.cpp) \
                  $$quote($$BASEDIR/src/CustomSlider.cpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
+                 $$quote($$BASEDIR/src/System.cpp) \
                  $$quote($$BASEDIR/src/exceptions.cpp) \
                  $$quote($$BASEDIR/src/infolistmodel.cpp) \
                  $$quote($$BASEDIR/src/main.cpp) \
@@ -113,12 +123,14 @@ simulator {
 
         HEADERS +=  $$quote($$BASEDIR/src/BbmAppShare.hpp) \
                  $$quote($$BASEDIR/src/BpsEventHandler.hpp) \
+                 $$quote($$BASEDIR/src/CustomElapsedTimer.hpp) \
                  $$quote($$BASEDIR/src/CustomSlider.hpp) \
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
+                 $$quote($$BASEDIR/src/System.hpp) \
                  $$quote($$BASEDIR/src/exceptions.hpp) \
                  $$quote($$BASEDIR/src/infolistmodel.hpp) \
                  $$quote($$BASEDIR/src/moviedecoder.hpp) \

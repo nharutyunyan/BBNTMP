@@ -26,6 +26,8 @@ class HDMIVideoPlayer: public QObject, public bb::AbstractBpsEventHandler  {
 
     Q_PROPERTY(bool playing READ playing NOTIFY playingChanged FINAL)
     Q_PROPERTY(bool paused READ paused NOTIFY pausedChanged FINAL)
+    Q_PROPERTY(bool stopped READ stopped NOTIFY stoppedChanged FINAL)
+    Q_PROPERTY(int position READ position NOTIFY positionChanged FINAL)
 
 public:
     HDMIVideoPlayer(QObject* parent);
@@ -51,18 +53,35 @@ public slots:
     Q_INVOKABLE
     void pause(bool pause);
 
+    Q_INVOKABLE
+    void seekToValue(QString value);
+
+    Q_INVOKABLE
+    void setVideoSize(int width, int height);
+
+    Q_INVOKABLE
+    int position();
+
+    Q_INVOKABLE
+    bool stopped();
+
 signals:
-	void playingChanged(bool);
-	void pausedChanged(bool);
+    void playingChanged(bool);
+    void pausedChanged(bool);
+    void stoppedChanged(bool);
+    void positionChanged();
 
 private:
     void initExternalDisplay();
     void detroyWindow();
     void pushWindow2SecondScreen(screen_window_t screen_window);
     strm_dict_t* initDisplayRect(int width, int height);
+    void computeVideoSize();
+    char* videoOffset(int screenDim, int videoDim);
 
 private:
     int m_screenSize[2];
+    int m_videoSize[2];
     screen_context_t m_screenContext;
     screen_window_t m_screenWindow;
     screen_window_t m_videoWindow;
@@ -75,6 +94,8 @@ private:
     int  m_audioDeviceOutputId;
     bool m_isPlaying;
     bool m_isPaused;
+    bool m_isStopped;
+    int m_position;
 };
 
 #endif /* HDMIVIDEOPLAYER_H_ */

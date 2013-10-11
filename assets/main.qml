@@ -79,6 +79,7 @@ NavigationPane {
                     }
                 }
                 NowPlaying {
+                    id: nowPlayingBar
                     // If the video is playing on the 2nd screen,
                     // this display the information
                 }
