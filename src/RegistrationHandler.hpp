@@ -29,6 +29,8 @@ class RegistrationHandler: public QObject
     Q_PROPERTY(bool temporaryError READ isTemporaryError NOTIFY stateChanged)
 
 public:
+
+    static RegistrationHandler* getObject(const QString);
     // Enumerates the possible registration progress states.
     struct BbmRegistrationProgress
     {
@@ -53,7 +55,6 @@ public:
      * @param uuid The unique ID of the application
      * @param parent The parent object
      */
-    RegistrationHandler(const QUuid &uuid);
 
     /**
      * Returns the BBM context that is associated with this application.
@@ -92,6 +93,8 @@ private Q_SLOTS:
     void dialogFinished(bb::system::SystemUiResult::Type value);
 
 private:
+    RegistrationHandler(const QUuid &uuid);
+    static RegistrationHandler* singleObject;
     // Return true if registration has completed successfully.
     bool isAllowed() const
     { return m_isAllowed; }

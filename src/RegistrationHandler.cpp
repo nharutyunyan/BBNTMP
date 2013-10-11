@@ -14,6 +14,14 @@ using namespace bb::platform::bbm;
 using namespace bb::system;
 
 //! [0]
+RegistrationHandler* RegistrationHandler::singleObject = NULL;
+RegistrationHandler* RegistrationHandler::getObject(const QString UUID)
+{
+	if(!singleObject)
+		singleObject = new RegistrationHandler(UUID);
+	return singleObject;
+}
+
 RegistrationHandler::RegistrationHandler(const QUuid &uuid)
     : m_context(uuid)
     , m_isAllowed(false)

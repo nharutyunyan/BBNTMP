@@ -3,7 +3,6 @@
 //#include "HDMIScreen.hpp"
 //#include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
-#include "RegistrationHandler.hpp"
 #include "BbmAppShare.hpp"
 
 #include <bb/cascades/AbstractPane>
@@ -91,8 +90,6 @@ thumbnailsGenerationFinished(false)
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
-    RegistrationHandler* bbmReg = new RegistrationHandler(UUID);
-    bbmReg->registerApplication();
     qml->setContextProperty("_appShare", new BbmAppShare(this, UUID));
 
     passAppVersion(qml);
