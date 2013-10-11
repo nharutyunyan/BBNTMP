@@ -55,7 +55,7 @@ void Producer::produce()
 		try {
 			VideoThumbnailer videoThumbnailer;
 			videoThumbnailer.generateThumbnail(
-			        v["path"].toString().toUtf8().constData(),
+			        v["path"].toString(),
 					finalFileName.toUtf8().constData());
 		// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
 		} catch (exception& e) {
