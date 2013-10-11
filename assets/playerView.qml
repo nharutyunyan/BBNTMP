@@ -10,7 +10,7 @@ import "helpers.js" as Helpers
 Page {
     id: pgPlayer
 
-    actionBarVisibility: ChromeVisibility.Overlay
+    actionBarVisibility: ChromeVisibility.Overlay      
 
     property variant currentPath: ""
     property variant currentLenght: 0
@@ -520,6 +520,19 @@ Page {
                         }
                     }
                 }
+                animations: [
+                    FadeTransition {
+                        id: volumeAnimation
+                        fromOpacity: 1.0
+                        toOpacity: 0.0
+                        duration: 50
+                        easingCurve: StockCurve.SineOut
+                        onEnded: {
+                            volume.visible = false
+                            volume.opacity = 1.0
+                        }
+                    }
+                ]
             } // volume container
 
             ImageView {
@@ -535,10 +548,9 @@ Page {
                         FadeTransition {
                             toOpacity: 0.8
                             fromOpacity: 0.0
-                            duration: 500
+                            duration: 800
                             easingCurve: StockCurve.SineOut
                         }
-
                         FadeTransition {
                             delay: 2000
                             toOpacity: 0.0
@@ -724,7 +736,7 @@ Page {
                         id: upperMenuAnimation
                         fromOpacity: 1.0
                         toOpacity: 0.0
-                        duration: 500
+                        duration: 50
                         easingCurve: StockCurve.SineOut
                     }
                 ]
@@ -849,7 +861,7 @@ Page {
                     id: controlsAnimation
                     fromOpacity: 1.0
                     toOpacity: 0.0
-                    duration: 500
+                    duration: 50
                     easingCurve: StockCurve.SineOut
                     onEnded: {
                         controlsContainer.visible = false
@@ -1067,14 +1079,16 @@ Page {
                         uiControlsShowTimer.start();
                     } else {
                         if (upperMenu.opacity == 1.0)
-                            upperMenuAnimation.play()
+                            upperMenuAnimation.play();
                         if (controlsContainer.opacity == 1.0)
-                            controlsAnimation.play()
+                            controlsAnimation.play();
                         if (actionBarVisibility == ChromeVisibility.Overlay)
-                            actionBarVisibility = ChromeVisibility.Hidden
+                            actionBarVisibility = ChromeVisibility.Hidden;
                         subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
                         uiControlsShowTimer.stop();
-                        volume.visible = false;
+                        if (volume.visible) 
+                        	volumeAnimation.play();
+                        
                     }
                 }
             },
@@ -1175,7 +1189,7 @@ Page {
         }
 
     } //appContainer
-    paneProperties: NavigationPaneProperties {
+    paneProperties: NavigationPaneProperties {         
         backButton: ActionItem {
             title: qsTr("Back") + Retranslate.onLanguageChanged
             onTriggered: {
@@ -1184,12 +1198,12 @@ Page {
         }
     }
 
-    actions: [
+    actions: [        
         ActionItem {
             id: playPauseActionItem
             ActionBar.placement: ActionBarPlacement.OnBar
             title: qsTr("Pause") + Retranslate.onLanguageChanged
-            imageSource: "asset:///images/Player/Pause_icon.png"
+            imageSource: "asset:///images/Player/Pause_icon.png"            
             onTriggered: {
                 if (myPlayer.mediaState != MediaState.Started) {
                     appContainer.playMediaPlayer();
@@ -1213,7 +1227,7 @@ Page {
                     subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
                     settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
                 }
-            }
-        }
+            }            
+        }        
     ]
 }// Page
