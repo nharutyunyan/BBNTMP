@@ -544,7 +544,7 @@ ListView {
 
     function getSecondPage() {
         if (! secondPage) {
-            secondPage = secondPageDefinition.createObject();
+            secondPage = playerPageDef.createObject();
         }
         return secondPage;
     }
@@ -565,7 +565,7 @@ ListView {
             }
         },
         ComponentDefinition {
-            id: secondPageDefinition
+            id: playerPageDef
             source: "playerView.qml"
         },
         MediaPlayer {

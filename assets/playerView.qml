@@ -694,53 +694,7 @@ Page {
                         }
                     ]
                 } // videoTitleContainer
-                /*
-                 *  HDMI code is disabled
-                Container {
-                    layout: StackLayout {
-                        orientation: LayoutOrientation.TopToBottom
-                    }
-                    horizontalAlignment: HorizontalAlignment.Right
-                    verticalAlignment: VerticalAlignment.Center
-                    Container {
-                        id: hdmiButtonContainer
-                        objectName: hdmiButtonContainer
-                        opacity: 0.5
-                        verticalAlignment: VerticalAlignment.Center
-                        rightPadding: 10
-                        topPadding: 10
-                        property bool hdmiEnabled: false
-                        visible: false
-                        enabled: HDMIScreen.connection
-
-                        ImageButton {
-                            id: hdmiButton
-                            pressedImageSource: "asset:///images/Player/HDMIButtonPressed.png"
-                            disabledImageSource: "asset:///images/Player/HDMIButtonDisabled.png"
-                            defaultImageSource: "asset:///images/Player/HDMIButtonInactive.png"
-
-                            onClicked: {
-                                if (upperMenu.opacity != 0)
-                                    hdmiButtonContainer.hdmiEnabled = ! hdmiButtonContainer.hdmiEnabled;
-                            }
-                        }
-                        onCreationCompleted: {
-                            if (hdmiEnabled) {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
-                            } else {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
-                            }
-                        }
-                        onHdmiEnabledChanged: {
-                            if (hdmiEnabled) {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
-                            } else {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
-                            }
-                        }
-                    } //hdmiButtonContainer
-                }
-                */
+                
                 implicitLayoutAnimationsEnabled: false
 
                 attachedObjects: [

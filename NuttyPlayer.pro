@@ -32,6 +32,7 @@ LIBS += -lpng
 LIBS += -lbbdevice
 LIBS += -lbbsystem
 LIBS += -lbbplatformbbm -lbbsystem
+LIBS += -lstrm
 
 INCLUDEPATH += ../src
 INCLUDEPATH += ../ffmpeg/include
