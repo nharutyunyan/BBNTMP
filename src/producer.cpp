@@ -60,13 +60,14 @@ void Producer::produce()
 		// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
 		} catch (exception& e) {
 			std::cerr << "Error: " << e.what() << endl;
-			emit produced("", QVariantList());
+			emit produced("", "");
 			return;
 		} catch (...) {
 			std::cerr << "General error" << endl;
-			emit produced("", QVariantList());
+			emit produced("", "");
 			return;
 		}
-		emit produced(finalFileName, indexPath);
+		qDebug()<<"!!: "<< finalFileName.toUtf8();
+		emit produced(finalFileName, v["path"].toString());
 	}
 }
