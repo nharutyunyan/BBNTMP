@@ -20,7 +20,7 @@ public:
 public slots:
     void produce();
 signals:
-    void produced(QString data, QVariantList index);
+    void produced(QString data, QString index);
     void finishedCurrentVideos();
 
 private:

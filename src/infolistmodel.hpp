@@ -110,7 +110,7 @@ public:
     virtual ~InfoListModel();
 
 public slots:
-    void consume(QString filename, QVariantList index);
+    void consume(QString filename, QString path);
     void onMetadataReady(const QVariantMap& data);
     void onAllMetadataRead();
     void getVideoFiles();

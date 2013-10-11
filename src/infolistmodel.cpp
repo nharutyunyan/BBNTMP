@@ -50,8 +50,8 @@ InfoListModel::InfoListModel(QObject* parent)
     setParent(parent);
     m_producer = new Producer(this);
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
-	QObject::connect(m_producer, SIGNAL(produced(QString, QVariantList)), this,
-			SLOT(consume(QString, QVariantList)));
+	QObject::connect(m_producer, SIGNAL(produced(QString, QString)), this,
+			SLOT(consume(QString, QString)));
 
     m_producerThread  = new QThread();
 	m_producer->moveToThread(m_producerThread);
@@ -96,19 +96,20 @@ void InfoListModel::checkVideosWaitingThumbnail()
 	}
 }
 
-void InfoListModel::consume(QString filename, QVariantList index)
+void InfoListModel::consume(QString filename, QString path)
 {
-	if (index.length() == 0)
-	{
-		emit consumed();
-		return;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (v["path"].toString() == path) {
+			// add generated thumbnail to list model
+			setValue(indexPath, "thumbURL", "file://" + filename);
+			//when finished processing emit a consumed signal
+			emit consumed();
+			saveData();
+			return;
+		}
 	}
-	//process that data
-	// add generated thumbnail to list model
-	setValue(index, "thumbURL", "file://" + filename);
-	//when finished processing emit a consumed signal
 	emit consumed();
-	saveData();
 }
 
 void InfoListModel::getVideoFiles()
