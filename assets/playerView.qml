@@ -1205,12 +1205,7 @@ Page {
             title: qsTr("Pause") + Retranslate.onLanguageChanged
             imageSource: "asset:///images/Player/Pause_icon.png"            
             onTriggered: {
-                if (myPlayer.mediaState != MediaState.Started) {
-                    appContainer.playMediaPlayer();
-                } else {
-                    appContainer.pauseMediaPlayer();
-                }
-                appContainer.showPlayPauseButton()
+                appContainer.showPlayPauseButton();
             }
         },
         ActionItem {
