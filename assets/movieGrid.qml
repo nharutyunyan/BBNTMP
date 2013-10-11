@@ -177,23 +177,26 @@ ListView {
                 imageSource: listView.favorites[listView.currentFrame]['thumbURL']
                 scalingMethod: ScalingMethod.AspectFill
                 preferredWidth: listView.isQ10 ? 720 : 768 // 16x
-                preferredHeight: listView.isQ10 ? 405 : 432 // 9x                
-                onTouch: {          
-                    listView.selectAll();
-                    var indexes = listView.selectionList();
-                    listView.clearSelection();
-                    for (var i = indexes.length - 1; i >= 0; i --) {
-                        var data = listView.dataModel.data(indexes[i]);                        
-                        if (data.path == listView.favorites[listView.currentFrame]['path']) {
-                            infoListModel.setSelectedIndex(indexes[i]);
+                preferredHeight: listView.isQ10 ? 405 : 432 // 9x
+                gestureHandlers: [
+                    TapHandler {
+                        onTapped: {
+                            listView.selectAll();
+                            var indexes = listView.selectionList();
+                            listView.clearSelection();
+                            for (var i = indexes.length - 1; i >= 0; i--) {
+                                var data = listView.dataModel.data(indexes[i]);
+                                if (data.path == listView.favorites[listView.currentFrame]['path']) {
+                                    infoListModel.setSelectedIndex(indexes[i]);
+                                }
+                            }
+                            var page = listView.getSecondPage();
+                            page.currentPath = listView.favorites[listView.currentFrame]['path'];
+                            page.currentLenght = listView.favorites[listView.currentFrame]['duration'];
+                            navigationPane.push(page);
                         }
-                    }                    	
-                    	
-                    var page = listView.getSecondPage();
-                    page.currentPath = listView.favorites[listView.currentFrame]['path'];
-                    page.currentLenght = listView.favorites[listView.currentFrame]['duration'];
-                    navigationPane.push(page);
-                }
+                    }
+                ]
             }
         }
         Container {
@@ -241,16 +244,16 @@ ListView {
                         listView.currentFrame = 0;
                     } else {
                         listView.currentFrame = listView.currentFrame + 1;
-                    }                    
-                }                
+                    }
+                }
             }
         ]
-        
+
         onCreationCompleted: {
             listView.updateActiveFrame();
         }  
     }
-    
+
     function updateActiveFrame(){        
         listView.favorites = infoListModel.getFavoriteVideos();
         updateFrame.stop();
