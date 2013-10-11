@@ -408,9 +408,19 @@ Page {
                         onSubtitleEnabledChanged: {
                             subtitleButtonContainer.showSubButton();
                         }
+                        
+                        onVideoHasSubtitlesChanged: {
+                            if (subtitleButtonContainer.videoHasSubtitles) {
+                                subtitleEnabled = true;
+                                subtitleButtonContainer.showSubButton();
+                            } else {
+                                subtitleEnabled = false;
+                                subtitleButtonContainer.showSubButton();
+                            }
+                        }
 
                         onInitializeStates: {
-                            subtitleEnabled = settings.value("subtitleEnabled");
+                            subtitleEnabled = true;
                             subtitleButtonContainer.showSubButton();
                         }
 
@@ -1215,8 +1225,7 @@ Page {
                 }
                 if (subtitleButtonContainer.opacity != 0) {
                     uiControlsShowTimer.start();
-                    subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;
-                    settings.setValue("subtitleEnabled", subtitleButtonContainer.subtitleEnabled);
+                    subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;                    
                 }
             }
         }
