@@ -28,7 +28,8 @@ void passAppVersion(QmlDocument *qml) {
     // Get the version of the app
     // The version in the MANIFEST.MF file is the one that the app was signed with.
     // The version in bar-descriptor.xml is not accurate when build from command line
-    QFile textfile("/accounts/1000/appdata/com.example.NuttyPlayer.testDev_NuttyPlayerce5e89c2/app/META-INF/MANIFEST.MF");
+    QString path = QDir::home().absoluteFilePath("") + "/../app/META-INF/MANIFEST.MF";
+    QFile textfile(path);
     if (textfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&textfile);
         QString line;
