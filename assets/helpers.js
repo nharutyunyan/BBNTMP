@@ -37,4 +37,6 @@ var aboutPageLinesHeightInPortrait = 2;
 var aboutPageLinesHeightInLandscape = 1.5;
 var actionBarPortraitHeight = 140;
 var actionBarLandscapeHeight = 100;
+var favoriteIconAdd = "asset:///images/GridView/favoriteIcon_add_Z10.png";
+var favoriteIconRemove = "asset:///images/GridView/favoriteIcon_remove_Z10.png";
 

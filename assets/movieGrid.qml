@@ -96,14 +96,9 @@ ListView {
     }
 
     function favoriteIcon() {
-        if (! listView.displayRemoveMessage && ! listView.isQ10)
-            return "asset:///images/GridView/favoriteIcon_add_Z10.png";
-        if (! listView.displayRemoveMessage && listView.isQ10)
-            return "asset:///images/GridView/favoriteIcon_add_Q10.png";
-        if (listView.displayRemoveMessage && listView.isQ10)
-            return "asset:///images/GridView/favoriteIcon_remove_Q10.png";
-        if (listView.displayRemoveMessage && ! listView.isQ10)
-            return "asset:///images/GridView/favoriteIcon_remove_Z10.png";
+        if (! listView.displayRemoveMessage)
+            return  Helpers.favoriteIconAdd;
+        return  Helpers.favoriteIconRemove; 
     }
 
     multiSelectHandler {
@@ -293,7 +288,20 @@ ListView {
                 onCreationCompleted: {
                     appear.play();
                 }
-
+                gestureHandlers: [
+                    LongPressHandler {
+                        onLongPressed: {
+                            if(ListItemData.folder == "0Favorites")
+                            {
+                                individualFavoriteOption.imageSource = Helpers.favoriteIconRemove    
+                            }
+                            else 
+                            {
+                                individualFavoriteOption.imageSource = Helpers.favoriteIconAdd
+                            }
+                        }
+                    }
+                ]
                 attachedObjects: [
                     ImagePaintDefinition {
                         id: frameImage
@@ -329,7 +337,6 @@ ListView {
                             ActionItem {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                                 id: individualFavoriteOption
-                                imageSource: itemRoot.ListItem.view.favoriteIcon()
                                 onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
                                     itemRoot.ListItem.view.updateActiveFrame();

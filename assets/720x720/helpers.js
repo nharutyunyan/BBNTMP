@@ -33,3 +33,5 @@ var volumeBarIndicatorsCount = 13;
 var aboutPageLinesHeight = 1.5;
 var actionBarPortraitHeight = 100;
 var actionBarLandscapeHeight = 100;
+var favoriteIconAdd = "asset:///images/GridView/favoriteIcon_add_Q10.png";
+var favoriteIconRemove = "asset:///images/GridView/favoriteIcon_remove_Q10.png";
