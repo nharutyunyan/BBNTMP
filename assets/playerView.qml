@@ -176,7 +176,6 @@ Page {
                     }
                 } //videoWindow
                 onTouch: {
-
                     if (! appContainer.isPinchZoom) {
                         if (OrientationSupport.orientation == UIOrientation.Portrait) {
                             appContainer.heightOfScreen = displayInfo.width;
@@ -260,6 +259,8 @@ Page {
                                 }
                                 subtitleButtonContainer.setOpacity(1);
                                 controlsContainer.setVisible(true);
+                                upperMenu.setOpacity(1);
+                                volume.setVisible(true);                                
                                 actionBarVisibility = ChromeVisibility.Overlay
                                 uiControlsShowTimer.start();
                             }
@@ -276,7 +277,7 @@ Page {
                             if (event.y < appContainer.heightOfScreen - durationSlider.height 
                                 && ! videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 appContainer.showPlayPauseButton();
-                                actionBarVisibility = ChromeVisibility.Overlay
+                                actionBarVisibility = ChromeVisibility.Overlay;
                             }
                         }
                     },
@@ -293,7 +294,6 @@ Page {
                             appContainer.isPinchZoom = true;
                             appContainer.startWidth = videoWindow.preferredWidth;
                             appContainer.startHeight = videoWindow.preferredHeight;
-
                         }
 
                         // As the pinch expands or contracts, change the scale of
@@ -546,30 +546,33 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
                 animations: [
-                    SequentialAnimation {
-                        id: fadeInOut
+
+                    ParallelAnimation {
+                        id: fadeInOut                      
                         FadeTransition {
-                            toOpacity: 0.8
-                            fromOpacity: 0.0
-                            duration: 800
-                            easingCurve: StockCurve.SineOut
-                        }
-                        FadeTransition {
-                            delay: 2000
                             toOpacity: 0.0
                             fromOpacity: 0.8
-                            duration: 1000
-                            easingCurve: StockCurve.QuarticOut
+                            duration: 500 
+                             easingCurve: StockCurve.SineIn
+                        }
+                        ScaleTransition {
+                            fromX: 0.7
+                            fromY: 0.7
+                            toX: 1.2
+                            toY: 1.2
+                            duration: 400
+                            easingCurve: StockCurve.SineIn
                         }
                     }
+
                 ]
                 onImageSourceChanged: {
                     if (imageSource == "asset:///images/Player/Play.png") {
-                        playPauseActionItem.title = qsTr("Play") + Retranslate.onLanguageChanged;
-                        playPauseActionItem.imageSource = "asset:///images/Player/Play_icon.png"
-                    } else {
                         playPauseActionItem.title = qsTr("Pause") + Retranslate.onLanguageChanged
                         playPauseActionItem.imageSource = "asset:///images/Player/Pause_icon.png"
+                    } else {
+                        playPauseActionItem.title = qsTr("Play") + Retranslate.onLanguageChanged;
+                        playPauseActionItem.imageSource = "asset:///images/Player/Play_icon.png"
                     }
                 }
             }
@@ -777,9 +780,16 @@ Page {
                 }
             ]
             onTouch: {
-                if (upperMenu.opacity == 0 && event.localY < 100 && event.localX < 104)
+                if (upperMenu.opacity == 0 ) {  //&& event.localY < 150 && event.localX < 104
+                    subtitleButtonContainer.setOpacity(1);
+                    controlsContainer.setVisible(true);
                     upperMenu.setOpacity(1);
+                    volume.setVisible(true);
+                    actionBarVisibility = ChromeVisibility.Overlay
+                    
+                }
                 uiControlsShowTimer.start();
+                //uiControlsShowTimer.start();
             }
         }
 
@@ -893,10 +903,10 @@ Page {
         function showPlayPauseButton() {
             if (myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
             } else {
-                appContainer.pauseMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"                
+                appContainer.pauseMediaPlayer();                
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             }
             upperMenu.setOpacity(1);
             subtitleButtonContainer.setOpacity(1);
