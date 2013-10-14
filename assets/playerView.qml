@@ -893,10 +893,10 @@ Page {
         function showPlayPauseButton() {
             if (myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
             } else {
                 appContainer.pauseMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"                
             }
             upperMenu.setOpacity(1);
             subtitleButtonContainer.setOpacity(1);
