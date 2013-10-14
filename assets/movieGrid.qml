@@ -14,7 +14,7 @@ ListView {
         headerMode: ListHeaderMode.Standard
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
         spacingAfterHeader: 5
-        verticalCellSpacing: 0        
+        verticalCellSpacing: 5
     }
     horizontalAlignment: HorizontalAlignment.Center
 
