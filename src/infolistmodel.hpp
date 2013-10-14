@@ -103,6 +103,8 @@ public:
 
     Q_INVOKABLE QVariantList getFavoriteVideos();
 
+    Q_INVOKABLE QString getFirstFolder();
+
     Q_INVOKABLE QString getSelectedVideoThumbnail();
 
 public:

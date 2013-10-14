@@ -570,15 +570,12 @@ QVariantList InfoListModel::getFavoriteVideos()
 			favoriteVideos.push_back(v);
 		}
 	}
-
-	if (favoriteVideos.length()==0) {
+	if (favoriteVideos.length() == 0) {
 		int i = 0;
 		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-			QVariantMap v = data(indexPath).toMap();
-			favoriteVideos.push_back(v);
-			if (i<10) {
-				i++;
-			} else {
+			favoriteVideos.push_back(data(indexPath).toMap());
+			i++;
+			if (i>=10) {
 				break;
 			}
 		}
@@ -586,7 +583,14 @@ QVariantList InfoListModel::getFavoriteVideos()
 	return favoriteVideos;
 }
 
-QString InfoListModel::getSelectedVideoThumbnail(){
+QString InfoListModel::getFirstFolder()
+{
+	QVariantMap v = data(first()).toMap();
+	return v["folder"].toString();
+}
+
+QString InfoListModel::getSelectedVideoThumbnail()
+{
 	const QString flagName("thumbURL");
 	QVariant v = value(m_selectedIndex, flagName);
 	QString retValue =  v.toString();
