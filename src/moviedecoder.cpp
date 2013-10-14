@@ -70,7 +70,10 @@ void MovieDecoder::initialize(const QString& filename)
     else
     	allowSeek = true;
 
-	if (avformat_open_input(&pFormatContext, inputFile.toStdString().c_str(), 0, 0) != 0)
+    QString linkName = QDir::homePath() + '/' + "templn";
+    QFile::link(filename, linkName);
+
+	if (avformat_open_input(&pFormatContext, linkName.toStdString().c_str(), 0, 0) != 0)
 	{
 		destroy();
 		throw std::logic_error(std::string("Could not open input file: ") + filename.toStdString());
@@ -85,7 +88,10 @@ void MovieDecoder::initialize(const QString& filename)
 //	}
     initializeVideo();
     pFrame = avcodec_alloc_frame();
-    setVideosDuration(filename);
+    setVideosDuration(linkName);
+    QDir dir = QDir(QDir::homePath());
+    dir.remove(linkName);
+
 }
 
 void MovieDecoder::destroy()
