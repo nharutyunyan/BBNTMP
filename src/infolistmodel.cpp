@@ -140,6 +140,7 @@ void InfoListModel::getVideoFiles()
 	{
 		emit notifyObserver(newVideos);
 	}
+	onAllMetadataRead();
 }
 
 void InfoListModel::fileComplete(QString path)
@@ -321,7 +322,6 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	QString path = val[bb::multimedia::MetaData::Uri].toString();
 	if(path.isEmpty())
 	{
-
 		return;
 	}
 	QVariantMap infoMap;
