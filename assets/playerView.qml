@@ -273,7 +273,8 @@ Page {
                 gestureHandlers: [
                     TapHandler {
                         onTapped: {
-                            if (event.y < appContainer.heightOfScreen - durationSlider.height) {
+                            if (event.y < appContainer.heightOfScreen - durationSlider.height 
+                                && ! videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 appContainer.showPlayPauseButton();
                                 actionBarVisibility = ChromeVisibility.Overlay
                             }
@@ -750,7 +751,7 @@ Page {
             animations: [
                 TranslateTransition {
                     id: videoListAppearAnimation
-                    duration: 800
+                    duration: 300
                     easingCurve: StockCurve.CubicOut
                     fromY: - videoListScrollLayout.layoutFrame.height
                     toY: 0
@@ -760,7 +761,7 @@ Page {
                 },
                 TranslateTransition {
                     id: videoListDisappearAnimation
-                    duration: 600
+                    duration: 400
                     easingCurve: StockCurve.ExponentialIn
                     fromY: 0
                     toY: - videoListScrollLayout.layoutFrame.height
