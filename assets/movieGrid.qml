@@ -15,6 +15,7 @@ ListView {
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
         spacingAfterHeader: 5
         verticalCellSpacing: 5
+
     }
     horizontalAlignment: HorizontalAlignment.Center
 
@@ -31,6 +32,7 @@ ListView {
     leadingVisualSnapThreshold: 0
 
     property variant favorites: infoListModel.getFavoriteVideos()
+    property string firstFolder: infoListModel.getFirstFolder()
     property int currentFrame: 0
 
     // Expose the menu to the rest of the application to check if it's open
@@ -45,6 +47,35 @@ ListView {
         }
     }
     multiSelectAction: MultiSelectActionItem {
+    }
+
+    function itemType(data, indexPath) {        
+        listView.firstFolder = infoListModel.getFirstFolder();
+        if(indexPath.length == 1) {
+            return "header";
+        }
+        return "item";
+	}
+
+    function updateFavorites() {
+        listView.favorites = infoListModel.getFavoriteVideos();
+    }
+
+    function openVideoPlayPage (path, duration){
+        listView.selectAll();
+        var indexes = listView.selectionList();
+        listView.clearSelection();
+        for (var i = indexes.length - 1; i >= 0; i --) {
+            var data = listView.dataModel.data(indexes[i]);
+            if (data.path == listView.favorites[listView.currentFrame]['path']) {
+                infoListModel.setSelectedIndex(indexes[i]);
+            }
+        }
+
+        var page = listView.getSecondPage();
+        page.currentPath = path;
+        page.currentLenght = duration;
+        navigationPane.push(page);
     }
 
     // This function passes the selected videos to the C++ model.
@@ -127,7 +158,7 @@ ListView {
                 imageSource: favoriteIcon()
                 onTriggered: {
                     listView.moveToFolder("0Favorites");
-                    listView.updateActiveFrame();
+                    listView.updateFavorites();
                 }
             },
             //            ActionItem {
@@ -158,121 +189,130 @@ ListView {
         }
     }
 
-    leadingVisual: Container {
-        layout: DockLayout {
-        }
-        id: activeFrame
-        leftPadding: orientationHandler.orientation == UIOrientation.Portrait ? 0 : 256
-        Container {
-            horizontalAlignment: HorizontalAlignment.Center
-            verticalAlignment: VerticalAlignment.Center
-            ImageView {
-                id: frame
-                implicitLayoutAnimationsEnabled: false
-                imageSource: listView.favorites[listView.currentFrame]['thumbURL']
-                scalingMethod: ScalingMethod.AspectFill
-                preferredWidth: listView.isQ10 ? 720 : 768 // 16x
-                preferredHeight: listView.isQ10 ? 405 : 432 // 9x
-                gestureHandlers: [
-                    TapHandler {
-                        onTapped: {
-                            listView.selectAll();
-                            var indexes = listView.selectionList();
-                            listView.clearSelection();
-                            for (var i = indexes.length - 1; i >= 0; i--) {
-                                var data = listView.dataModel.data(indexes[i]);
-                                if (data.path == listView.favorites[listView.currentFrame]['path']) {
-                                    infoListModel.setSelectedIndex(indexes[i]);
-                                }
-                            }
-                            var page = listView.getSecondPage();
-                            page.currentPath = listView.favorites[listView.currentFrame]['path'];
-                            page.currentLenght = listView.favorites[listView.currentFrame]['duration'];
-                            navigationPane.push(page);
+    listItemComponents: [   
+        ListItemComponent {
+            type: "header" 
+            Container {                
+            	id: activeFrame            	
+                Container {
+                    id: frameContainer
+                    visible: (activeFrame.ListItem.view.firstFolder == ListItemData) ? true : false
+                    topPadding: 10
+	            	layout: DockLayout {
+	                }
+	                leftPadding: checkOrientation.orientation == UIOrientation.Portrait ? 0 : 256
+                    Container {
+	                    horizontalAlignment: HorizontalAlignment.Center
+	                    verticalAlignment: VerticalAlignment.Center
+	                    ImageView {
+	                        id: frame
+	                        implicitLayoutAnimationsEnabled: false
+	                        imageSource: activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['thumbURL']
+	                        scalingMethod: ScalingMethod.AspectFill
+	                        preferredWidth: activeFrame.ListItem.view.isQ10 ? 720 : 768 // 16x
+	                        preferredHeight: activeFrame.ListItem.view.isQ10 ? 405 : 432 // 9x
+	                        gestureHandlers: [
+	                            TapHandler {
+	                                onTapped: {
+	                                    var path = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['path'];
+                                        var duration = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['duration'];
+                                        activeFrame.ListItem.view.openVideoPlayPage(path, duration);
+                                    }
+	                            }
+	                        ]
+	                    }
+	                }
+	                Container {
+	                    verticalAlignment: VerticalAlignment.Bottom
+	                    horizontalAlignment: HorizontalAlignment.Center
+	                    background: titleBackground.imagePaint
+	
+	                    preferredHeight: 70
+	                    preferredWidth: activeFrame.ListItem.view.isQ10 ? 720 : 768
+	                    rightPadding: 10  
+	                    leftPadding: 10   
+	
+	                    Container {
+	                        horizontalAlignment: HorizontalAlignment.Right
+                            Label {
+	                            id: length
+	                            implicitLayoutAnimationsEnabled: false
+	                            textStyle.fontSize: FontSize.XSmall
+	                            text: Helpers.formatTime(activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['duration'])
+	                            textStyle.color: Color.White
+	                        }
+	                    }
+	                    Container {
+	                        verticalAlignment: VerticalAlignment.Bottom
+	                        horizontalAlignment: HorizontalAlignment.Fill
+	                        Label {
+	                            id: title
+	                            implicitLayoutAnimationsEnabled: false
+	                            horizontalAlignment: HorizontalAlignment.Right
+	                            text: activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['title']
+	                            textStyle.color: Color.White
+	                            textStyle.fontSize: FontSize.Medium
+	                        }
+	                    }
+	                }
+                    onVisibleChanged: {
+                        if (visible) {
+                            activeFrame.updateActiveFrame();
+                        } else {
+                            updateFrame.stop();
                         }
                     }
-                ]
-            }
-        }
-        Container {
-            verticalAlignment: VerticalAlignment.Bottom
-            horizontalAlignment: HorizontalAlignment.Center
-            background: titleBackground.imagePaint
-
-            preferredHeight: 70
-            preferredWidth: listView.isQ10 ? 720 : 768
-
-            Container {
-                horizontalAlignment: HorizontalAlignment.Center
-                Label {
-                    id: length
-                    implicitLayoutAnimationsEnabled: false
-                    textStyle.fontSize: FontSize.XSmall
-                    text: Helpers.formatTime(listView.favorites[listView.currentFrame]['duration'])
-                    textStyle.color: Color.White
-                }
-            }
-            Container {
-                verticalAlignment: VerticalAlignment.Bottom
-                horizontalAlignment: HorizontalAlignment.Fill
-                Label {
-                    id: title
-                    implicitLayoutAnimationsEnabled: false
-                    horizontalAlignment: HorizontalAlignment.Center
-                    text: listView.favorites[listView.currentFrame]['title']
-                    textStyle.color: Color.White
-                    textStyle.fontSize: FontSize.Medium
-                }
-            }
-        }
-        attachedObjects: [
-            ImagePaintDefinition {
-                id: titleBackground
-                imageSource: "asset:///images/GridView/TimeFrame.png"
-            }, 
-            QTimer {
-                id: updateFrame
-                singleShot: false
-                interval: 4000
-                onTimeout: {
-                    if (listView.currentFrame >= listView.favorites.length - 1) {
-                        listView.currentFrame = 0;
-                    } else {
-                        listView.currentFrame = listView.currentFrame + 1;
-                    }
-                }
-            }
-        ]
-
-        onCreationCompleted: {
-            listView.updateActiveFrame();
-        }  
-    }
-
-    function updateActiveFrame(){        
-        listView.favorites = infoListModel.getFavoriteVideos();
-        updateFrame.stop();
-        updateFrame.start();
-    }
-
-    listItemComponents: [        
-        ListItemComponent {            
-            type: "header"
-            Container {
-                leftPadding: 5
-                Label {
-                    text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
-                    textStyle.color: Color.create("#dddddd")
                 }
                 Container {
-                    minHeight: 3
-                    background: Color.create("#ff8811")
-                    Divider {
+                    Container {
+                        leftPadding: 5
+                        Label {
+                            text: qsTr(ListItemData).substring(1, ListItemData.toString().length)
+                            textStyle.color: Color.create("#dddddd")
+                        }
+                        Container {
+                            minHeight: 3
+                            background: Color.create("#ff8811")
+                            Divider {
+                            }
+                        }
                     }
                 }
-            }
-        },
+                
+                onCreationCompleted: {
+                    if (frameContainer.visible) {
+                        activeFrame.updateActiveFrame();
+                    }
+                }
+                
+                attachedObjects: [
+                    ImagePaintDefinition {
+                        id: titleBackground
+                        imageSource: "asset:///images/GridView/TimeFrame.png"
+                    },
+                    QTimer {
+                        id: updateFrame
+                        singleShot: false
+                        interval: 4000
+                        onTimeout: {
+                            if (activeFrame.ListItem.view.currentFrame >= activeFrame.ListItem.view.favorites.length - 1) {
+                                activeFrame.ListItem.view.currentFrame = 0;
+                            } else {
+                                activeFrame.ListItem.view.currentFrame = activeFrame.ListItem.view.currentFrame + 1;
+                            }
+                        }
+                    },
+                    OrientationHandler {
+                        id: checkOrientation
+                    }
+                ]
 
+                function updateActiveFrame() {
+                    activeFrame.ListItem.view.updateFavorites();
+                    updateFrame.start();
+                }
+            }
+        }, 
         ListItemComponent {
             type: "item"
             Container {
@@ -308,6 +348,7 @@ ListView {
                         imageSource: "asset:///images/selected_frame.png"
                     }
                 ]
+                
                 background: itemRoot.ListItem.selected ? frameImage.imagePaint : Color.Transparent
 
                 onTouch: {
@@ -339,7 +380,7 @@ ListView {
                                 id: individualFavoriteOption
                                 onTriggered: {
                                     itemRoot.ListItem.view.moveToFolder("0Favorites");
-                                    itemRoot.ListItem.view.updateActiveFrame();
+                                    itemRoot.ListItem.view.updateFavorites();
                                 }
                             },
                             //                            ActionItem {
