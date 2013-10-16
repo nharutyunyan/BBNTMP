@@ -46,11 +46,6 @@ Page {
                     text: "1-877-779-6336"
                     textStyle.color: Color.create("#c55500")
                 }
-                gestureHandlers: TapHandler {
-                    onTapped: {
-                        phone.requestDialpad("1-877-779-6336")
-                    }
-                }
             }
 
             Container {
