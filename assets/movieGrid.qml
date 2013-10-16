@@ -214,9 +214,11 @@ ListView {
 	                        gestureHandlers: [
 	                            TapHandler {
 	                                onTapped: {
-	                                    var path = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['path'];
-                                        var duration = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['duration'];
-                                        activeFrame.ListItem.view.openVideoPlayPage(path, duration);
+	                                    if (!activeFrame.ListItem.view.isMultiSelecting) {
+	                                    	var path = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['path'];
+                                        	var duration = activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['duration'];
+                                        	activeFrame.ListItem.view.openVideoPlayPage(path, duration);
+                                        }
                                     }
 	                            }
 	                        ]
