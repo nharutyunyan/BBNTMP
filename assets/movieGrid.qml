@@ -299,6 +299,7 @@ ListView {
                         singleShot: false
                         interval: 4000
                         onTimeout: {
+                            activeFrame.ListItem.view.updateFavorites();
                             if (activeFrame.ListItem.view.currentFrame >= activeFrame.ListItem.view.favorites.length - 1) {
                                 activeFrame.ListItem.view.currentFrame = 0;
                             } else {
