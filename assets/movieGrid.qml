@@ -442,90 +442,94 @@ ListView {
 
     }
     onSelectionChanged: {
-        // Don't load a video if a context menu is showing
-        if (listView.allowLoadingVideo) {
-            // slot called when ListView emits selectionChanged signal
-            // A slot naming convention is used for automatic connection of list view signals to slots
-            if (selected && listView.selected().length != 1) {
-                infoListModel.setSelectedIndex(listView.selected())
-                var page = getSecondPage();
-                console.log("pushing detail " + page)
-                //variables for passing selected video path and length to videoScrollList
-                var currentPath = listView.dataModel.data(indexPath).path;
-                page.currentPath = currentPath;
-                var currentLenght = listView.dataModel.data(indexPath).duration;
-                page.currentLenght = currentLenght;
-                navigationPane.push(page);
-                clearSelection();
-            }
-        }
-
-        // change label and/or enability of favorite context menu item depending on selection
-        if (! listView.deleteDialogShowing) {
-            listView.passSelectionToModel();
-            var visibility = infoListModel.getButtonVisibility("0Favorites");
-            switch (visibility) {
-                // Both non-favs and favs selected
-                case 0:
-                    {
-                        multiFavoriteOption.enabled = false;
-                        break;
-                    }
-                case 1:
-                    {
-                        multiFavoriteOption.enabled = true;
-                        listView.displayRemoveMessage = false;
-                        break;
-                    }
-                case 2:
-                    {
-                        multiFavoriteOption.enabled = true;
-                        listView.displayRemoveMessage = true;
-                        break;
-                    }
-            }
-            //            visibility = infoListModel.getButtonVisibility("9Hidden");
-            //            switch (visibility) {
-            //                case 0:
-            //                    {
-            //                        multiHiddenOption.enabled = false;
-            //                        break;
-            //                    }
-            //                case 1:
-            //                    {
-            //                        multiHiddenOption.enabled = true;
-            //                        listView.displayHideMessage = false;
-            //                        break;
-            //                    }
-            //                case 2:
-            //                    {
-            //                        multiHiddenOption.enabled = true;
-            //                        listView.displayHideMessage = true;
-            //                        break;
-            //                    }
-            //            }
-        }
-
-        // Display on the screen number of selected items
-        if (selectionList().length > 1) {
-            multiSelectHandler.status = selectionList().length + " items selected";
-            numberOfItems = selectionList().length + " items ";
-            multiShareOption.enabled = true;
-            multiDeleteOption.enabled = true;
-        } else if (selectionList().length == 1) {
-            multiSelectHandler.status = "1 item selected";
-            numberOfItems = "1 item ";
-            multiShareOption.enabled = true;
-            multiDeleteOption.enabled = true;
-        } else {
-            multiSelectHandler.status = "None selected";
-            // Technically the selection is already empty, but calling this method
-            // seems to ensure that the context menu is in the correct state (hidden)
-            multiFavoriteOption.enabled = false;
-            multiShareOption.enabled = false;
-            multiDeleteOption.enabled = false;
-            clearSelection();
-        }
+        if (selected && listView.selected().length == 1) {
+            listView.toggleSelection(listView.selected());
+        } else {	        
+	        // Don't load a video if a context menu is showing
+	        if (listView.allowLoadingVideo) {
+	            // slot called when ListView emits selectionChanged signal
+	            // A slot naming convention is used for automatic connection of list view signals to slots
+	            if (selected) { // && listView.selected().length != 1
+	                infoListModel.setSelectedIndex(listView.selected())
+	                var page = getSecondPage();
+	                console.log("pushing detail " + page)
+	                //variables for passing selected video path and length to videoScrollList
+	                var currentPath = listView.dataModel.data(indexPath).path;
+	                page.currentPath = currentPath;
+	                var currentLenght = listView.dataModel.data(indexPath).duration;
+	                page.currentLenght = currentLenght;
+	                navigationPane.push(page);
+	                clearSelection();
+	            }
+	        }
+	
+	        // change label and/or enability of favorite context menu item depending on selection
+	        if (! listView.deleteDialogShowing) {
+	            listView.passSelectionToModel();
+	            var visibility = infoListModel.getButtonVisibility("0Favorites");
+	            switch (visibility) {
+	                // Both non-favs and favs selected
+	                case 0:
+	                    {
+	                        multiFavoriteOption.enabled = false;
+	                        break;
+	                    }
+	                case 1:
+	                    {
+	                        multiFavoriteOption.enabled = true;
+	                        listView.displayRemoveMessage = false;
+	                        break;
+	                    }
+	                case 2:
+	                    {
+	                        multiFavoriteOption.enabled = true;
+	                        listView.displayRemoveMessage = true;
+	                        break;
+	                    }
+	            }
+	            //            visibility = infoListModel.getButtonVisibility("9Hidden");
+	            //            switch (visibility) {
+	            //                case 0:
+	            //                    {
+	            //                        multiHiddenOption.enabled = false;
+	            //                        break;
+	            //                    }
+	            //                case 1:
+	            //                    {
+	            //                        multiHiddenOption.enabled = true;
+	            //                        listView.displayHideMessage = false;
+	            //                        break;
+	            //                    }
+	            //                case 2:
+	            //                    {
+	            //                        multiHiddenOption.enabled = true;
+	            //                        listView.displayHideMessage = true;
+	            //                        break;
+	            //                    }
+	            //            }
+	        }
+	
+	        // Display on the screen number of selected items
+	        if (selectionList().length > 1) {
+	            multiSelectHandler.status = selectionList().length + " items selected";
+	            numberOfItems = selectionList().length + " items ";
+	            multiShareOption.enabled = true;
+	            multiDeleteOption.enabled = true;
+	        } else if (selectionList().length == 1) {
+	            multiSelectHandler.status = "1 item selected";
+	            numberOfItems = "1 item ";
+	            multiShareOption.enabled = true;
+	            multiDeleteOption.enabled = true;
+	        } else {
+	            multiSelectHandler.status = "None selected";
+	            // Technically the selection is already empty, but calling this method
+	            // seems to ensure that the context menu is in the correct state (hidden)
+	            multiFavoriteOption.enabled = false;
+	            multiShareOption.enabled = false;
+	            multiDeleteOption.enabled = false;
+	            clearSelection();
+	        }
+	    } 
     } // onSelectionChanged
 
     property Page secondPage
