@@ -137,6 +137,7 @@ ListView {
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
             InvokeActionItem {
+                id: multiShareOption
                 title: qsTr("Share")
                 ActionBar.placement: ActionBarPlacement.OnBar
                 query {
@@ -153,8 +154,8 @@ ListView {
                 }
             },
             ActionItem {
-                title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                 id: multiFavoriteOption
+                title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"                
                 imageSource: favoriteIcon()
                 onTriggered: {
                     listView.moveToFolder("0Favorites");
@@ -170,6 +171,7 @@ ListView {
             //                }
             //            },
             DeleteActionItem {
+                id: multiDeleteOption
                 title: "Delete"
                 onTriggered: {
                     listView.showDeleteDialog();
@@ -455,26 +457,6 @@ ListView {
             }
         }
 
-        // Display on the screen number of selected items
-        if (selectionList().length > 1) {
-            multiSelectHandler.status = selectionList().length + " items selected";
-            numberOfItems = selectionList().length + " items ";
-        } else if (selectionList().length == 1) {
-            multiSelectHandler.status = "1 item selected";
-            numberOfItems = "1 item ";
-        } else {
-            multiSelectHandler.status = "None selected";
-            // Technically the selection is already empty, but calling this method
-            // seems to ensure that the context menu is in the correct state (hidden)
-            clearSelection();
-        }
-
-        if (! listView.deleteDialogShowing) {
-            listView.passSelectionToModel();
-            var visibility = infoListModel.getButtonVisibility("0Favorites");
-            multiFavoriteOption.enabled = visibility;
-            //multiHiddenOption.enabled = infoListModel.getButtonVisibility("9Hidden");
-        }
         // change label and/or enability of favorite context menu item depending on selection
         if (! listView.deleteDialogShowing) {
             listView.passSelectionToModel();
@@ -519,6 +501,27 @@ ListView {
             //                        break;
             //                    }
             //            }
+        }
+
+        // Display on the screen number of selected items
+        if (selectionList().length > 1) {
+            multiSelectHandler.status = selectionList().length + " items selected";
+            numberOfItems = selectionList().length + " items ";
+            multiShareOption.enabled = true;
+            multiDeleteOption.enabled = true;
+        } else if (selectionList().length == 1) {
+            multiSelectHandler.status = "1 item selected";
+            numberOfItems = "1 item ";
+            multiShareOption.enabled = true;
+            multiDeleteOption.enabled = true;
+        } else {
+            multiSelectHandler.status = "None selected";
+            // Technically the selection is already empty, but calling this method
+            // seems to ensure that the context menu is in the correct state (hidden)
+            multiFavoriteOption.enabled = false;
+            multiShareOption.enabled = false;
+            multiDeleteOption.enabled = false;
+            clearSelection();
         }
     } // onSelectionChanged
 
