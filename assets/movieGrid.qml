@@ -134,24 +134,24 @@ ListView {
     }
 
     multiSelectHandler {
+        title:"blah"
         actions: [
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
-            InvokeActionItem {
+
+            ActionItem {
                 id: multiShareOption
                 title: qsTr("Share")
+                imageSource: "asset:///images/GridView/ic_share.png"
                 ActionBar.placement: ActionBarPlacement.OnBar
-                query {
-                    mimeType: "text/plain"
-                    invokeActionId: "bb.action.SHARE"
-                }
                 onTriggered: {
-                    data = "These movie are great: ";
+                    shareInvocation.query.data = "These movie are great: ";
                     for (var i = listView.copyOfSelectedIndexes.length - 1; i >= 0; i --) {
-                        data += infoListModel.data(listView.copyOfSelectedIndexes[i]).title
+                        shareInvocation.query.data += infoListModel.data(listView.copyOfSelectedIndexes[i]).title
                         if (i != 0)
-                            data += ",  ";
+                            shareInvocation.query.data += ",  ";
                     }
+                    shareInvocation.query.updateQuery()
                 }
             },
             ActionItem {
@@ -190,6 +190,17 @@ ListView {
                 listView.allowLoadingVideo = true;
             offsetList(orientationHandler.orientation == UIOrientation.Portrait)
         }
+        attachedObjects: [
+            Invocation {
+                id:shareInvocation
+                query.mimeType: "text/plain"
+                query.invokeActionId: "bb.action.SHARE"
+                onArmed: {
+                    if (query.data !="")
+                    trigger("bb.action.SHARE")
+                }
+            }
+        ]
     }
 
     listItemComponents: [   
@@ -366,8 +377,8 @@ ListView {
 
                 contextActions: [
                     ActionSet {
-                        title: "Menu Action Set"
-                        subtitle: "Menu Action Set."
+                        title: ListItemData.title
+                        subtitle: Helpers.formatTime(ListItemData.duration)
 
                         actions: [
                             InvokeActionItem {
