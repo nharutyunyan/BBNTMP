@@ -633,7 +633,8 @@ Page {
                         uiControlsShowTimer.start();
                         actionBarVisibility = ChromeVisibility.Overlay
                         videoWindow.initializeVideoScales();
-                        myPlayer.play();
+                        myPlayer.seekTime(0);
+                        myPlayer.valueChangedBySeek = false;
                         videoListDisappearAnimation.play();
                     } else {
                         invalidToast.show();
