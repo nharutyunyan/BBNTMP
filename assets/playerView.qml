@@ -1247,4 +1247,10 @@ Page {
             }            
         }        
     ]
+    function popPage() {
+        settings.setValue("inPlayerView", false);
+        infoListModel.setVideoPosition(myPlayer.position);
+        appContainer.curVolume = bpsEventHandler.getVolume();
+        pgPlayer.destroy();
+    }
 }// Page

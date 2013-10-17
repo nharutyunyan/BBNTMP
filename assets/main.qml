@@ -129,5 +129,7 @@ NavigationPane {
     }
     onPopTransitionEnded: {
         Application.setMenuEnabled(true)
+        if(mainPage.movieGridObj.secondPage)
+            mainPage.movieGridObj.secondPage.popPage()
     }
 }

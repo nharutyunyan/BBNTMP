@@ -19,6 +19,7 @@ ListView {
     }
     horizontalAlignment: HorizontalAlignment.Center
 
+    property Page secondPage
     property bool released: true
     property bool isMultiSelecting: false
     property bool displayRemoveMessage: false
@@ -528,7 +529,6 @@ ListView {
         }
     } // onSelectionChanged
 
-    property Page secondPage
     function getSecondPage() {
         if (! secondPage) {
             secondPage = secondPageDefinition.createObject();
