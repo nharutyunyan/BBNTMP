@@ -208,6 +208,7 @@ Container {
             duration: 100
             onEnded: {
                 myPlayer.seekTime(infoListModel.getVideoPosition());
+                myPlayer.valueChangedBySeek = false;
                 fadeOut.play();
             }
         },
