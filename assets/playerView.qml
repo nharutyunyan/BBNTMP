@@ -14,6 +14,22 @@ Page {
 
     property variant currentPath: ""
     property variant currentLenght: 0
+    property bool isHDMIVideoPlaying: HDMIPlayer.playing
+    property bool startListening
+    property bool isHDMIVideoStopped: HDMIPlayer.stopped
+
+    onIsHDMIVideoPlayingChanged: {
+        if(isHDMIVideoPlaying)
+            slideBarTimer.start();
+        else
+            slideBarTimer.stop();
+    }
+
+    onIsHDMIVideoStoppedChanged: {
+        if(HDMIPlayer.stopped && startListening) {
+            appContainer.goBack();
+        }
+    }
 
     Container {
         id: appContainer
@@ -209,13 +225,25 @@ Page {
                                     if (appContainer.touchPositionX >= event.windowX + appContainer.touchDistanceAgainstMode) {
                                         appContainer.changeVideoPosition = true;
                                         if (durationSlider.value + Helpers.seekTimeInSlide < durationSlider.toValue) {
-                                            myPlayer.seekTime(durationSlider.value + Helpers.seekTimeInSlide);
+                                            if(HDMIScreen.connection) {
+                                                HDMIPlayer.seekToValue((durationSlider.value + Helpers.seekTimeInSlide).toString() );
+                                            } else {
+                                                myPlayer.seekTime(durationSlider.value + Helpers.seekTimeInSlide);
+                                            }
                                         } else {
-                                            myPlayer.seekTime(durationSlider.toValue);
+                                            if(HDMIScreen.connection) {
+                                                HDMIPlayer.seekToValue(durationSlider.immediateValue.toString());
+                                            } else {
+                                                myPlayer.seekTime(durationSlider.toValue);
+                                            }
                                         }
                                     } else if (appContainer.touchPositionX + appContainer.touchDistanceAgainstMode < event.windowX) {
                                         appContainer.changeVideoPosition = true;
-                                        myPlayer.seekTime(Math.max(durationSlider.value - Helpers.seekTimeInSlide, 0));
+                                        if(HDMIScreen.connection) {
+                                            HDMIPlayer.seekToValue(Math.max(durationSlider.value - Helpers.seekTimeInSlide, 0).toString());
+                                        } else {
+                                            myPlayer.seekTime(Math.max(durationSlider.value - Helpers.seekTimeInSlide, 0));
+                                        }
                                     }
                                     appContainer.changeVideoPosition = false;
                                 }
@@ -436,7 +464,6 @@ Page {
                         }
                     } //subtitleButtonContainer
                 }
-
             }
 
             Container {
@@ -471,10 +498,10 @@ Page {
                     onTouch: {
                         if(event.touchType == TouchType.Down)
                         {
-                        	appContainer.volumeFullorMute = true
-                        	appContainer.curVolume = 100;
-                        	bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        	volume.setMuteIcons();
+                            appContainer.volumeFullorMute = true
+                            appContainer.curVolume = 100;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                            volume.setMuteIcons();
                         }
                     }
                 }
@@ -526,10 +553,10 @@ Page {
                     onTouch: {
                         if(event.touchType == TouchType.Down)
                         {
-                        	appContainer.volumeFullorMute = true
-                        	appContainer.curVolume = 0;
-                        	bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                        	volume.setMuteIcons();
+                            appContainer.volumeFullorMute = true
+                            appContainer.curVolume = 0;
+                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                            volume.setMuteIcons();
                         }
                     }
                 }
@@ -608,47 +635,65 @@ Page {
                         durationSlider.bookmarkVisible = false;
                         bookmarkTimer.stop();
                     }
-                    infoListModel.setVideoPosition(myPlayer.position);
-                    pgPlayer.currentPath = item.path;
-                    myPlayer.setSourceUrl(item.path);
-                    pgPlayer.currentLenght = item.duration;
-
-                    if (appContainer.playMediaPlayer() == MediaError.None) {
-                        appContainer.retryCount = 5;
-                        videoWindow.visible = true;
-                        contentContainer.visible = true;
+                    if (HDMIScreen.connection) {
+                        console.log("!!!G");
+                        console.log("2nd screen connected");
+                        startListening = false;
+                        HDMIPlayer.setVideoSize(item.width, item.height)
+                        HDMIPlayer.play(item.path);
+                        controlsContainer.setOpacity(1);
+                        controlsContainer.setVisible(true);
+                        volume.setVisible(true);
+                        // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
+                        startListenForStopped.start();
+                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
+                        pgPlayer.currentPath = item.path;
                         durationSlider.toValue = item.duration;
-                        videoTitle.text = item.title;
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
-                        if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
-                            subtitleButtonContainer.videoHasSubtitles = true;
-                            subtitleButtonContainer.initializeStates();
-                        } else {
-                            console.log("Force to disable");
-                            subtitleButtonContainer.videoHasSubtitles = false;
-                            subtitleAreaContainer.setOpacity(0);
-                        }
-                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                        if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
-                            durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
-                            durationSlider.bookmarkVisible = true;
-                            bookmarkTimer.start();
-                        }
-                        upperMenu.setOpacity(1);
-                        controlsContainer.setOpacity(1);
-                        subtitleButtonContainer.setOpacity(1);
-                        controlsContainer.setVisible(true);
-                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
-                        uiControlsShowTimer.start();
-                        actionBarVisibility = ChromeVisibility.Overlay
-                        videoWindow.initializeVideoScales();
-                        myPlayer.seekTime(0);
-                        myPlayer.valueChangedBySeek = false;
-                        videoListDisappearAnimation.play();
                     } else {
-                        invalidToast.show();
+                        infoListModel.setVideoPosition(myPlayer.position);
+                        pgPlayer.currentPath = item.path;
+                        myPlayer.setSourceUrl(item.path);
+                        pgPlayer.currentLenght = item.duration;
+                        if (appContainer.playMediaPlayer() == MediaError.None) {
+                            appContainer.retryCount = 5;
+                            videoWindow.visible = true;
+                            contentContainer.visible = true;
+                            durationSlider.toValue = item.duration;
+                            videoTitle.text = item.title;
+                            durationSlider.resetValue();
+                            durationSlider.setEnabled(true)
+                            if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
+                                subtitleButtonContainer.videoHasSubtitles = true;
+                                subtitleButtonContainer.initializeStates();
+                            } else {
+                                console.log("Force to disable");
+                                subtitleButtonContainer.videoHasSubtitles = false;
+                                subtitleAreaContainer.setOpacity(0);
+                            }
+                            infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
+                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
+                                durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
+                                durationSlider.bookmarkVisible = true;
+                                bookmarkTimer.start();
+                            }
+                            upperMenu.setOpacity(1);
+                            controlsContainer.setOpacity(1);
+                            subtitleButtonContainer.setOpacity(1);
+                            controlsContainer.setVisible(true);
+                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                            uiControlsShowTimer.start();
+                            actionBarVisibility = ChromeVisibility.Overlay
+                            videoWindow.initializeVideoScales();
+                            myPlayer.seekTime(0);
+                            myPlayer.valueChangedBySeek = false;
+                            videoListDisappearAnimation.play();
+                        } else {
+                            invalidToast.show();
+                        }
                     }
+                    videoListDisappearAnimation.play();
                 }
                 attachedObjects: [
                     LayoutUpdateHandler {
@@ -694,53 +739,7 @@ Page {
                         }
                     ]
                 } // videoTitleContainer
-                /*
-                 *  HDMI code is disabled
-                Container {
-                    layout: StackLayout {
-                        orientation: LayoutOrientation.TopToBottom
-                    }
-                    horizontalAlignment: HorizontalAlignment.Right
-                    verticalAlignment: VerticalAlignment.Center
-                    Container {
-                        id: hdmiButtonContainer
-                        objectName: hdmiButtonContainer
-                        opacity: 0.5
-                        verticalAlignment: VerticalAlignment.Center
-                        rightPadding: 10
-                        topPadding: 10
-                        property bool hdmiEnabled: false
-                        visible: false
-                        enabled: HDMIScreen.connection
-
-                        ImageButton {
-                            id: hdmiButton
-                            pressedImageSource: "asset:///images/Player/HDMIButtonPressed.png"
-                            disabledImageSource: "asset:///images/Player/HDMIButtonDisabled.png"
-                            defaultImageSource: "asset:///images/Player/HDMIButtonInactive.png"
-
-                            onClicked: {
-                                if (upperMenu.opacity != 0)
-                                    hdmiButtonContainer.hdmiEnabled = ! hdmiButtonContainer.hdmiEnabled;
-                            }
-                        }
-                        onCreationCompleted: {
-                            if (hdmiEnabled) {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
-                            } else {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
-                            }
-                        }
-                        onHdmiEnabledChanged: {
-                            if (hdmiEnabled) {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButton.png");
-                            } else {
-                                hdmiButton.setDefaultImageSource("asset:///images/Player/HDMIButtonInactive.png");
-                            }
-                        }
-                    } //hdmiButtonContainer
-                }
-                */
+                
                 implicitLayoutAnimationsEnabled: false
 
                 attachedObjects: [
@@ -772,7 +771,7 @@ Page {
                     fromY: - videoListScrollLayout.layoutFrame.height
                     toY: 0
                     onStarted: {
-                        bpsEventHandler.startVibration();
+                      // bpsEventHandler.startVibration();
                     }
                 },
                 TranslateTransition {
@@ -839,7 +838,9 @@ Page {
                         spaceQuota: 1
                     }
                     onImmediateValueChanged: {
-                        if (myPlayer.mediaState == MediaState.Started || myPlayer.mediaState == MediaState.Paused) {
+                        if(HDMIScreen.connection) {
+                            HDMIPlayer.seekToValue(durationSlider.immediateValue.toString());
+                        } else if (myPlayer.mediaState == MediaState.Started || myPlayer.mediaState == MediaState.Paused) {
                             myPlayer.seekTime(durationSlider.immediateValue);
                             myPlayer.valueChangedBySeek = true
                         }
@@ -898,7 +899,6 @@ Page {
         function playMediaPlayer() {
             if (bpsEventHandler.locked)
                 return; // Video does not play if phone is locked
-
             return myPlayer.play();
         }
 
@@ -906,18 +906,25 @@ Page {
             return myPlayer.pause();
         }
         function seekPlayer(time) {
-            myPlayer.seekTime(time);
-            myPlayer.valueChangedBySeek = true;
-            appContainer.changeVideoPosition = false;
+            if(HDMIScreen.connection) {
+                HDMIPlayer.seekToValue(time.toString());
+            } else {
+                myPlayer.seekTime(time);
+                myPlayer.valueChangedBySeek = true;
+                appContainer.changeVideoPosition = false;
+            }
         }
 
         function showPlayPauseButton() {
-            if (myPlayer.mediaState != MediaState.Started) {
+            if(HDMIScreen.connection) {
+                HDMIPlayer.pause(! HDMIPlayer.paused);
+                screenPlayPauseImage.imageSource = HDMIPlayer.paused ? "asset:///images/Player/Pause.png" : "asset:///images/Player/Play.png"
+            } else if (myPlayer.mediaState != MediaState.Started) {
                 appContainer.playMediaPlayer();
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png"
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Play.png";
             } else {
-                appContainer.pauseMediaPlayer();                
-                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png"
+                appContainer.pauseMediaPlayer();
+                screenPlayPauseImage.imageSource = "asset:///images/Player/Pause.png";
             }
             upperMenu.setOpacity(1);
             subtitleButtonContainer.setOpacity(1);
@@ -1080,13 +1087,13 @@ Page {
                 onIntervalChanged: {
                     if(interval < 1000)
                     {
-                      appContainer.curVolume = bpsEventHandler.getVolume();
-                       if (appContainer.retryCount != 0) {
-                          appContainer.playMediaPlayer();
-                          -- appContainer.retryCount;
-                        } else {
-                          invalidToast.show();
-                        }
+                         appContainer.curVolume = bpsEventHandler.getVolume();
+                         if (appContainer.retryCount != 0) {
+                             appContainer.playMediaPlayer();
+                             --appContainer.retryCount;
+                         } else {
+                             invalidToast.show();
+                         }
                     }
                     else{
                         appContainer.goBack()
@@ -1099,6 +1106,8 @@ Page {
                 singleShot: true
                 interval: 3000
                 onTimeout: {
+                    if(HDMIScreen.connection)
+                        return;
                     if (durationSlider.onSlider) {
                         uiControlsShowTimer.start();
                     } else {
@@ -1126,6 +1135,15 @@ Page {
                 }
             },
 
+            QTimer {
+                id: slideBarTimer
+                interval: 300
+                onTimeout: {
+                    if(!HDMIPlayer.paused)
+                        durationSlider.setValue(HDMIPlayer.position)
+                }
+            },
+
             OrientationHandler {
                 onOrientationAboutToChange: {
 
@@ -1148,45 +1166,65 @@ Page {
             },
 
             QTimer {
+                id: startListenForStopped
+                singleShot: true
+                interval: 700
+                onTimeout: {
+                    startListening = true;
+                }
+            },
+
+            QTimer {
                 id: initTimer
                 singleShot: true
                 interval: 1
                 onTimeout: {
-                    elapsedTimer.start();
-                    myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
-                    myPlayer.prepare();
-                    if (appContainer.playMediaPlayer() == MediaError.None) {
-
-                        var videoPos = 0;
-                        if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
-                            durationSlider.bookmarkVisible = true;
-                            bookmarkTimer.start();
-                        }
-
-                        videoWindow.visible = true;
-                        contentContainer.visible = true;
-                        if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
-                            subtitleButtonContainer.videoHasSubtitles = true;
-
-                        appContainer.changeVideoPosition = false;
-                        if (myPlayer.seekTime(videoPos) != MediaError.None) {
-                            console.log("seekTime ERROR");
-                        }
-                        appContainer.changeVideoPosition = true;
+                    // There is a 2nd screen connected, play over it
+                    if(HDMIScreen.connection) {
+                        console.log("2nd screen connected");
+                        HDMIPlayer.setVideoSize(infoListModel.getWidth(), infoListModel.getHeight())
+                        HDMIPlayer.play(infoListModel.getSelectedVideoPath());
+                        controlsContainer.setOpacity(1);
+                        controlsContainer.setVisible(true);
+                        volume.setVisible(true);
+                        // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
+                        startListenForStopped.start();
                     } else {
-                        invalidToast.show();
+                        elapsedTimer.start();
+                        myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
+                        myPlayer.prepare();
+                        if (appContainer.playMediaPlayer() == MediaError.None) {
+                            var videoPos = 0;
+                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
+                                durationSlider.bookmarkVisible = true;
+                                bookmarkTimer.start();
+                            }
+
+                            videoWindow.visible = true;
+                            contentContainer.visible = true;
+                            if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                                subtitleButtonContainer.videoHasSubtitles = true;
+
+                            appContainer.changeVideoPosition = false;
+                            if (myPlayer.seekTime(videoPos) != MediaError.None) {
+                                console.log("seekTime ERROR");
+                            }
+                            appContainer.changeVideoPosition = true;
+                        } else {
+                            invalidToast.show();
+                        }
+                        upperMenu.setOpacity(1);
+                        subtitleButtonContainer.setOpacity(1);
+                        if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
+                        } else {
+                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
+                        }
+                        controlsContainer.setOpacity(1);
+                        controlsContainer.setVisible(true);
+                        volume.setVisible(true);
+                        uiControlsShowTimer.start();
                     }
-                    upperMenu.setOpacity(1);
-                    subtitleButtonContainer.setOpacity(1);
-                    if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-                    } else {
-                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-                    }
-                    controlsContainer.setOpacity(1);
-                    controlsContainer.setVisible(true);
-                    volume.setVisible(true);
-                    uiControlsShowTimer.start();
                 }
             }
         ] // Attached objects.
@@ -1194,15 +1232,22 @@ Page {
         onCreationCompleted: {
             settings.setValue("inPlayerView", true);
             Application.thumbnail.connect(onThumbnail);
+            startListening = false;
             initTimer.start();
         }
 
         function goBack() {
-            settings.setValue("inPlayerView", false);
             infoListModel.setVideoPosition(myPlayer.position);
             appContainer.curVolume = bpsEventHandler.getVolume();
-            pgPlayer.destroy();
-            navigationPane.pop();
+            if(!HDMIScreen.connection || HDMIPlayer.stopped) {
+                if(HDMIPlayer.stopped)
+                    HDMIPlayer.stop();
+                pgPlayer.destroy();
+            }
+            if(settings.value("inPlayerView"))
+                navigationPane.pop();
+            settings.setValue("inPlayerView", false);
+            Application.setMenuEnabled(true);
         }
 
         function onThumbnail() {
@@ -1213,7 +1258,7 @@ Page {
         }
 
     } //appContainer
-    paneProperties: NavigationPaneProperties {         
+    paneProperties: NavigationPaneProperties {
         backButton: ActionItem {
             title: qsTr("Back") + Retranslate.onLanguageChanged
             onTriggered: {
@@ -1222,7 +1267,7 @@ Page {
         }
     }
 
-    actions: [        
+    actions: [
         ActionItem {
             id: playPauseActionItem
             ActionBar.placement: ActionBarPlacement.OnBar
@@ -1245,13 +1290,20 @@ Page {
                     uiControlsShowTimer.start();
                     subtitleButtonContainer.subtitleEnabled = ! subtitleButtonContainer.subtitleEnabled;                    
                 }
-            }            
-        }        
+            }
+        }
     ]
     function popPage() {
         settings.setValue("inPlayerView", false);
         infoListModel.setVideoPosition(myPlayer.position);
         appContainer.curVolume = bpsEventHandler.getVolume();
-        pgPlayer.destroy();
+        if(HDMIScreen.connection) {
+            if(HDMIPlayer.stopped) {
+                HDMIPlayer.stop();
+                pgPlayer.destroy();
+            }
+        } else {
+            pgPlayer.destroy();
+        }
     }
 }// Page

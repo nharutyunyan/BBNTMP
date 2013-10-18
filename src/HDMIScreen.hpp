@@ -17,6 +17,10 @@ using namespace bb::cascades;
 class QObject;
 class QThread;
 
+/**
+ * This class manages detection of the 2nd screen
+ * connection is true if there is a 2nd monitor and it is activated
+ */
 class HDMIScreen : public QObject {
     Q_OBJECT
 

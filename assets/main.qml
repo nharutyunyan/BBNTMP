@@ -78,6 +78,11 @@ NavigationPane {
                         verticalAlignment: VerticalAlignment.Top
                     }
                 }
+                NowPlaying {
+                    id: nowPlayingBar
+                    // If the video is playing on the 2nd screen,
+                    // this display the information
+                }
             }
 
             // Busy indicator when thumbs are loading, on top of the grid

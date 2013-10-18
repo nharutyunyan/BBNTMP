@@ -1,7 +1,6 @@
 #include "NuttyPlayer.hpp"
-// HDMI code is disabled
-//#include "HDMIScreen.hpp"
-//#include "HDMIVideoPlayer.hpp"
+#include "HDMIScreen.hpp"
+#include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
 #include "BbmAppShare.hpp"
 
@@ -72,21 +71,17 @@ thumbnailsGenerationFinished(false)
 
     passScreenDimensionsToQml(qml);
 
-    /*
-     * HDMI code is disabled
-     *
-    	HDMIScreen* hdmi = new HDMIScreen(app);
-    	qml->setContextProperty("HDMIScreen", hdmi);
 
-    	HDMIVideoPlayer* hdmiPlayer = new HDMIVideoPlayer(app);
-    	qml->setContextProperty("HDMIPlayer", hdmiPlayer);
+	HDMIScreen* hdmi = new HDMIScreen(app);
+	qml->setContextProperty("HDMIScreen", hdmi);
 
-    	// Connect the HDMI screen to the HDMI player to that it can initialize the
-    	// HDMI Screen with BLUE
-    	connect (hdmi, SIGNAL(connectionChanged(bool)) , hdmiPlayer, SLOT(onConnectionChanged(bool)));
-    	//hdmiPlayer->initExternalDisplay();
-     *
-     */
+	HDMIVideoPlayer* hdmiPlayer = new HDMIVideoPlayer(app);
+	qml->setContextProperty("HDMIPlayer", hdmiPlayer);
+
+	// Connect the HDMI screen to the HDMI player to that it can initialize the
+	// HDMI Screen
+	bool result = connect (hdmi, SIGNAL(connectionChanged(bool)) , hdmiPlayer, SLOT(onConnectionChanged(bool)));
+	Q_ASSERT(result);
 
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();

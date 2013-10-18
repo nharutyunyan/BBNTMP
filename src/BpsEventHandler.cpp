@@ -39,10 +39,11 @@ void BpsEventHandler::event( bps_event_t *event )
     // handle navigator events
     if (domain == navigator_get_domain())
     {
-    	if(NAVIGATOR_SWIPE_DOWN == bps_event_get_code(event))
-    	{
-    		emit showVideoScrollBar();
-    	}
+        // Sometimes it dowsn't catch NAVIGATOR_SWIPE_DOWN in swipe down
+        if(NAVIGATOR_SWIPE_DOWN == bps_event_get_code(event) || bps_event_get_code(event) == NAVIGATOR_SWIPE_START)
+        {
+            emit showVideoScrollBar();
+        }
         if(NAVIGATOR_WINDOW_INACTIVE == bps_event_get_code(event))
         {
             emit windowInactive();
