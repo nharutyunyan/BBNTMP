@@ -134,11 +134,9 @@ ListView {
     }
 
     multiSelectHandler {
-        title:"blah"
         actions: [
             // Add the actions that should appear on the context menu
             // when multiple selection mode is enabled
-
             ActionItem {
                 id: multiShareOption
                 title: qsTr("Share")
