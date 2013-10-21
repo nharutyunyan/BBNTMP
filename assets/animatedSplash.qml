@@ -1,7 +1,6 @@
 
 import bb.cascades 1.0
 import bb.multimedia 1.0
-import nuttyPlayer 1.0
 import "helpers.js" as Helpers
 
 NavigationPane {

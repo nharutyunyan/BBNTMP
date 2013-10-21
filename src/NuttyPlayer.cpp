@@ -15,7 +15,7 @@
 using namespace bb::cascades;
 
 const int SPLASHSCREEN_INTERVAL_MIN = 1000;
-const int SPLASHSCREEN_INTERVAL_MAX = 2000;
+const int SPLASHSCREEN_INTERVAL_MAX = 3000;
 
 const QString UUID = "8929e8d9-8ab0-43d7-8945-83e702a1dec0";
 const QString APP_VERSION_KEY = "Application-Version:";
@@ -55,6 +55,7 @@ root(NULL),
 splashScreenMinimalIntervalElapsed(false),
 thumbnailsGenerationFinished(false)
 {
+
 	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
 	            SLOT(onSplashscreenMinimalIntervalElapsed()));
 	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MAX, this,
@@ -92,8 +93,7 @@ thumbnailsGenerationFinished(false)
 	// Check for videos on the phone in the model
 	onVideoUpdateNotification();
 
-    QmlDocument *qmlSplash = QmlDocument::create("asset:///animatedSplash.qml").parent(this);
-    Application::instance()->setScene(qmlSplash->createRootObject<AbstractPane>());
+
 
     connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
     connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
