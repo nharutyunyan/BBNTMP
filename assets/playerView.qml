@@ -10,7 +10,7 @@ import "helpers.js" as Helpers
 Page {
     id: pgPlayer
 
-    actionBarVisibility: ChromeVisibility.Overlay      
+    actionBarVisibility: ChromeVisibility.Hidden    
 
     property variant currentPath: ""
     property variant currentLenght: 0
@@ -707,6 +707,7 @@ Page {
                 layout: DockLayout {
                 }
                 preferredWidth: 768
+                opacity: 0
                 Container {
                     id: videoTitleContainer
                     background: backgroundPaint.imagePaint
@@ -806,7 +807,7 @@ Page {
         Container {
             id: controlsContainer
             translationY: OrientationSupport.orientation == UIOrientation.Portrait ? - Helpers.actionBarPortraitHeight : - Helpers.actionBarLandscapeHeight
-            visible: true
+            visible: false
             enabled: true
             layout: StackLayout {
                 orientation: LayoutOrientation.TopToBottom
@@ -1184,11 +1185,13 @@ Page {
                         console.log("2nd screen connected");
                         HDMIPlayer.setVideoSize(infoListModel.getWidth(), infoListModel.getHeight())
                         HDMIPlayer.play(infoListModel.getSelectedVideoPath());
+                        upperMenu.setOpacity(1);
                         controlsContainer.setOpacity(1);
                         controlsContainer.setVisible(true);
                         volume.setVisible(true);
+                        actionBarVisibility = ChromeVisibility.Overlay;
                         // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
-                        startListenForStopped.start();
+                        startListenForStopped.start();                        
                     } else {
                         elapsedTimer.start();
                         myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
@@ -1213,17 +1216,32 @@ Page {
                         } else {
                             invalidToast.show();
                         }
-                        upperMenu.setOpacity(1);
-                        subtitleButtonContainer.setOpacity(1);
-                        if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
+                        if (durationSlider.bookmarkVisible) {
+                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
+                            } else {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
+                            }
+                            upperMenu.setOpacity(1);
+	                        subtitleButtonContainer.setOpacity(1);
+	                        controlsContainer.setOpacity(1);
+	                        controlsContainer.setVisible(true);
+	                        volume.setVisible(true);
+	                        uiControlsShowTimer.start();
+                            actionBarVisibility = ChromeVisibility.Overlay;
                         } else {
-                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
+                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
+                            } else {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
+                            }
+                            upperMenu.setOpacity(0);
+                            subtitleButtonContainer.setOpacity(0);
+                            controlsContainer.setVisible(false);
+                            volume.setVisible(false);
+                            actionBarVisibility = ChromeVisibility.Hidden;
                         }
-                        controlsContainer.setOpacity(1);
-                        controlsContainer.setVisible(true);
-                        volume.setVisible(true);
-                        uiControlsShowTimer.start();
+
                     }
                 }
             }
