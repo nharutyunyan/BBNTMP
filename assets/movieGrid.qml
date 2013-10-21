@@ -578,8 +578,18 @@ ListView {
                     // make some ui changes related to landscape
                     videoGridView.columnCount = 4
                 }
+                
+                var allSelected = listView.selectionList();
+                if (allSelected.length > 0) {
+                    listView.scrollToItem(allSelected[0],ScrollAnimation.None);
+                } else {
+                    listView.scrollToItem(scrollStateHandler.firstVisibleItem, ScrollAnimation.None);                    
+                }
                 offsetList(orientationHandler.orientation != UIOrientation.Portrait);
             }
+        },
+        ListScrollStateHandler {
+            id: scrollStateHandler
         },
         ComponentDefinition {
             id: playerPageDef
