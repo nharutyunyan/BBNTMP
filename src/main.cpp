@@ -34,7 +34,7 @@ using namespace exceptions;
 /*
 void myMessageOutput(QtMsgType type, const char* msg)
 {
-    Lets keep this commented, since it affects the performance.
+    //Lets keep this commented, since it affects the performance.
     fprintf(stdout, "%s\n", msg);
     fflush(stdout);
 }
@@ -45,11 +45,16 @@ void myMessageOutput(QtMsgType type, const char* msg)
 Q_DECL_EXPORT int main(int argc, char **argv)
 {
     Application app(argc, argv);
+
 /*
 	#ifndef QT_NO_DEBUG
 		qInstallMsgHandler(myMessageOutput);
 	#endif
 */
+
+    QmlDocument *qmlSplash = QmlDocument::create("asset:///animatedSplash.qml");
+    Application::instance()->setScene(qmlSplash->createRootObject<AbstractPane>());
+
     qmlRegisterType<CustomElapsedTimer>("customtimer", 1, 0, "CustomElapsedTimer");
     qmlRegisterType<QTimer>("bb.cascades", 1, 0, "QTimer");
     qmlRegisterType<SubtitleManager>("nuttyPlayer", 1, 0, "SubtitleManager");
