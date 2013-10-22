@@ -345,12 +345,6 @@ Container {
             bookmark.topPadding = Helpers.bookmarkPaddingYInLandscape;
         }
     }
-
-	onProgressBarPositionXChanged: {
-    	if (slideBar.bookmarkVisible) {
-        	slider.showBookmarkProgressBar(progressBarPositionX);
-        	}
-    }
    
 }
 
