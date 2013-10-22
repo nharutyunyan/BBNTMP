@@ -675,6 +675,7 @@ Page {
                             infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
                             if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
                                 durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
+                                durationSlider.progressBarPositionX  = durationSlider.getProgressBarPosition();
                                 durationSlider.bookmarkVisible = true;
                                 bookmarkTimer.start();
                             }
