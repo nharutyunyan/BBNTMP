@@ -549,14 +549,24 @@ Page {
                     topMargin: 0
                     id: volumeMute
                     imageSource: "asset:///images/Player/VolumeMute.png"
-                   
+                    property bool active: false
+                    property double beforeMute
+
                     onTouch: {
                         if(event.touchType == TouchType.Down)
                         {
-                            appContainer.volumeFullorMute = true
-                            appContainer.curVolume = 0;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volume.setMuteIcons();
+                            if (! volumeMute.active) {
+                                volumeMute.beforeMute = bpsEventHandler.getVolume();
+                                appContainer.volumeFullorMute = true;
+	                            appContainer.curVolume = 0;
+	                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+	                            volume.setMuteIcons();
+                                volumeMute.active = true;
+                            } else {
+                                appContainer.curVolume = volumeMute.beforeMute;
+                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                                volumeMute.active = false;
+                            }	                            
                         }
                     }
                 }
