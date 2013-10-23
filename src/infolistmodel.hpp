@@ -91,7 +91,7 @@ public:
 
     Q_INVOKABLE void deleteVideos();
 
-    QString folderFieldName(QString fame);
+    QString folderFieldName(QString path);
 
     Q_INVOKABLE void addToSelected(QVariantList index);
 
