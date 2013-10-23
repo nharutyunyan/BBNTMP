@@ -29,12 +29,16 @@ inline const static QStringList getVideoFileList() {
 	filters << "*.avi" << "*.mp4" << "*.3gp" << "*.3g2" << "*.asf" << "*.wmv"
 			<< "*.mov" << "*.m4v" << "*.f4v" << "*.mkv"; //these are the formats the don't crash the app.
 
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters,
-			result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters,
-			result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters,
-			result);
+	//Phone storage
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
+
+	//SD card storage
+	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/videos", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/camera", filters, result);
+	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/downloads", filters,result);
+
 	return result;
 }
 
@@ -202,7 +206,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			// Add the thumbnail URL to the JSON file
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 			// Add folder
-			val["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+			val["folder"] = folderFieldName(val["path"].toString());
 			bool durationIsCorrect = true;
 			movieDecoder.setContext(0);
 			try{
@@ -331,7 +335,7 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 	infoMap["title"] = pathElements[pathElements.size()-1];
 	infoMap["thumbURL"] = "asset:///images/BlankThumbnail.png";
-	infoMap["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+	infoMap["folder"] = folderFieldName(infoMap["path"].toString());
 	infoMap["duration"] = val.value(bb::multimedia::MetaData::Duration).toString();
 	infoMap["width"] = val.value(bb::multimedia::MetaData::Width).toString();
 	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
@@ -472,18 +476,30 @@ void InfoListModel::deleteVideos()
 	saveData();
 }
 
-QString InfoListModel::folderFieldName(QString fName)
+QString InfoListModel::folderFieldName(QString path)
 {
-    if(!fName.compare("videos"))
-        return QString("1Videos");
 
-    if(!fName.compare("downloads"))
-        return QString("2Downloads");
+	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-    if(!fName.compare("camera"))
-        return QString("3Camera");
+	QString fName = pathElements[pathElements.length()-2];
 
-    return QString("4Other");
+	if (pathElements[2] == "shared") {
+		if(!fName.compare("videos"))
+			return QString("1Videos");
+		if(!fName.compare("downloads"))
+			return QString("2Downloads");
+		if(!fName.compare("camera"))
+			return QString("3Camera");
+		return QString("4Other");
+	} else {
+		if(!fName.compare("videos"))
+			return QString("5Videos  (Media Card)");
+		if(!fName.compare("downloads"))
+			return QString("6Downloads  (Media Card)");
+		if(!fName.compare("camera"))
+			return QString("7Camera  (Media Card)");
+		return QString("8Other  (Media Card)");
+	}
 }
 
 int InfoListModel::getIntIndex(QVariantList index)
@@ -515,9 +531,7 @@ void InfoListModel::toggleFolder(QString folderName)
 		}
 		else
 		{
-			QString path = v["path"].toString();
-			QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
-			v["folder"] = folderFieldName(pathElements[pathElements.size() - 2]);
+			v["folder"] = folderFieldName(v["path"].toString());
 		}
 		// We remove the node because we will reinsert it once the buffer is full
 		removeAt(index);

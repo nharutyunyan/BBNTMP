@@ -27,9 +27,17 @@ void Observer::createWatcher()
 {
 	watcher = new QFileSystemWatcher();
 	QStringList paths;
+
+	//Phone storage
 	paths<<("/accounts/1000/shared/videos");
 	paths<<("/accounts/1000/shared/camera");
 	paths<<("/accounts/1000/shared/downloads");
+
+	//SD card storage
+	paths<<("/accounts/1000/removable/sdcard/videos");
+	paths<<("/accounts/1000/removable/sdcard/camera");
+	paths<<("/accounts/1000/removable/sdcard/downloads");
+
 	watcher->addPaths(paths);
 	QObject::connect(watcher, SIGNAL(directoryChanged(const QString&)), this,
 					SIGNAL(directoryChanged(const QString&)));
