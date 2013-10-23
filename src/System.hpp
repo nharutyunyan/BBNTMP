@@ -11,6 +11,7 @@ public:
     Q_INVOKABLE QString modelName();
     Q_INVOKABLE bool isQ10();
     Q_INVOKABLE bool isZ10();
+    Q_INVOKABLE bool OpenSettings();
 
 private:
     HardwareInfo* mHardware;
