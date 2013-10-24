@@ -107,6 +107,8 @@ public:
 
     Q_INVOKABLE QString getSelectedVideoThumbnail();
 
+    Q_INVOKABLE void markSelectedAsWatched();
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();

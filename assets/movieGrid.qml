@@ -204,16 +204,18 @@ ListView {
     listItemComponents: [
         ListItemComponent {
             type: "header" 
-            Container {                
-            	id: activeFrame            	
+            Container {
+                id: activeFrame
                 Container {
                     id: frameContainer
                     visible: (activeFrame.ListItem.view.firstFolder == ListItemData) ? true : false
                     topPadding: 10
-	            	layout: DockLayout {
+	                layout: DockLayout {
 	                }
 	                leftPadding: checkOrientation.orientation == UIOrientation.Portrait ? 0 : 256
                     Container {
+                        layout: DockLayout {
+                        }
 	                    horizontalAlignment: HorizontalAlignment.Center
 	                    verticalAlignment: VerticalAlignment.Center
 	                    ImageView {
@@ -235,6 +237,13 @@ ListView {
 	                            }
 	                        ]
 	                    }
+                        Container {
+                           topPadding: 20
+                            ImageView {
+                                imageSource: "asset:///images/GridView/new.png"
+                                opacity: activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['isWatched'] ? 0 : 1
+                            }
+                       }
 	                }
 	                Container {
 	                    verticalAlignment: VerticalAlignment.Bottom
@@ -337,6 +346,7 @@ ListView {
                     movieTitle: " " + ListItemData.title
                     movieLength: ListItemData.duration
                     isVideoBarItem: false
+                    isWatched: ListItemData.isWatched
                 }
                 opacity: 0.0
 
