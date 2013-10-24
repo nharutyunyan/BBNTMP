@@ -561,12 +561,17 @@ Page {
 	                            appContainer.curVolume = 0;
 	                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
 	                            volume.setMuteIcons();
-                                volumeMute.active = true;
                             } else {
                                 appContainer.curVolume = volumeMute.beforeMute;
                                 bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                                volumeMute.active = false;
                             }	                            
+                        }
+                    }
+                    onImageSourceChanged: {
+                        if (imageSource == "asset:///images/Player/VolumeMute.png") {
+                            volumeMute.active = false;
+                        } else {
+                            volumeMute.active = true;
                         }
                     }
                 }
