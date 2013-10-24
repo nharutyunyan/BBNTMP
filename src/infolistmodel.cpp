@@ -35,9 +35,7 @@ inline const static QStringList getVideoFileList() {
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
 
 	//SD card storage
-	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/videos", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/camera", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard/downloads", filters,result);
+	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard", filters, result);
 
 	return result;
 }
@@ -82,6 +80,7 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(this, SIGNAL(setData(QStringList )), reader, SLOT(setData(QStringList )));
 	prepareToStart();
 	getVideoFiles();
+	observer->createWatcher();
 }
 
 void InfoListModel::checkVideosWaitingThumbnail()
@@ -478,28 +477,50 @@ void InfoListModel::deleteVideos()
 
 QString InfoListModel::folderFieldName(QString path)
 {
-
 	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-	QString fName = pathElements[pathElements.length()-2];
-
 	if (pathElements[2] == "shared") {
-		if(!fName.compare("videos"))
+		QString fName = pathElements[pathElements.length()-2];
+		if(pathElements[3] == "videos")
 			return QString("1Videos");
-		if(!fName.compare("downloads"))
+		if(pathElements[3] == "downloads")
 			return QString("2Downloads");
-		if(!fName.compare("camera"))
+		if(pathElements[3] == "camera")
 			return QString("3Camera");
 		return QString("4Other");
-	} else {
-		if(!fName.compare("videos"))
-			return QString("5Videos  (Media Card)");
-		if(!fName.compare("downloads"))
-			return QString("6Downloads  (Media Card)");
-		if(!fName.compare("camera"))
-			return QString("7Camera  (Media Card)");
-		return QString("8Other  (Media Card)");
+	} else if (pathElements[2] == "removable" && pathElements[3] == "sdcard") {
+		if (pathElements[4]!="videos" && pathElements[4]!="downloads" && pathElements[4]!="camera") {
+			QString otherVideoPath = "";
+			for (int i=0; i<pathElements.length()-1; i++) {
+				otherVideoPath+="/" + pathElements[i];
+			}
+			observer->addWatcher(otherVideoPath);
+		}
+		return QString("5Media Card");
+
+		/*
+		QString folders = "";
+		if(pathElements[4] == "videos") {
+			folders = "5Media Card";
+		} else if (pathElements[4] == "downloads") {
+			folders = "6Media Card";
+		} else if (pathElements[4] == "camera") {
+			folders = "7Media Card";
+		}
+		if (folders != "") {
+			for (int i=4; i<pathElements.length()-1; i++) {
+				folders+="/" + pathElements[i];
+			}
+			return folders;
+		}
+        folders = "8Media Card";
+		for (int i=4; i<pathElements.length()-1; i++) {
+			folders+="/" + pathElements[i];
+		}
+		return folders;
+		*/
 	}
+	return QString();
 }
 
 int InfoListModel::getIntIndex(QVariantList index)

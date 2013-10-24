@@ -36,6 +36,23 @@ bool FileSystemUtility::getEntryListR(const QString& dir, const QStringList& fil
 	return !result.isEmpty();
 }
 
+bool FileSystemUtility::getSubFolders(const QString& dir, QStringList& result)
+{
+	result.append(dir);
+	QDir currentDir(dir);
+	QDir::setCurrent(dir);
+	QStringList currentDirList = currentDir.entryList(QDir::Dirs);
+
+	foreach(QString subDir, currentDirList)
+	{
+		if (subDir == "." || subDir == "..")			continue;
+
+		getSubFolders(dir + "/" + subDir,result);
+	}
+
+	return !result.isEmpty();
+}
+
 
 MetaDataReader::MetaDataReader(QObject* parent): QObject(parent), m_started(false), m_retryCount(0)
 {
