@@ -2,7 +2,7 @@ import bb.cascades 1.0
 import "helpers.js" as Helpers
 
 Container {
-    layout: StackLayout {
+    layout: DockLayout {
     }
 
     verticalAlignment: VerticalAlignment.Fill
@@ -13,6 +13,7 @@ Container {
     property alias imageSource: thumbImage.imageSource
     property alias movieTitle: title.text
     property variant movieLength: ""
+    property bool isWatched: true
 
     property int height: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
     property int width: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
@@ -77,6 +78,14 @@ Container {
                     }
                 }
             }
+        }
+    }
+    Container {
+        topPadding: 20
+        ImageView{
+            id: wathcedTag
+            imageSource: "asset:///images/GridView/new.png"
+            opacity: isWatched ? 0 : 1
         }
     }
 

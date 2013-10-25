@@ -207,6 +207,7 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
 			// Add folder
 			val["folder"] = folderFieldName(val["path"].toString());
+			val["isWatched"] = false;
 			bool durationIsCorrect = true;
 			movieDecoder.setContext(0);
 			try{
@@ -339,6 +340,7 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	infoMap["duration"] = val.value(bb::multimedia::MetaData::Duration).toString();
 	infoMap["width"] = val.value(bb::multimedia::MetaData::Width).toString();
 	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
+	infoMap["isWatched"] = false;
 	QVariantList list;
 	list<<(infoMap);
 	insertVideos(list);
@@ -609,5 +611,12 @@ QString InfoListModel::getSelectedVideoThumbnail()
 	QVariant v = value(m_selectedIndex, flagName);
 	QString retValue =  v.toString();
 	return retValue;
+}
+
+void InfoListModel::markSelectedAsWatched()
+{
+	QVariantMap map = data(m_selectedIndex).toMap();
+	map["isWatched"] = true;
+	updateItem(m_selectedIndex, map);
 }
 

@@ -709,6 +709,7 @@ Page {
                             invalidToast.show();
                         }
                     }
+                    infoListModel.markSelectedAsWatched();
                     videoListDisappearAnimation.play();
                 }
                 attachedObjects: [
@@ -1257,8 +1258,8 @@ Page {
                             volume.setVisible(false);
                             actionBarVisibility = ChromeVisibility.Hidden;
                         }
-
                     }
+                    infoListModel.markSelectedAsWatched();
                 }
             }
         ] // Attached objects.
