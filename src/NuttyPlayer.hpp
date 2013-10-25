@@ -34,6 +34,7 @@ public slots:
     void onAwake();
     void onVideoUpdateNotification();
     void loadingIndicatorStart();
+    void loadingIndicatorStop();
 
 private:
     bb::cascades::AbstractPane *root;

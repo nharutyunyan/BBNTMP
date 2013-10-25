@@ -53,7 +53,8 @@ NuttyPlayer::NuttyPlayer(bb::cascades::Application *app)
 : QObject(app),
 root(NULL),
 splashScreenMinimalIntervalElapsed(false),
-thumbnailsGenerationFinished(false)
+thumbnailsGenerationFinished(false),
+isMinimized(false)
 {
 
 	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
@@ -108,9 +109,16 @@ thumbnailsGenerationFinished(false)
 
 void NuttyPlayer::loadingIndicatorStart()
 {
-	 QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
-	    if (loadingIndicator)
-	    	((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
+	QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
+	if (loadingIndicator)
+		((bb::cascades::ActivityIndicator*)loadingIndicator)->start();
+}
+
+void NuttyPlayer::loadingIndicatorStop()
+{
+	QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
+	if (loadingIndicator)
+		((bb::cascades::ActivityIndicator*)loadingIndicator)->stop();
 }
 
 void NuttyPlayer::onVideoUpdateNotification() {
@@ -131,9 +139,7 @@ void NuttyPlayer::onThumbnailsGenerationFinished() {
 	thumbnailsGenerationFinished = true;
 
     // Stop the busy animation.  This may happen before the loading screen ends
-    QObject *loadingIndicator = root->findChild<QObject*>("LoadingIndicator");
-    if (loadingIndicator)
-    	((bb::cascades::ActivityIndicator*)loadingIndicator)->stop();
+	loadingIndicatorStop();
 
     // set created root object as a scene
     if (splashScreenMinimalIntervalElapsed)

@@ -39,14 +39,13 @@ NavigationPane {
                 TranslateTransition {
                     id: anim
                     fromY: 0
-                    toY: -30
-                    duration: 600
+                    toY: 0
+                    duration: 300
                     easingCurve: StockCurve.SineIn
                     onEnded: {
                         anim1.play()
                     }
                 },
-
                 TranslateTransition {
                     id : anim1
                     fromY: 0

@@ -15,6 +15,7 @@
 #include "moviedecoder.hpp"
 #include "observer.hpp"
 #include "utility.hpp"
+#include "ParalellWorker.hpp"
 
 class Producer;
 /*
@@ -117,6 +118,13 @@ public:
 
     Q_INVOKABLE QVariantList getRealIndex(QVariantList index);
 
+    Q_INVOKABLE void prepareForPlay(QVariantList indexPath);
+
+    Q_INVOKABLE bool isPlayable(QVariantList indexPath);
+
+    Q_INVOKABLE QString getVideoDuration();
+
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
@@ -125,21 +133,26 @@ public:
 public slots:
     void consume(QString filename, QString path);
     void onMetadataReady(const QVariantMap& data);
+    void onVideoFileListComplete(QStringList result);
     void onAllMetadataRead();
     void getVideoFiles();
     void fileComplete(QString);
     void readMetadatas();
     void checkVideosWaitingThumbnail();
+    void markAsDamaged(QString path);
     signals:
         void consumed();
         void finished();
         void finishedThumbnailGeneration();
         void notifyObserver(QStringList);
         void setData(QStringList );
+        void itemMetaDataAdded();
 
 private:
     QThread* m_mediaPlayerThread;
+    QThread* m_ParalellWorkerThread;
     utility::MetaDataReader* reader;
+    ParalellWorker* paralellWorker;
     QVariantList m_selectedIndex;
     QString m_file;
     Producer* m_producer;
@@ -155,7 +168,6 @@ private:
     void updateListWithDeletedVideos(const QStringList& result);
     void updateListWithAddedVideos(const QStringList& result);
     QVariantMap writeVideoMetaData(QString);
-    void insertVideos(QVariantList);
 };
 
 

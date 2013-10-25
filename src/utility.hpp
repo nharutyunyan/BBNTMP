@@ -54,10 +54,13 @@ public:
 
 signals:
 	void metadataReady(const QVariantMap&);
+	void allMetaDataRead();
+	void videoNotSupported(QString path);
 
 public slots:
 	void onMetaDataChanged(const QVariantMap& metaData);
 	void setData(QStringList videoFiles);
+	void addToQueue(QString videoUrl);
 
 private:
 
