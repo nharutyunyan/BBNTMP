@@ -1,8 +1,11 @@
 // Navigation pane with. The first page is the list view of videos. The second page is player view.
 import bb.cascades 1.0
 import bb.multimedia 1.0
+import bb.system 1.0
 import nuttyPlayer 1.0
+import system 1.0
 import "helpers.js" as Helpers
+
 
 NavigationPane {
     id: navigationPane
@@ -54,21 +57,63 @@ NavigationPane {
                         background: backgroundImage.imagePaint
                     }
                     Container {
-                        id: noVidLabelContainer
+                        id: noVidContainer
                         objectName: "noVidLabel_obj"
                         visible: true
                         rightPadding: 17
                         leftPadding: 17
                         verticalAlignment: VerticalAlignment.Center
                         horizontalAlignment: HorizontalAlignment.Center
+
                         Label {
                             id: noVidLabel
                             textStyle.textAlign: TextAlign.Center
-                            text: "No Videos. All video files in Videos, Downloads and Camera directories will be shown here."
+                            text: "No video files found.\n All video files from Videos, Downloads and Camera directories will be shown here.\n\n If you have video files but can't see them there might be problem with permissions. To check the settings"
                             textStyle.color: Color.White
                             multiline: true
+                            preferredWidth: 700
+                            verticalAlignment: VerticalAlignment.Center
+                            horizontalAlignment: HorizontalAlignment.Center
                         }
+                        
+                        Label {
+                            id: link
+                            text: "Click Here"
+                            textStyle.color: Color.create("#33CCFF")
+                            textStyle.textAlign: TextAlign.Center
+                            verticalAlignment: VerticalAlignment.Center
+                            horizontalAlignment: HorizontalAlignment.Center
+                            
+                            onTouch: {
+                               textStyle.color = Color.create("#1A6680");
+                               linkAnimation.start();  
+                           }
+                           
+                           attachedObjects: [
+                               System {
+                                   id: system
+                               },  
+                               QTimer {
+                                   id: linkAnimation
+                                   singleShot: true
+                                   interval: 70
+                                   onTimeout: {
+                                       link.textStyle.color = Color.create("#33CCFF");
+
+                                       if(!system.OpenSettings())
+                                       		error.show();
+                                   }
+                               },
+                               SystemToast {
+                                   id: error
+                                   body: "Unkown error occured."
+                                   position: SystemUiPosition.MiddleCenter
+                               }
+                           ]
+                        } 
                     }
+
+                    
                     ImageView {
                         id: headerShadow
                         objectName: "headShad_obj"
