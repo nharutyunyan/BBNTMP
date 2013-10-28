@@ -75,37 +75,10 @@ Container {
             videoListView.scrollToPosition(0, ScrollAnimation.None);
         }
     }
-    function scrollItemToMiddle(index, isOrientationLandscape, size) {
-        index = updateValue(index, isOrientationLandscape);
-        size = updateValue(size, isOrientationLandscape);
-        if(isOrientationLandscape) size--;
-        if(index > size - 3) {
-            // if selected video is near to end
-            videoListView.scrollToPosition(1, ScrollAnimation.None);
-            return;
-        }
-        var a = index * 263; // 263 is amount of pixels to scroll 1 item. 256 comes from item size.
-        // 7 pixels come from paddings between items(I'm not 100% sure)
-        // function scrollToItem doesn't work in this case
-        // function scroll works only for little values that is why I am scrolling in while
-        // Scrolling with numbers higher than 100 are scrolling list to the end. I choose 50 for safety
-        videoListView.scrollToPosition(0, ScrollAnimation.None);
-        while(a > 0) {
-            if(a < 50) {
-                videoListView.scroll(a, ScrollAnimation.None);
-                a = 0;
-                continue;
-            }
-            videoListView.scroll(50, ScrollAnimation.None);
-            a -= 50;
-        }
-    }
-
-    function updateValue(val, isOrientationLandscape) {
-        if (val > 0)
-            val--;
-        if (isOrientationLandscape && val > 0)
-            val --;
-        return val;
+    function scrollItemToMiddle(index, isOrientationLandscape) {
+        if(isOrientationLandscape)
+            videoListView.scrollToItem(infoListModel.before(infoListModel.before(index)), ScrollAnimation.None);
+        else
+            videoListView.scrollToItem(infoListModel.before(index), ScrollAnimation.None); 
     }
 }
