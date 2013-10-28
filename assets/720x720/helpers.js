@@ -26,7 +26,7 @@ var differentScreenWidthAndSubtitleWidth = 300;
 // TODO : find real size for all platforms ?
 var widthOfContextMenu = 112;
 var splashScreenForAnimationPortrait = "asset:///images/SplashScreenAnimationQ10.png";
-var animatedLogoPositionXPortrait = 159;
+var animatedLogoPositionXPortrait = 162;
 var animatedLogoPositionYPortrait = 236;
 var volumeIndicatorLength = 176;
 var volumeBarIndicatorsCount = 10;
