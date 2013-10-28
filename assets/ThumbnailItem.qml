@@ -82,6 +82,7 @@ Container {
     }
     Container {
         topPadding: 20
+        leftPadding: 20
         ImageView{
             id: wathcedTag
             imageSource: "asset:///images/GridView/new.png"
