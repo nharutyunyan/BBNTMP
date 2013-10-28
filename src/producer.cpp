@@ -49,7 +49,7 @@ void Producer::produce()
 				QString::SkipEmptyParts, Qt::CaseSensitive);
 		// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
 		QString finalFileName = m_filepath
-				+ pathElements[pathElements.size() - 1] + "-" + pathElements[pathElements.size() - 2] + m_thumbPng;
+				+ pathElements[pathElements.size() - 1] + "-" + QString(QCryptographicHash::hash(v["path"].toByteArray(), QCryptographicHash::Md5).toHex()) + m_thumbPng;
 
 		//create thumbnail
 		try {
