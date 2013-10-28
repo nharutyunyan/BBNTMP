@@ -87,6 +87,7 @@ thumbnailsGenerationFinished(false)
     // create root object for the UI
     root = qml->createRootObject<AbstractPane>();
     qml->setContextProperty("_appShare", new BbmAppShare(this, UUID));
+    qml->setContextProperty("infoListModel", model);
 
     passAppVersion(qml);
 

@@ -17,6 +17,13 @@ MenuDefinition {
             onTriggered: {
                 _appShare.shareApp();
             }
+        },
+        ActionItem {
+            title: qsTr("Refresh") + Retranslate.onLanguageChanged
+            imageSource: "asset:///images/refresh.png"
+            onTriggered: {
+                infoListModel.getVideoFiles();                
+            }
         }
     ]
     attachedObjects: [
