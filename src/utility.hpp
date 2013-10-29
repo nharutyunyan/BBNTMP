@@ -26,6 +26,7 @@ public:
 	 * for example get all the ".avi" files
 	 */
 	static bool getEntryListR(const QString& dir, const QStringList& filters, QStringList& result);
+	static bool getSubFolders(const QString& dir, QStringList& result);
 };
 
 

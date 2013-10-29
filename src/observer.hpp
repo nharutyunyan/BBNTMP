@@ -13,13 +13,16 @@
 #include <QRunnable>
 #include <map>
 
+#include "utility.hpp"
+
 class Observer : public QObject
 {
 	Q_OBJECT
 public:
 	Observer(QObject* parent);
-private:
 	void createWatcher();
+	void addWatcher(const QString& path);
+private:
 	QFileSystemWatcher* watcher;
 	std::map<QString, unsigned long long int> m_newVideos;
 signals:
