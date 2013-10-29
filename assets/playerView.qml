@@ -88,6 +88,7 @@ Page {
         // gestures handling for "zoom out" and "seek 5 seconds"
         property bool videoScrollBarIsClosing: false; // If the video Scroll bar is in closing process
         property int bookmarkMinTime: 60000
+        property int bookmarkMaxTime: (durationSlider.toValue * 99) / 200
         property int retryCount: 5
 
         function setDimensionsFromOrientation(pOrientation) {
@@ -688,7 +689,7 @@ Page {
                                 subtitleAreaContainer.setOpacity(0);
                             }
                             infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
+                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
                                 durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
                                 durationSlider.progressBarPositionX  = durationSlider.getProgressBarPosition();
                                 durationSlider.bookmarkVisible = true;
@@ -1215,7 +1216,7 @@ Page {
                         myPlayer.prepare();
                         if (appContainer.playMediaPlayer() == MediaError.None) {
                             var videoPos = 0;
-                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime) {
+                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
                                 durationSlider.bookmarkVisible = true;
                                 bookmarkTimer.start();
                             }
