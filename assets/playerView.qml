@@ -87,8 +87,8 @@ Page {
         // and the point released. This is needed for differentiation of
         // gestures handling for "zoom out" and "seek 5 seconds"
         property bool videoScrollBarIsClosing: false; // If the video Scroll bar is in closing process
-        property int bookmarkMinTime: 60000
-        property int bookmarkMaxTime: (durationSlider.toValue * 99) / 200
+        property int bookmarkMinTime: 60000   							//ignoring bookmark in the first minute
+        property int bookmarkMaxTime: durationSlider.toValue * 0.995  	//ignoring bookmark in the last 0.5% of duration
         property int retryCount: 5
 
         function setDimensionsFromOrientation(pOrientation) {
