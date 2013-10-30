@@ -173,6 +173,7 @@ void NuttyPlayer::onThumbnail() {
     Settings settings;
     QmlDocument *qmlCover;
     bool isEnabled = false;
+    isMinimized = true;
 
     if(settings.value("inPlayerView").value<bool>()) {
 		qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
@@ -195,5 +196,10 @@ void NuttyPlayer::onThumbnail() {
 }
 
 void NuttyPlayer::onAwake() {
+	if (isMinimized) {
+		model->clearAddedVideos();
+		model->getVideoFiles();
+		isMinimized = false;
+	}
     Application::instance()->setCover(0);
 }
