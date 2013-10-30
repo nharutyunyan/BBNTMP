@@ -243,6 +243,8 @@ ListView {
                             ImageView {
                                 imageSource: "asset:///images/GridView/new.png"
                                 opacity: activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['isWatched'] ? 0 : 1
+                                scaleX: 0.8
+                                scaleY: 0.8
                             }
                        }
 	                }

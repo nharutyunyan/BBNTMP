@@ -87,6 +87,8 @@ Container {
             id: wathcedTag
             imageSource: "asset:///images/GridView/new.png"
             opacity: isWatched ? 0 : 1
+            scaleX: 0.8
+            scaleY: 0.8 
         }
     }
 
