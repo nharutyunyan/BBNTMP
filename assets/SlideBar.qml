@@ -26,8 +26,27 @@ Container {
 
     layout: DockLayout {
     }
-    
-	Container {
+
+    Container {
+        layout: DockLayout {
+        }
+        horizontalAlignment: HorizontalAlignment.Fill
+        verticalAlignment: VerticalAlignment.Bottom
+        preferredHeight: slideBar.height + 10
+        overlapTouchPolicy: OverlapTouchPolicy.Allow
+        TimeArea {
+            id: timeArea
+            timeInMsc: slideBar.toValue
+            horizontalAlignment: HorizontalAlignment.Right
+        }
+        TimeArea {
+            id: currentTimeLabel
+            timeInMsc: slideBar.value
+            horizontalAlignment: HorizontalAlignment.Left
+        }
+    }
+
+    Container {
         preferredHeight: slideBarHeight
         layout: DockLayout {        
         }
@@ -36,28 +55,7 @@ Container {
 	    horizontalAlignment: HorizontalAlignment.Fill
 
 	    Container {
-	        layout: DockLayout {
-	        }
-	        horizontalAlignment: HorizontalAlignment.Fill
-	        verticalAlignment: VerticalAlignment.Center
-	        preferredHeight: slideBar.height
-	        overlapTouchPolicy: OverlapTouchPolicy.Allow
-	        TimeArea {
-	            id: timeArea
-	            timeInMsc: slideBar.toValue
-	            horizontalAlignment: HorizontalAlignment.Right
-	
-	        }
-	        TimeArea {
-	            id: currentTimeLabel
-	            timeInMsc: slideBar.value
-	            horizontalAlignment: HorizontalAlignment.Left
-	        }
-	    }
-	    
-	    Container {
-	        layout: StackLayout {
-	            
+	        layout: StackLayout {	            
 	        }
 	        id: sliderContainer
 	        verticalAlignment: VerticalAlignment.Bottom
@@ -70,8 +68,8 @@ Container {
 	            horizontalAlignment: HorizontalAlignment.Fill
 	            verticalAlignment: VerticalAlignment.Bottom
 	            fromValue: slideBar.fromValue
-	            toValue: slideBar.toValue
-	
+	            toValue: slideBar.toValue	
+
 	            onHandleLongPressed: {
 	                slideBar.onSlider = true;
 	                if (slider.toValue > my.minTime) {
