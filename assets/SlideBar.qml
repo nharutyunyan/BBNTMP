@@ -25,209 +25,207 @@ Container {
     preferredHeight: slideBarHeight + 50
 
     layout: DockLayout {
-
     }
-    Container {
+    
+	Container {
         preferredHeight: slideBarHeight
-        layout: DockLayout {
-        
+        layout: DockLayout {        
         }
-    background: backgroundImage.imagePaint
-    verticalAlignment: VerticalAlignment.Bottom
-    horizontalAlignment: HorizontalAlignment.Fill
+	    background: backgroundImage.imagePaint
+	    verticalAlignment: VerticalAlignment.Bottom
+	    horizontalAlignment: HorizontalAlignment.Fill
 
-    
-    Container {
-        layout: StackLayout {
-            
-        }
-        id: sliderContainer
-        verticalAlignment: VerticalAlignment.Bottom
-        horizontalAlignment: HorizontalAlignment.Center
-        property int positionOfX
-
-        CustomSlider {
-            id: slider
-            objectName: "slider"
-            horizontalAlignment: HorizontalAlignment.Fill
-            verticalAlignment: VerticalAlignment.Bottom
-            fromValue: slideBar.fromValue
-            toValue: slideBar.toValue
-
-            onHandleLongPressed: {
-                slideBar.onSlider = true;
-                if (slider.toValue > my.minTime) {
-                    bpsEventHandler.startVibration(20,200);
-                    smallStepSlider.smallCurrentValue = slider.value;
-                    smallStepSlider.visible = true;
-                    if (slider.value - my.dt < slider.fromValue) {
-                        smallStepSlider.fromValue = slider.fromValue;
-                        smallStepSlider.toValue = slider.value + my.dt;
-                        smallStepSlider.value = slider.value;
-                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
-                    } else if (slider.value + my.dt > slider.toValue) {
-                        smallStepSlider.fromValue = slider.value - my.dt;
-                        smallStepSlider.toValue = slider.toValue;
-                        smallStepSlider.value = slider.value;
-                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
-                    } else {
-                        smallStepSlider.fromValue = slider.value - my.dt;
-                        smallStepSlider.toValue = slider.value + my.dt;
-                        smallStepSlider.value = slider.value;
-                        smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth, slideBar.height)
-                    }
-
-                    smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + sliderContainer.positionOfX;
-                    my.longPressInitX = positionX;
-                    my.handlLongPressed = true;
-
-                    if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                        smallStepSlider.smallCordX = smallStepSlider.layoutProperties.positionX;
-                        if (smallStepSlider.layoutProperties.positionX < -20) {
-                            smallStepSlider.layoutProperties.positionX = -20;
-                        }
-                    }
-                    smallStepSlider.animation = true;
-                    seekInterval.start();
-                } else
-                    slider.setLongPressEnabled(false);
-            }
-
-            onMediaStateChanged: {
-
-                slideBar.pauseHandle = mediaState
-            }
-
-            onMove: {
-                if (slider.toValue > my.minTime)
-                    smallStepSlider.value = smallStepSlider.fromSmallSliderPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
-                slider.value = slideBar.value = smallStepSlider.value;
-            }
-
-            onHandleReleased: {
-                seekInterval.stop();
-                slideBar.onSlider = false;
-                my.handlLongPressed = false;
-                smallStepSlider.visible = false;
-            }
-
-            onImmediateValueChanged: {
-                slideBar.immediateValue = immediateValue;
-                slideBar.value = value;
-            }
-        }
-    }
-    Container {
-        layout: DockLayout {
-        }
-        horizontalAlignment: HorizontalAlignment.Fill
-        verticalAlignment: VerticalAlignment.Center
-        preferredHeight: slideBar.height
-        overlapTouchPolicy: OverlapTouchPolicy.Allow
-    TimeArea {
-        id: timeArea
-        timeInMsc: slideBar.toValue
-        horizontalAlignment: HorizontalAlignment.Right
-        
-    }
-
-    TimeArea {
-        id: currentTimeLabel
-        timeInMsc: slideBar.value
-        horizontalAlignment: HorizontalAlignment.Left
-    }
-}
-
-    Container {
-        id: smallSliderContainer
-        verticalAlignment: VerticalAlignment.Center
-        horizontalAlignment: HorizontalAlignment.Fill
-        implicitLayoutAnimationsEnabled: false
-        layout: AbsoluteLayout {
-        }
-        CustomSlider {
-            id: smallStepSlider
-            objectName: "smallStepSlider"
-            smallSliderMaxWidth: my.smallStepSliderWidth
-            background: "asset:///images/Player/SliderPrecision.png"
-            visible: false
-            layoutProperties: AbsoluteLayoutProperties {
-                positionY: 10
-            }            
-        }
-    }
-}
+	    Container {
+	        layout: DockLayout {
+	        }
+	        horizontalAlignment: HorizontalAlignment.Fill
+	        verticalAlignment: VerticalAlignment.Center
+	        preferredHeight: slideBar.height
+	        overlapTouchPolicy: OverlapTouchPolicy.Allow
+	        TimeArea {
+	            id: timeArea
+	            timeInMsc: slideBar.toValue
+	            horizontalAlignment: HorizontalAlignment.Right
+	
+	        }
+	        TimeArea {
+	            id: currentTimeLabel
+	            timeInMsc: slideBar.value
+	            horizontalAlignment: HorizontalAlignment.Left
+	        }
+	    }
+	    
+	    Container {
+	        layout: StackLayout {
+	            
+	        }
+	        id: sliderContainer
+	        verticalAlignment: VerticalAlignment.Bottom
+	        horizontalAlignment: HorizontalAlignment.Center
+	        property int positionOfX
+	
+	        CustomSlider {
+	            id: slider
+	            objectName: "slider"
+	            horizontalAlignment: HorizontalAlignment.Fill
+	            verticalAlignment: VerticalAlignment.Bottom
+	            fromValue: slideBar.fromValue
+	            toValue: slideBar.toValue
+	
+	            onHandleLongPressed: {
+	                slideBar.onSlider = true;
+	                if (slider.toValue > my.minTime) {
+	                    bpsEventHandler.startVibration(20,200);
+	                    smallStepSlider.smallCurrentValue = slider.value;
+	                    smallStepSlider.visible = true;
+	                    if (slider.value - my.dt < slider.fromValue) {
+	                        smallStepSlider.fromValue = slider.fromValue;
+	                        smallStepSlider.toValue = slider.value + my.dt;
+	                        smallStepSlider.value = slider.value;
+	                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
+	                    } else if (slider.value + my.dt > slider.toValue) {
+	                        smallStepSlider.fromValue = slider.value - my.dt;
+	                        smallStepSlider.toValue = slider.toValue;
+	                        smallStepSlider.value = slider.value;
+	                        smallStepSlider.layoutSize = Qt.size((my.smallStepSliderWidth - slideBar.factor) * (smallStepSlider.toValue - smallStepSlider.fromValue) / (2 * my.dt) + slideBar.factor, slideBar.height)
+	                    } else {
+	                        smallStepSlider.fromValue = slider.value - my.dt;
+	                        smallStepSlider.toValue = slider.value + my.dt;
+	                        smallStepSlider.value = slider.value;
+	                        smallStepSlider.layoutSize = Qt.size(my.smallStepSliderWidth, slideBar.height)
+	                    }
+	
+	                    smallStepSlider.layoutProperties.positionX = slider.handleLocalX() - smallStepSlider.handleLocalX() + sliderContainer.positionOfX;
+	                    my.longPressInitX = positionX;
+	                    my.handlLongPressed = true;
+	
+	                    if (OrientationSupport.orientation == UIOrientation.Portrait) {
+	                        smallStepSlider.smallCordX = smallStepSlider.layoutProperties.positionX;
+	                        if (smallStepSlider.layoutProperties.positionX < -20) {
+	                            smallStepSlider.layoutProperties.positionX = -20;
+	                        }
+	                    }
+	                    smallStepSlider.animation = true;
+	                    seekInterval.start();
+	                } else
+	                    slider.setLongPressEnabled(false);
+	            }
+	
+	            onMediaStateChanged: {
+	
+	                slideBar.pauseHandle = mediaState
+	            }
+	
+	            onMove: {
+	                if (slider.toValue > my.minTime)
+	                    smallStepSlider.value = smallStepSlider.fromSmallSliderPosXToValue(windowX - smallStepSlider.layoutProperties.positionX - my.longPressInitX);
+	                slider.value = slideBar.value = smallStepSlider.value;
+	            }
+	
+	            onHandleReleased: {
+	                seekInterval.stop();
+	                slideBar.onSlider = false;
+	                my.handlLongPressed = false;
+	                smallStepSlider.visible = false;
+	            }
+	
+	            onImmediateValueChanged: {
+	                slideBar.immediateValue = immediateValue;
+	                slideBar.value = value;
+	            }
+	        }
+	    }
 	
 	
-Container {
-    topPadding: Helpers.bookmarkPaddingYInPortrait
-    translationX: slideBar.bookmarkPositionX
-    id: bookmark
-    verticalAlignment: VerticalAlignment.Top
-    layout: DockLayout {
-    }
-    implicitLayoutAnimationsEnabled: false
-    ImageView {
-        id: bookmarkIcon
-        visible: slideBar.bookmarkVisible
-        imageSource: "asset:///images/Player/BookmarkIcon.png"
-        implicitLayoutAnimationsEnabled: false
-        //            layoutProperties: AbsoluteLayoutProperties {
-        //                positionX: bookmarkPositionX
-        //            }
-        gestureHandlers: [
-            TapHandler {
-                onTapped: {
-                    console.log("bookmark touched =====")
-                    slideBar.bookmarkTouched = ! slideBar.bookmarkTouched
-                }
-            }
-        ]
-        onVisibleChanged: {
-            if (visible) {
-                slider.showBookmarkProgressBar(progressBarPositionX);
-            } else {
-                slider.hideBookmarkProgressBar();
-            }
-        }
+	    Container {
+	        id: smallSliderContainer
+	        verticalAlignment: VerticalAlignment.Center
+	        horizontalAlignment: HorizontalAlignment.Fill
+	        implicitLayoutAnimationsEnabled: false
+	        layout: AbsoluteLayout {
+	        }
+	        CustomSlider {
+	            id: smallStepSlider
+	            objectName: "smallStepSlider"
+	            smallSliderMaxWidth: my.smallStepSliderWidth
+	            background: "asset:///images/Player/SliderPrecision.png"
+	            visible: false
+	            layoutProperties: AbsoluteLayoutProperties {
+	                positionY: 10
+	            }            
+	        }
+	    }
+	}
+	
+	
+	Container {
+	    topPadding: Helpers.bookmarkPaddingYInPortrait
+	    translationX: slideBar.bookmarkPositionX
+	    id: bookmark
+	    verticalAlignment: VerticalAlignment.Top
+	    layout: DockLayout {
+	    }
+	    implicitLayoutAnimationsEnabled: false
+	    ImageView {
+	        id: bookmarkIcon
+	        visible: slideBar.bookmarkVisible
+	        imageSource: "asset:///images/Player/BookmarkIcon.png"
+	        implicitLayoutAnimationsEnabled: false
+	        //            layoutProperties: AbsoluteLayoutProperties {
+	        //                positionX: bookmarkPositionX
+	        //            }
+	        gestureHandlers: [
+	            TapHandler {
+	                onTapped: {
+	                    console.log("bookmark touched =====")
+	                    slideBar.bookmarkTouched = ! slideBar.bookmarkTouched
+	                }
+	            }
+	        ]
+	        onVisibleChanged: {
+	            if (visible) {
+	                slider.showBookmarkProgressBar(progressBarPositionX);
+	            } else {
+	                slider.hideBookmarkProgressBar();
+	            }
+	        }    
+    	} //bookmark Icon
     
-    } //bookmark Icon
-    
-    animations: [
-        TranslateTransition {
-            id: moveDown
-            toY: OrientationSupport.orientation == UIOrientation.Portrait? Helpers.bookmarkAnimationForwardYPortrait : 45  
-            duration: 100
-            onEnded: {
-                moveUp.play();
-            }
-        },
-        TranslateTransition {
-            id: moveUp
-            toY: OrientationSupport.orientation == UIOrientation.Portrait ? Helpers.bookmarkAnimationBackYPortrait : 7
-            duration: 100
-            onEnded: {
-                if(HDMIScreen.connection) {
-                    HDMIPlayer.seekToValue(infoListModel.getVideoPosition().toString())
-                } else {
-                    myPlayer.seekTime(infoListModel.getVideoPosition());
-                }
-                myPlayer.valueChangedBySeek = false;
-                fadeOut.play();
-            }
-        },
-        FadeTransition {
-            id: fadeOut
-            fromOpacity: 1
-            toOpacity: 0
-            duration: 600
-            onEnded: {
-                slideBar.bookmarkVisible = false;
-                bookmark.opacity = 1;
-            }
-        }
-    ]
-} //bookmark
+	    animations: [
+	        TranslateTransition {
+	            id: moveDown
+	            toY: OrientationSupport.orientation == UIOrientation.Portrait? Helpers.bookmarkAnimationForwardYPortrait : 45  
+	            duration: 100
+	            onEnded: {
+	                moveUp.play();
+	            }
+	        },
+	        TranslateTransition {
+	            id: moveUp
+	            toY: OrientationSupport.orientation == UIOrientation.Portrait ? Helpers.bookmarkAnimationBackYPortrait : 7
+	            duration: 100
+	            onEnded: {
+	                if(HDMIScreen.connection) {
+	                    HDMIPlayer.seekToValue(infoListModel.getVideoPosition().toString())
+	                } else {
+	                    myPlayer.seekTime(infoListModel.getVideoPosition());
+	                }
+	                myPlayer.valueChangedBySeek = false;
+	                fadeOut.play();
+	            }
+	        },
+	        FadeTransition {
+	            id: fadeOut
+	            fromOpacity: 1
+	            toOpacity: 0
+	            duration: 600
+	            onEnded: {
+	                slideBar.bookmarkVisible = false;
+	                bookmark.opacity = 1;
+	            }
+	        }
+	    ]
+    } //bookmark
 	
     attachedObjects: [
         // Dummy component for local variables
@@ -349,8 +347,8 @@ Container {
 	onProgressBarPositionXChanged: {
 	    if (slideBar.bookmarkVisible) {
 	        slider.showBookmarkProgressBar(progressBarPositionX);
-	        }
 	    }
+	}
 }
 
 
