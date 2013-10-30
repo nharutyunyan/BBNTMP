@@ -1064,7 +1064,7 @@ Page {
                     if (! videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                         videoListAppearAnimation.play();
                         videoListScrollBar.isVisible = true;
-                        videoListScrollBar.scrollItemToMiddle(infoListModel.getIntIndex(infoListModel.getSelectedIndex()), OrientationSupport.orientation == UIOrientation.Landscape, infoListModel.size());
+                        videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), OrientationSupport.orientation == UIOrientation.Landscape);
                     } else
                         videoListDisappearAnimation.play();
                 }
@@ -1165,7 +1165,7 @@ Page {
             OrientationHandler {
                 onOrientationAboutToChange: {
 
-                    videoListScrollBar.scrollItemToMiddle(infoListModel.getIntIndex(infoListModel.getSelectedIndex()), OrientationSupport.orientation == UIOrientation.Portrait, infoListModel.size());
+                    videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), OrientationSupport.orientation == UIOrientation.Portrait);
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
                         durationSlider.bookmarkPositionX = durationSlider.timeAreaWidth + durationSlider.sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * durationSlider.timeAreaWidth - durationSlider.sliderHandleWidth) - 30;
