@@ -35,7 +35,8 @@ inline const static QStringList getVideoFileList() {
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
 
 	//SD card storage
-	FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard", filters, result);
+	if(QDir("/accounts/1000/removable/sdcard").exists())
+			FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard", filters, result);
 
 	return result;
 }

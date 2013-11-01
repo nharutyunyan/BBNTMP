@@ -35,10 +35,12 @@ void Observer::createWatcher()
 	FileSystemUtility::getSubFolders("/accounts/1000/shared/downloads", paths);
 
 	//SD card storage
-	FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/videos", paths);
-	FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/camera", paths);
-	FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/downloads", paths);
-	//FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard",paths);
+	if(QDir("/accounts/1000/removable/sdcard").exists()) {
+		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/videos", paths);
+		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/camera", paths);
+		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/downloads", paths);
+		//FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard",paths);
+	}
 
 	watcher->addPaths(paths);
 	QObject::connect(watcher, SIGNAL(directoryChanged(const QString&)), this,
