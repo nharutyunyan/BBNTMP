@@ -39,6 +39,7 @@ private:
     bb::cascades::AbstractPane *root;
     bool splashScreenMinimalIntervalElapsed;
     bool thumbnailsGenerationFinished;
+    bool isMinimized;
     InfoListModel* model;
 };
 

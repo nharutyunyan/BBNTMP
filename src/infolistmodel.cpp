@@ -146,6 +146,11 @@ void InfoListModel::getVideoFiles()
 	onAllMetadataRead();
 }
 
+void InfoListModel::clearAddedVideos()
+{
+	addedVideos.clear();
+}
+
 void InfoListModel::fileComplete(QString path)
 {
 	QStringList new_;

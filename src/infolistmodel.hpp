@@ -109,9 +109,11 @@ public:
 
     Q_INVOKABLE void markSelectedAsWatched();
 
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
+    void clearAddedVideos();
 
 public slots:
     void consume(QString filename, QString path);
