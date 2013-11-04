@@ -131,12 +131,22 @@ NavigationPane {
             }
 
             // Busy indicator when thumbs are loading, on top of the grid
-            ActivityIndicator {
-                id: loadingIndicator
-                horizontalAlignment: HorizontalAlignment.Center
-                verticalAlignment: VerticalAlignment.Center
-                objectName: "LoadingIndicator"
-                preferredWidth: 250
+            Container {
+                layout: AbsoluteLayout {                    
+                }
+                ActivityIndicator {
+                    id: loadingIndicator
+                    objectName: "LoadingIndicator"
+                    property int indicatorSize: 70
+                    layoutProperties: AbsoluteLayoutProperties {
+                        positionX: 20
+                        positionY: (orientationHandlerMain.orientation == UIOrientation.Portrait) ? displayInfo.width - loadingIndicator.indicatorSize - 20 : displayInfo.height - loadingIndicator.indicatorSize - 20
+                    }
+                    preferredWidth: loadingIndicator.indicatorSize
+                    preferredHeight: loadingIndicator.indicatorSize 
+                    scaleX: 1.2
+                    scaleY: 1.2                    
+                }
             }
         } // global container
 
