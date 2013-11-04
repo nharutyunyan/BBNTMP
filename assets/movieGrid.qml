@@ -32,9 +32,13 @@ ListView {
     property variant copyOfSelectedIndexes
     leadingVisualSnapThreshold: 0
 
-    property variant favorites: infoListModel.getFavoriteVideos()
+    property variant favorites: infoListModel.getFrameVideos()
     property string firstFolder: infoListModel.getFirstFolder()
     property int currentFrame: 0
+    property bool checkForUpdateFrame: false
+    property bool isRemovingFavorites: false
+    property variant removingFromFavoritesIndexes
+    
 
     // Expose the menu to the rest of the application to check if it's open
     contextMenuHandler: ContextMenuHandler {
@@ -59,7 +63,7 @@ ListView {
 	}
 
     function updateFavorites() {
-        listView.favorites = infoListModel.getFavoriteVideos();
+        listView.favorites = infoListModel.getFrameVideos();
     }
 
     function openVideoPlayPage (path, duration){
@@ -96,26 +100,68 @@ ListView {
         }
     }
 
-    function moveToFolder(folderName) {
+    function addToFavorites() {
         passSelectionToModel();
-        if (folderName == infoListModel.value(listView.selected(), "folder"))
-            currentAction = "removed from " + folderName.substr(1).toLowerCase() + ".";
-        else
-            currentAction = "added to " + folderName.substr(1).toLowerCase() + ".";
-        infoListModel.toggleFolder(folderName);
-        gridToast.show();
+        var count = infoListModel.addToFavorites();
+        if (count == 1) {
+            numberOfItems = "1 item ";
+        } else if (count > 1) {
+            numberOfItems = count + " items ";
+        }     
+        if (count != 0) {
+            currentAction = "added to Favorites.";
+            gridToast.show();
+        }
     }
 
-    function deleteVideos() {
-        currentAction = "deleted."
-        infoListModel.deleteVideos();
-        gridToast.show();
+    function removeFromFavorites() {
+        infoListModel.clearSelected();
+        for (var i = listView.removingFromFavoritesIndexes.length - 1; i >= 0; i --) {
+            var index = listView.removingFromFavoritesIndexes[i];
+            infoListModel.addToSelected(index);
+        }
+        var count = infoListModel.removeFromFavorites();
+        listView.firstFolder = infoListModel.getFirstFolder();
+        if (count == 1) {
+            numberOfItems = "1 item ";
+        } else if (count > 1) {
+            numberOfItems = count + " items ";
+        }
+        if (count != 0) {
+            currentAction = "removed from Favorites.";
+            gridToast.show();
+        }
+        
+    }
+
+    function prepareToRemoveFromFavorites() {
+        listView.removingFromFavoritesIndexes = listView.selectionList();
+        listView.removingFromFavoritesIndexes.sort();        
+        listView.isRemovingFavorites = true;
+        listView.scrollToPosition(scrollStateHandler.atBeginning, ScrollAnimation.None);
+    }
+
+    function deleteVideos() {        
+        var count = infoListModel.deleteVideos();        
+        if (count == 1) {
+            numberOfItems = "1 item ";
+        } else if (count > 1) {
+            numberOfItems = count + " items ";
+        }
+        if (count != 0) {
+            currentAction = "deleted.";
+            gridToast.show();
+        }
     }
 
     function showDeleteDialog() {
         listView.deleteDialogShowing = true;
         deleteDialog.confirmButton.label = "Delete";
         deleteDialog.show();
+    }
+
+    function getFavorites() {
+        return infoListModel.getFavorites();
     }
 
     // Shrinks the list of thumbnails so the context menu isn't on top of them during multi selection
@@ -157,7 +203,11 @@ ListView {
                 title: listView.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"                
                 imageSource: favoriteIcon()
                 onTriggered: {
-                    listView.moveToFolder("0Favorites");
+                    if (listView.displayRemoveMessage) {                       
+                        listView.prepareToRemoveFromFavorites();                        
+                    } else {
+                        listView.addToFavorites();
+                    }                    
                     listView.updateFavorites();
                 }
             },
@@ -208,6 +258,17 @@ ListView {
                 id: activeFrame
                 Container {
                     id: frameContainer
+                    property bool checkForUpdateFrame: activeFrame.ListItem.view.checkForUpdateFrame
+                    onCheckForUpdateFrameChanged: {
+                        if (activeFrame.visible) {
+                            activeFrame.ListItem.view.updateFavorites();
+                            if (activeFrame.ListItem.view.currentFrame >= activeFrame.ListItem.view.favorites.length - 1) {
+                                activeFrame.ListItem.view.currentFrame = 0;
+                            } else {
+                                activeFrame.ListItem.view.currentFrame = activeFrame.ListItem.view.currentFrame + 1;
+                            }
+                        }
+                    }
                     visible: (activeFrame.ListItem.view.firstFolder == ListItemData) ? true : false
                     topPadding: 10
 	                layout: DockLayout {
@@ -281,13 +342,6 @@ ListView {
 	                        }
 	                    }
 	                }
-                    onVisibleChanged: {
-                        if (visible) {
-                            activeFrame.updateActiveFrame();
-                        } else {
-                            updateFrame.stop();
-                        }
-                    }
                 }
                 Container {
                     Container {
@@ -305,29 +359,10 @@ ListView {
                     }
                 }
 
-                onCreationCompleted: {
-                    if (frameContainer.visible) {
-                        activeFrame.updateActiveFrame();
-                    }
-                }
-
                 attachedObjects: [
                     ImagePaintDefinition {
                         id: titleBackground
                         imageSource: "asset:///images/GridView/TimeFrame.png"
-                    },
-                    QTimer {
-                        id: updateFrame
-                        singleShot: false
-                        interval: 4000
-                        onTimeout: {
-                            activeFrame.ListItem.view.updateFavorites();
-                            if (activeFrame.ListItem.view.currentFrame >= activeFrame.ListItem.view.favorites.length - 1) {
-                                activeFrame.ListItem.view.currentFrame = 0;
-                            } else {
-                                activeFrame.ListItem.view.currentFrame = activeFrame.ListItem.view.currentFrame + 1;
-                            }
-                        }
                     },
                     OrientationHandler {
                         id: checkOrientation
@@ -361,13 +396,20 @@ ListView {
                         onLongPressed: {
                             if(ListItemData.folder == "0Favorites")
                             {
-                                individualFavoriteOption.imageSource = Helpers.favoriteIconRemove    
+                                individualFavoriteOption.imageSource = Helpers.favoriteIconRemove;    
                             }
                             else 
                             {
-                                individualFavoriteOption.imageSource = Helpers.favoriteIconAdd
-                            }
-                        }
+                                individualFavoriteOption.imageSource = Helpers.favoriteIconAdd;
+                                var favorites = itemRoot.ListItem.view.getFavorites();
+                                for (var i = 0; i < favorites.length; ++i) {
+                                    if (favorites[i]["path"] == ListItemData.path) {
+                                        individualFavoriteOption.imageSource = Helpers.favoriteIconRemove;
+                                        break;
+                                    }
+                                }                                
+                            }                         
+                       }
                     }
                 ]
                 attachedObjects: [
@@ -407,7 +449,13 @@ ListView {
                                 title: itemRoot.ListItem.view.displayRemoveMessage ? "Remove from favorites" : "Add to favorites"
                                 id: individualFavoriteOption
                                 onTriggered: {
-                                    itemRoot.ListItem.view.moveToFolder("0Favorites");
+                                    if (itemRoot.ListItem.view.displayRemoveMessage) {
+                                        //itemRoot.ListItem.view.prepareToRemoveFromFavorites();
+                                        itemRoot.ListItem.view.removingFromFavoritesIndexes = itemRoot.ListItem.view.selectionList();
+                                        itemRoot.ListItem.view.removeFromFavorites();                                        
+                                    } else {
+                                        itemRoot.ListItem.view.addToFavorites();
+                                    }
                                     itemRoot.ListItem.view.updateFavorites();
                                 }
                             },
@@ -511,7 +559,8 @@ ListView {
                 // Both non-favs and favs selected
                 case 0:
                     {
-                        multiFavoriteOption.enabled = false;
+                        multiFavoriteOption.enabled = true;
+                        listView.displayRemoveMessage = false;
                         break;
                     }
                 case 1:
@@ -527,6 +576,26 @@ ListView {
                         break;
                     }
             }
+            if (!listView.displayRemoveMessage) {
+	            var favorites = listView.getFavorites();
+	            var selectedVideos = listView.selectionList();
+	            for (var j = 0; j < selectedVideos.length; ++j) {
+	                var data = listView.dataModel.data(selectedVideos[j]);               
+	                var isFavorite = false; 
+	                for (var i = 0; i < favorites.length; ++i) {
+	                    if (favorites[i]["path"] == data.path) {
+	                        isFavorite = true;
+	                        break;
+	                    }
+	                }
+	                if (!isFavorite) {
+	                   	break;
+	                } else if (j == selectedVideos.length - 1) {
+                        listView.displayRemoveMessage = true;
+	                }                   
+	            }           
+            }          
+            
             //            visibility = infoListModel.getButtonVisibility("9Hidden");
             //            switch (visibility) {
             //                case 0:
@@ -579,6 +648,10 @@ ListView {
         return secondPage;
     }
 
+    onCreationCompleted: {
+        updateFrame.start();
+    }
+
     attachedObjects: [
         OrientationHandler {
             id: orientationHandler
@@ -603,6 +676,12 @@ ListView {
         },
         ListScrollStateHandler {
             id: scrollStateHandler
+            onAtBeginningChanged: {
+                if (listView.isRemovingFavorites) {
+                    listView.removeFromFavorites();
+                    listView.isRemovingFavorites = false;
+                }                
+            }
         },
         ComponentDefinition {
             id: playerPageDef
@@ -625,6 +704,14 @@ ListView {
             id: gridToast
             body: numberOfItems + currentAction
             position: SystemUiPosition.MiddleCenter
+        },
+        QTimer {
+            id: updateFrame
+            singleShot: false
+            interval: 4000
+            onTimeout: {
+                listView.checkForUpdateFrame = ! listView.checkForUpdateFrame;
+            }
         }
     ]
 }// ListView
