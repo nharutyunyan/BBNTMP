@@ -77,6 +77,7 @@ bool SubtitleManager::load(QString fileName)
 		line = in.readLine();
 		while(!in.atEnd() && line.contains(QRegExp("\\w")))
 		{
+			line = normalizeLine(line);
 			m_textEntries += line;
 			textPos += line.size();
 			line = in.readLine();
@@ -170,3 +171,15 @@ void SubtitleManager::setCurrentText(QString text)
 	}
 }
 
+QString SubtitleManager::normalizeLine(QString line)
+{
+	if(line.contains("<font color=\"")) {
+        line.replace("<font color=\"","<p style=\"color:",Qt::CaseSensitive);
+        line.replace("</font>","</p>",Qt::CaseSensitive);
+	} else if (line.contains("<font color=")) {
+        line.replace("<font color=","<p style=\"color:",Qt::CaseSensitive);
+        line.insert(line.indexOf(QRegExp("#[A-Fa-f0-9]{6}"),0) + 7,"\"");
+        line.replace("</font>","</p>",Qt::CaseSensitive);
+	}
+	return line;
+}
