@@ -1,5 +1,6 @@
 import bb.cascades 1.0
 import nuttyPlayer 1.0
+import "helpers.js" as Helpers
 
 Container {
     id: videoList
@@ -45,6 +46,8 @@ Container {
                             movieTitle: ListItemData.title
                             movieLength: ListItemData.duration
                             isVideoBarItem: true
+                            height: Helpers.videoListScrollBar_thumbHeight
+                            width: Helpers.videoListScrollBar_thumbWidth
                         }
                         bottomPadding: 10
                     }
