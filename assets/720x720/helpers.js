@@ -42,4 +42,6 @@ var timeAreasVerticalPaddingInPortrait = 5;
 var bookmarkPaddingYInPortrait = 30;
 var bookmarkAnimationForwardYPortrait = 40;
 var bookmarkAnimationBackYPortrait = 15;
+var videoListScrollBar_thumbHeight = 225;
+var videoListScrollBar_thumbWidth = 225;
 
