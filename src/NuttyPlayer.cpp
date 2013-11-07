@@ -179,7 +179,7 @@ void NuttyPlayer::onThumbnail() {
 		qmlCover = QmlDocument::create("asset:///minimizedPlayerView.qml").parent(this);
 		isEnabled = true;
     } else {
-    	QVariantList favorites = model->getFavoriteVideos();
+    	QVariantList favorites = model->getFrameVideos();
     	if (favorites.length()!= 0) {
 			qmlCover = QmlDocument::create("asset:///minimizedMovieGrid.qml").parent(this);
 			isEnabled = true;

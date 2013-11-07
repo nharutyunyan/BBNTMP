@@ -9,7 +9,7 @@ Container {
 
     property bool isQ10: displayInfo.height == 720 ? true : false
 
-    property variant favorites: infoListModel.getFavoriteVideos()
+    property variant favorites: infoListModel.getFrameVideos()
     property int currentFrame: 0
 
     Container {

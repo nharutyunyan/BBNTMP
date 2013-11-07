@@ -33,6 +33,7 @@ Container {
                 type: "item"
                 Container {
                     id: listItemtDef
+                    visible: ListItemData.folder == "0Favorites" ? false : true
                     verticalAlignment: VerticalAlignment.Fill
                     horizontalAlignment: HorizontalAlignment.Fill
 
@@ -79,9 +80,10 @@ Container {
         }
     }
     function scrollItemToMiddle(index, isOrientationLandscape) {
+        var realIndex = infoListModel.getRealIndex(index);
         if(isOrientationLandscape)
-            videoListView.scrollToItem(infoListModel.before(infoListModel.before(index)), ScrollAnimation.None);
+            videoListView.scrollToItem(infoListModel.before(infoListModel.before(realIndex)), ScrollAnimation.None);
         else
-            videoListView.scrollToItem(infoListModel.before(index), ScrollAnimation.None); 
+            videoListView.scrollToItem(infoListModel.before(realIndex), ScrollAnimation.None);
     }
 }

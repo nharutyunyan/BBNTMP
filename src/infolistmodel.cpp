@@ -469,8 +469,9 @@ InfoListModel* InfoListModel::get()
 	return this;
 }
 
-void InfoListModel::deleteVideos()
+int InfoListModel::deleteVideos()
 {
+	int count = m_currentSelectionList.size();
 	for (int i = 0; i < m_currentSelectionList.size(); i++)
 	{
 		QVariantList index = m_currentSelectionList[i];
@@ -479,8 +480,17 @@ void InfoListModel::deleteVideos()
 		QString tName = v["thumbURL"].toString();
 		QFile::remove(tName.mid(7, tName.length() - 7));
 		removeAt(index);
+
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap val = data(indexPath).toMap();
+			if (val["folder"]=="0Favorites" && val["path"] == v["path"]) {
+				removeAt(indexPath);
+				count--;
+			}
+		}
 	}
 	saveData();
+	return count;
 }
 
 QString InfoListModel::folderFieldName(QString path)
@@ -573,6 +583,67 @@ void InfoListModel::toggleFolder(QString folderName)
 	saveData();
 }
 
+int InfoListModel::addToFavorites()
+{
+	QList<QVariantMap> folBuffer;
+	for (int i = 0; i < m_currentSelectionList.size(); i++)
+	{
+		QVariantList index = m_currentSelectionList[i];
+		QVariantMap val = data(index).toMap();
+
+		bool isFavorite = false;
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap v = data(indexPath).toMap();
+			if (v["folder"]=="0Favorites" && v["path"] == val["path"]) {
+				isFavorite = true;
+				break;
+			}
+		}
+		if (!isFavorite) {
+			folBuffer.push_front(val);
+		}
+	}
+
+	for(int i = 0; i < folBuffer.size(); i++)
+	{
+		folBuffer[i]["folder"] = "0Favorites";
+		insert(folBuffer[i]);
+	}
+	saveData();
+	return folBuffer.size();
+}
+
+int InfoListModel::removeFromFavorites()
+{
+	QList<QString> notFavorites;
+	int count = 0;
+	for (int i = 0; i < m_currentSelectionList.size(); i++)
+	{
+		QVariantList index = m_currentSelectionList[i];
+		QVariantMap v = data(index).toMap();
+		if (v["folder"] == "0Favorites") {
+			count++;
+			removeAt(index);
+		} else {
+			notFavorites.push_front(v["path"].toString());
+		}
+	}
+
+	for (int i = 0; i < notFavorites.size(); i++) {
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap val = data(indexPath).toMap();
+			if (val["folder"] == "0Favorites" && val["path"] == notFavorites[i] ) {
+				count++;
+				removeAt(indexPath);
+				break;
+			}
+		}
+	}
+
+	saveData();
+	return count;
+}
+
 int InfoListModel::getButtonVisibility(QString folderName)
 {
 	bool folFound = false, nonFolFound=false;
@@ -603,7 +674,7 @@ void InfoListModel::clearSelected()
 	m_currentSelectionList.clear();
 }
 
-QVariantList InfoListModel::getFavoriteVideos()
+QVariantList InfoListModel::getFavorites()
 {
 	QVariantList favoriteVideos;
 
@@ -613,6 +684,13 @@ QVariantList InfoListModel::getFavoriteVideos()
 			favoriteVideos.push_back(v);
 		}
 	}
+	return favoriteVideos;
+}
+
+QVariantList InfoListModel::getFrameVideos()
+{
+	QVariantList favoriteVideos = getFavorites();
+
 	if (favoriteVideos.length() == 0) {
 		int i = 0;
 		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
@@ -624,6 +702,23 @@ QVariantList InfoListModel::getFavoriteVideos()
 		}
 	}
 	return favoriteVideos;
+}
+
+QVariantList InfoListModel::getRealIndex(QVariantList index)
+{
+	QVariantMap favorite = data(index).toMap();
+	if (favorite["folder"] != "0Favorites") {
+		return index;
+	}
+	QVariantList realIndex;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (v["folder"] != "0Favorites" && v["path"] == favorite["path"]) {
+			realIndex = indexPath;
+			break;
+		}
+	}
+	return realIndex;
 }
 
 QString InfoListModel::getFirstFolder()

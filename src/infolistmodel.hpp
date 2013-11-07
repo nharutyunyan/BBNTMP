@@ -89,7 +89,7 @@ public:
 
     Q_INVOKABLE int getIntIndex(QVariantList index);
 
-    Q_INVOKABLE void deleteVideos();
+    Q_INVOKABLE int deleteVideos();
 
     QString folderFieldName(QString path);
 
@@ -101,7 +101,9 @@ public:
 
     Q_INVOKABLE void clearSelected();
 
-    Q_INVOKABLE QVariantList getFavoriteVideos();
+    Q_INVOKABLE QVariantList getFavorites();
+
+    Q_INVOKABLE QVariantList getFrameVideos();
 
     Q_INVOKABLE QString getFirstFolder();
 
@@ -109,6 +111,11 @@ public:
 
     Q_INVOKABLE void markSelectedAsWatched();
 
+    Q_INVOKABLE int addToFavorites();
+
+    Q_INVOKABLE int removeFromFavorites();
+
+    Q_INVOKABLE QVariantList getRealIndex(QVariantList index);
 
 public:
     InfoListModel(QObject* parent = 0);
