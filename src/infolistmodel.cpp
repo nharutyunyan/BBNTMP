@@ -71,17 +71,32 @@ InfoListModel::InfoListModel(QObject* parent)
 			SLOT(quit()));
 	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
+
+	m_mediaPlayerThread = new QThread();
 	observer = new Observer(this);
 	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), observer,
 					SLOT(setNewVideos(QStringList)));
-	m_mediaPlayerThread = new QThread();
+	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), parent,
+					SLOT(loadingIndicatorStart()));
 	reader = new MetaDataReader();
 	reader->moveToThread(m_mediaPlayerThread);
 	QObject::connect(reader, SIGNAL(metadataReady(const QVariantMap& )), this, SLOT(onMetadataReady(const QVariantMap& )));
+	QObject::connect(reader, SIGNAL(allMetaDataRead()), this, SLOT(onAllMetadataRead()));
 	QObject::connect(this, SIGNAL(setData(QStringList )), reader, SLOT(setData(QStringList )));
+	QObject::connect(reader, SIGNAL(videoNotSupported(QString)), this, SLOT(markAsDamaged(QString)));
+
 	prepareToStart();
-	getVideoFiles();
-	observer->createWatcher();
+
+	paralellWorker  = new ParalellWorker();
+	QObject::connect(paralellWorker, SIGNAL(VideoFileListComplete(QStringList)), this,
+			SLOT(onVideoFileListComplete(QStringList)));
+
+	m_ParalellWorkerThread = new QThread();
+	paralellWorker->moveToThread(m_ParalellWorkerThread);
+	QObject::connect(m_ParalellWorkerThread, SIGNAL(started()), paralellWorker,
+					SLOT(getVideoFileList()));
+	m_ParalellWorkerThread->start();
+
 }
 
 void InfoListModel::checkVideosWaitingThumbnail()
@@ -140,11 +155,41 @@ void InfoListModel::getVideoFiles()
 
 	}
 	updateListWithDeletedVideos(result);
+	updateListWithAddedVideos(result);
 	if(!newVideos.isEmpty())
 	{
 		emit notifyObserver(newVideos);
 	}
-	onAllMetadataRead();
+}
+
+void InfoListModel::onVideoFileListComplete(QStringList result) {
+	QStringList newVideos;
+	QSet<QString> set;
+
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		set.insert(v["path"].toString());
+	}
+
+	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
+		bool videoExist = set.contains(*i);
+		if(!videoExist)
+		{
+			if(!addedVideos.contains(*i))
+			{
+				newVideos.push_back(*i);
+				addedVideos.insert(*i);
+			}
+		}
+	}
+	updateListWithDeletedVideos(result);
+	updateListWithAddedVideos(result);
+	if(!newVideos.isEmpty())
+	{
+		emit notifyObserver(newVideos);
+	}
+
+	observer->createWatcher();
 }
 
 void InfoListModel::clearAddedVideos()
@@ -174,22 +219,6 @@ void InfoListModel::prepareToStart()
 	load();
 }
 
-void InfoListModel::insertVideos(QVariantList newVideos)
-{
-	if(m_producerThread->isRunning())
-	{
-		videosWaitingThumbnail.append(newVideos);
-	}
-	else
-	{
-		videosWaitingThumbnail.append(newVideos);
-		insertList(videosWaitingThumbnail);
-		videosWaitingThumbnail.clear();
-		saveData();
-		onAllMetadataRead();
-	}
-}
-
 void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 {
 	// Slight improvement to the video exists check that was below,
@@ -213,35 +242,8 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			// Add folder
 			val["folder"] = folderFieldName(val["path"].toString());
 			val["isWatched"] = false;
-			bool durationIsCorrect = true;
-			movieDecoder.setContext(0);
-			try{
-				movieDecoder.initialize(*i);
-				_int64 duration = movieDecoder.getVideosDuration();
-
-				if(duration != 0)
-				{
-					val["duration"] = duration;
-				}
-				else
-				{
-					durationIsCorrect = false;
-				}
-				val["width"] = movieDecoder.getWidth();
-				val["height"] = movieDecoder.getHeight();
-				if(durationIsCorrect)
-				{
-					QVariantList list;
-					list<<(val);
-					insertVideos(list);
-				}
-				else
-					waitingVideosBuffer<<(*i);
-			}
-			catch (...){
-				// invalid video! just skip this file.
-			}
-
+			insert(val);
+			waitingVideosBuffer<<(*i);
 		}
 	}
 	readMetadatas();
@@ -278,6 +280,9 @@ InfoListModel::~InfoListModel()
 {
 	delete m_producer;
 	delete m_producerThread;
+	delete observer;
+	delete m_mediaPlayerThread;
+	delete reader;
     qDebug() << "Destroying InfoListModel object:" << this;
 }
 
@@ -330,6 +335,7 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 {
 	//Update the appropriate video info entry
 	QString path = val[bb::multimedia::MetaData::Uri].toString();
+	QVariantList indexPath = getVideoPosition(path);
 	if(path.isEmpty())
 	{
 		return;
@@ -346,9 +352,17 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	infoMap["width"] = val.value(bb::multimedia::MetaData::Width).toString();
 	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
 	infoMap["isWatched"] = false;
-	QVariantList list;
-	list<<(infoMap);
-	insertVideos(list);
+	updateItem(indexPath, infoMap);
+	emit itemMetaDataAdded();
+}
+
+void InfoListModel::markAsDamaged(QString path)
+{
+	QVariantList indexPath = getVideoPosition(path);
+	QVariantMap map = data(indexPath).toMap();
+	map["duration"] = "-1";
+	updateItem(indexPath, map);
+	emit itemMetaDataAdded();
 }
 
 void InfoListModel::onAllMetadataRead()
@@ -454,6 +468,14 @@ QVariantList InfoListModel::getVideoPosition(QString item)
 QString InfoListModel::getVideoTitle()
 {
 	const QString flagName("title");
+	QVariant v = value(m_selectedIndex, flagName);
+	qDebug() << "\n\nSelected Index = " << m_selectedIndex << "\n";
+	return v.toString();
+}
+
+QString InfoListModel::getVideoDuration()
+{
+	const QString flagName("duration");
 	QVariant v = value(m_selectedIndex, flagName);
 	qDebug() << "\n\nSelected Index = " << m_selectedIndex << "\n";
 	return v.toString();
@@ -742,3 +764,15 @@ void InfoListModel::markSelectedAsWatched()
 	updateItem(m_selectedIndex, map);
 }
 
+void InfoListModel::prepareForPlay(QVariantList indexPath)
+{
+	if(!isPlayable(indexPath)) {
+		reader->addToQueue(data(indexPath).toMap()["path"].toString());
+	}
+}
+
+bool InfoListModel::isPlayable(QVariantList indexPath)
+{
+    QVariantMap map = data(indexPath).toMap();
+    return map["duration"].toBool() || (map["duration"] == "0");
+}

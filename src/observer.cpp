@@ -17,32 +17,27 @@ using namespace utility;
 Observer::Observer(QObject* parent): QObject(parent)
 {
 	watcher = new QFileSystemWatcher();
-	//createWatcher();
 	QObject::connect(this, SIGNAL(directoryChanged(const QString&)), this->parent(),
 						SLOT(getVideoFiles()));
 	QObject::connect(this, SIGNAL(Complete(QString)), this->parent(),
-								SLOT(fileComplete(QString)));
+						SLOT(fileComplete(QString)));
 }
-
 
 void Observer::createWatcher()
 {
-	QStringList paths;
-
 	//Phone storage
-	FileSystemUtility::getSubFolders("/accounts/1000/shared/videos", paths);
-	FileSystemUtility::getSubFolders("/accounts/1000/shared/camera", paths);
-	FileSystemUtility::getSubFolders("/accounts/1000/shared/downloads", paths);
+	watcher->addPath("/accounts/1000/shared/videos");
+	watcher->addPath("/accounts/1000/shared/camera");
+	watcher->addPath("/accounts/1000/shared/downloads");
 
 	//SD card storage
 	if(QDir("/accounts/1000/removable/sdcard").exists()) {
-		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/videos", paths);
-		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/camera", paths);
-		FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard/downloads", paths);
+		watcher->addPath("/accounts/1000/removable/sdcard/videos");
+		watcher->addPath("/accounts/1000/removable/sdcard/camera");
+		watcher->addPath("/accounts/1000/removable/sdcard/downloads");
 		//FileSystemUtility::getSubFolders("/accounts/1000/removable/sdcard",paths);
 	}
 
-	watcher->addPaths(paths);
 	QObject::connect(watcher, SIGNAL(directoryChanged(const QString&)), this,
 					SIGNAL(directoryChanged(const QString&)));
 	QObject::connect(watcher, SIGNAL(fileChanged(const QString &)), this,
@@ -53,7 +48,6 @@ void Observer::addWatcher(const QString& path)
 {
 	watcher->addPath(path);
 }
-
 
 void Observer::waitForComplete(const QString& path)
 {

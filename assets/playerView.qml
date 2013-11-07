@@ -17,6 +17,7 @@ Page {
     property bool isHDMIVideoPlaying: HDMIPlayer.playing
     property bool startListening
     property bool isHDMIVideoStopped: HDMIPlayer.stopped
+    property bool isPlaying: false
 
     onIsHDMIVideoPlayingChanged: {
         if(isHDMIVideoPlaying)
@@ -651,67 +652,15 @@ Page {
                         durationSlider.bookmarkVisible = false;
                         bookmarkTimer.stop();
                     }
-                    if (HDMIScreen.connection) {
-                        console.log("!!!G");
-                        console.log("2nd screen connected");
-                        startListening = false;
-                        HDMIPlayer.setVideoSize(item.width, item.height)
-                        HDMIPlayer.play(item.path);
-                        controlsContainer.setOpacity(1);
-                        controlsContainer.setVisible(true);
-                        volume.setVisible(true);
-                        // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
-                        startListenForStopped.start();
-                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                        pgPlayer.currentPath = item.path;
-                        durationSlider.toValue = item.duration;
-                        durationSlider.resetValue();
-                        durationSlider.setEnabled(true)
-                    } else {
-                        infoListModel.setVideoPosition(myPlayer.position);
-                        pgPlayer.currentPath = item.path;
-                        myPlayer.setSourceUrl(item.path);
-                        pgPlayer.currentLenght = item.duration;
-                        if (appContainer.playMediaPlayer() == MediaError.None) {
-                            appContainer.retryCount = 5;
-                            videoWindow.visible = true;
-                            contentContainer.visible = true;
-                            durationSlider.toValue = item.duration;
-                            videoTitle.text = item.title;
-                            durationSlider.resetValue();
-                            durationSlider.setEnabled(true)
-                            if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
-                                subtitleButtonContainer.videoHasSubtitles = true;
-                                subtitleButtonContainer.initializeStates();
-                            } else {
-                                console.log("Force to disable");
-                                subtitleButtonContainer.videoHasSubtitles = false;
-                                subtitleAreaContainer.setOpacity(0);
-                            }
-                            infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
-                                durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
-                                durationSlider.progressBarPositionX  = durationSlider.getProgressBarPosition();
-                                durationSlider.bookmarkVisible = true;
-                                bookmarkTimer.start();
-                            }
-                            upperMenu.setOpacity(1);
-                            controlsContainer.setOpacity(1);
-                            subtitleButtonContainer.setOpacity(1);
-                            controlsContainer.setVisible(true);
-                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
-                            uiControlsShowTimer.start();
-                            actionBarVisibility = ChromeVisibility.Overlay
-                            videoWindow.initializeVideoScales();
-                            myPlayer.seekTime(0);
-                            myPlayer.valueChangedBySeek = false;
-                            videoListDisappearAnimation.play();
-                        } else {
-                            invalidToast.show();
-                        }
-                    }
+                    infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
+                    infoListModel.prepareForPlay(infoListModel.getSelectedIndex());
+                    durationSlider.resetValue();
+                    videoTitle.text = item.title;
+                    pgPlayer.currentPath = item.path;
+                    isPlaying = false;
                     infoListModel.markSelectedAsWatched();
                     videoListDisappearAnimation.play();
+                    appContainer.onItemMetaDataAdded();
                 }
                 attachedObjects: [
                     LayoutUpdateHandler {
@@ -1209,7 +1158,7 @@ Page {
                         volume.setVisible(true);
                         actionBarVisibility = ChromeVisibility.Overlay;
                         // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
-                        startListenForStopped.start();                        
+                        startListenForStopped.start();
                     } else {
                         elapsedTimer.start();
                         myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
@@ -1259,7 +1208,9 @@ Page {
                             volume.setVisible(false);
                             actionBarVisibility = ChromeVisibility.Hidden;
                         }
+                        videoWindow.initializeVideoScales();
                     }
+                    currentLenght = infoListModel.getVideoDuration();
                     infoListModel.markSelectedAsWatched();
                 }
             }
@@ -1268,8 +1219,17 @@ Page {
         onCreationCompleted: {
             settings.setValue("inPlayerView", true);
             Application.thumbnail.connect(onThumbnail);
+            infoListModel.itemMetaDataAdded.connect(onItemMetaDataAdded);
             startListening = false;
-            initTimer.start();
+            isPlaying = false;
+            onItemMetaDataAdded();
+        }
+
+        function onItemMetaDataAdded() {
+            if(infoListModel.isPlayable(infoListModel.getSelectedIndex()) && !isPlaying) {
+                initTimer.start();
+                isPlaying = true;
+            }
         }
 
         function goBack() {

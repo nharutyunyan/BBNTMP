@@ -528,6 +528,7 @@ ListView {
             // A slot naming convention is used for automatic connection of list view signals to slots
             if (selected && listView.selected().length != 1) {
                 infoListModel.setSelectedIndex(listView.selected())
+                infoListModel.prepareForPlay(infoListModel.getSelectedIndex());
                 if(secondPage) {
                     HDMIPlayer.stop();
                     secondPage.startListening = false

@@ -64,7 +64,6 @@ MetaDataReader::~MetaDataReader()
 {
 	//Free the resources
 	m_mediaPlayer.reset();
-
 }
 
 void MetaDataReader::setData(QStringList videoFiles)
@@ -75,7 +74,6 @@ void MetaDataReader::setData(QStringList videoFiles)
        	m_started = true;
        	readNextMetadata();
     }
-
 }
 
 void MetaDataReader::readNextMetadata()
@@ -84,9 +82,9 @@ void MetaDataReader::readNextMetadata()
         //added to start thread
         m_started = false;
         m_mediaPlayer.reset();
+        emit allMetaDataRead();
         return;
     }
-
     m_currentVideoUrl = m_queue.dequeue();
     m_retryCount = 0;
     prepareToRead();
@@ -101,6 +99,7 @@ void MetaDataReader::prepareToRead()
 	if (m_mediaPlayer.prepare() != bb::multimedia::MediaError::None)
 	{
 		qDebug() << "Error during metadata reading from " << m_currentVideoUrl << "\n";
+		emit videoNotSupported(m_currentVideoUrl);
 		readNextMetadata();
 	}
 }
@@ -108,14 +107,17 @@ void MetaDataReader::prepareToRead()
 void MetaDataReader::onMetaDataChanged(const QVariantMap& metaData)
 {
 	if(metaData.value(bb::multimedia::MetaData::Width).toInt() > 0
-	   && metaData.value(bb::multimedia::MetaData::Height).toInt() > 0
-	   && metaData.value(bb::multimedia::MetaData::Duration).toInt() > 0)
+		&& metaData.value(bb::multimedia::MetaData::Height).toInt() > 0
+		&& metaData.value(bb::multimedia::MetaData::Duration).toInt() > 0)
 	{
 		emit metadataReady(metaData);
 		readNextMetadata();
 	}
 }
 
-
+void MetaDataReader::addToQueue(QString videoUrl)
+{
+    m_queue.push_front(videoUrl);
+}
 
 } //end of namespace
