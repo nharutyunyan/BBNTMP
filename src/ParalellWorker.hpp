@@ -1,5 +1,7 @@
 
 
+#ifndef ParalellWorker_HPP_
+#define ParalellWorker_HPP_
 
 #include <QFileSystemWatcher>
 #include <QStringList>
@@ -24,3 +26,4 @@ public:
 
 };
 
+#endif /* ParalellWorker_HPP_ */
