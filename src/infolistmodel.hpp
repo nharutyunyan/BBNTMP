@@ -24,7 +24,10 @@ class Producer;
 class InfoListModel : public bb::cascades::GroupDataModel
 {
     Q_OBJECT
+
 public:
+
+    static QStringList const getVideoFileList();
 
     /*
      * Convenience method for loading data from JSON file.
@@ -97,8 +100,6 @@ public:
     Q_INVOKABLE void addToSelected(QVariantList index);
 
     Q_INVOKABLE int getButtonVisibility(QString folderName);
-
-    Q_INVOKABLE void toggleFolder(QString folderName);
 
     Q_INVOKABLE void clearSelected();
 

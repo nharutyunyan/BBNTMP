@@ -22,7 +22,7 @@ using namespace utility;
 MovieDecoder InfoListModel::movieDecoder;
 
 
-inline const static QStringList getVideoFileList() {
+QStringList const InfoListModel::getVideoFileList() {
 	QStringList filters, result;
 
 	//BB10 presumably supported formats: 3GP, 3GP2, ASF, AVI, F4V, M4V, MKV, MOV, MP4, MPEG4, WMV
@@ -155,7 +155,6 @@ void InfoListModel::getVideoFiles()
 
 	}
 	updateListWithDeletedVideos(result);
-	updateListWithAddedVideos(result);
 	if(!newVideos.isEmpty())
 	{
 		emit notifyObserver(newVideos);
@@ -183,10 +182,12 @@ void InfoListModel::onVideoFileListComplete(QStringList result) {
 		}
 	}
 	updateListWithDeletedVideos(result);
-	updateListWithAddedVideos(result);
+
 	if(!newVideos.isEmpty())
 	{
 		emit notifyObserver(newVideos);
+	} else {
+		onAllMetadataRead();
 	}
 
 	observer->createWatcher();
@@ -244,6 +245,10 @@ void InfoListModel::updateListWithAddedVideos(const QStringList& result)
 			val["isWatched"] = false;
 			insert(val);
 			waitingVideosBuffer<<(*i);
+
+			QString VideoDir = *i;
+			VideoDir.truncate(VideoDir.lastIndexOf('/',-1,Qt::CaseSensitive));
+			observer->addWatcher(VideoDir);
 		}
 	}
 	readMetadatas();
@@ -529,15 +534,7 @@ QString InfoListModel::folderFieldName(QString path)
 			return QString("3Camera");
 		return QString("4Other");
 	} else if (pathElements[2] == "removable" && pathElements[3] == "sdcard") {
-		if (pathElements[4]!="videos" && pathElements[4]!="downloads" && pathElements[4]!="camera") {
-			QString otherVideoPath = "";
-			for (int i=0; i<pathElements.length()-1; i++) {
-				otherVideoPath+="/" + pathElements[i];
-			}
-			observer->addWatcher(otherVideoPath);
-		}
 		return QString("5Media Card");
-
 		/*
 		QString folders = "";
 		if(pathElements[4] == "videos") {
@@ -575,34 +572,6 @@ int InfoListModel::getIntIndex(QVariantList index)
         result++;
     }
     return -1;
-}
-
-
-void InfoListModel::toggleFolder(QString folderName)
-{
-    QList<QVariantMap> folBuffer;
-	for (int i = 0; i < m_currentSelectionList.size(); i++)
-	{
-		QVariantList index = m_currentSelectionList[i];
-		QVariantMap v = data(index).toMap();
-		QString test = v["path"].toString();
-		if(v["folder"] != folderName)
-		{
-			v["folder"] = folderName;
-		}
-		else
-		{
-			v["folder"] = folderFieldName(v["path"].toString());
-		}
-		// We remove the node because we will reinsert it once the buffer is full
-		removeAt(index);
-		folBuffer.push_front(v);
-	}
-	for(int i = 0; i < folBuffer.size();i++)
-	{
-		insert(folBuffer[i]);
-	}
-	saveData();
 }
 
 int InfoListModel::addToFavorites()
