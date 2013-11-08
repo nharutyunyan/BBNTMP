@@ -70,6 +70,7 @@ void MovieDecoder::initialize(const QString& filename)
     else
     	allowSeek = true;
 
+    QFile::remove(QDir::home().absoluteFilePath("templn"));
     QString linkName = QDir::homePath() + '/' + "templn";
     QFile::link(filename, linkName);
 
@@ -89,9 +90,6 @@ void MovieDecoder::initialize(const QString& filename)
     initializeVideo();
     pFrame = avcodec_alloc_frame();
     setVideosDuration(linkName);
-    QDir dir = QDir(QDir::homePath());
-    dir.remove(linkName);
-
 }
 
 void MovieDecoder::destroy()
