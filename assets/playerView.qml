@@ -700,7 +700,11 @@ Page {
                             controlsContainer.setOpacity(1);
                             subtitleButtonContainer.setOpacity(1);
                             controlsContainer.setVisible(true);
-                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
+                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
+                            } else {
+                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
+                            }
                             uiControlsShowTimer.start();
                             actionBarVisibility = ChromeVisibility.Overlay
                             videoWindow.initializeVideoScales();
