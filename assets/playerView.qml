@@ -648,10 +648,10 @@ Page {
                 isVisible: false
 
                 onVideoSelected: {
-                    if (durationSlider.bookmarkVisible) {
-                        durationSlider.bookmarkVisible = false;
-                        bookmarkTimer.stop();
-                    }
+                    infoListModel.setVideoPosition(myPlayer.position);
+                    durationSlider.bookmarkVisible = false;
+                    bookmarkTimer.stop();
+
                     infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
                     infoListModel.prepareForPlay(infoListModel.getSelectedIndex());
                     durationSlider.resetValue();

@@ -222,7 +222,13 @@ Container {
 	                bookmark.opacity = 1;
 	            }
 	        }
-	    ]
+	    ]	    
+        attachedObjects: [
+            ImplicitAnimationController {
+                propertyName: "translationX"
+                enabled: false
+            }
+        ]        
     } //bookmark
 	
     attachedObjects: [
