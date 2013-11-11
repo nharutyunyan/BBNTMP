@@ -18,6 +18,7 @@ Page {
     property bool startListening
     property bool isHDMIVideoStopped: HDMIPlayer.stopped
     property bool isPlaying: false
+    property int slideAction_BarsHeight: (OrientationSupport.orientation == UIOrientation.Portrait) ? durationSlider.slideBarHeight + Helpers.actionBarPortraitHeight : durationSlider.slideBarHeight + Helpers.actionBarLandscapeHeight
 
     onIsHDMIVideoPlayingChanged: {
         if(isHDMIVideoPlaying)
@@ -204,7 +205,7 @@ Page {
                             appContainer.widthOfScreen = displayInfo.width;
                             appContainer.touchDistanceAgainstMode = displayInfo.width / 5;
                         }
-                        if (event.windowY < appContainer.heightOfScreen - Helpers.heightOfSlider) {
+                        if (event.windowY < appContainer.heightOfScreen - pgPlayer.slideAction_BarsHeight) {
                             if (event.touchType == TouchType.Down) {
                                 appContainer.previousPositionX = event.windowX;
                                 appContainer.previousPositionY = event.windowY;
@@ -304,7 +305,7 @@ Page {
                 gestureHandlers: [
                     TapHandler {
                         onTapped: {
-                            if (event.y < appContainer.heightOfScreen - durationSlider.height 
+                            if (event.y < appContainer.heightOfScreen - pgPlayer.slideAction_BarsHeight
                                 && ! videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 appContainer.showPlayPauseButton();
                                 actionBarVisibility = ChromeVisibility.Overlay;
@@ -653,7 +654,6 @@ Page {
                     bookmarkTimer.stop();
 
                     if (HDMIScreen.connection) {
-                        console.log("!!!G");
                         console.log("2nd screen connected");
                         startListening = false;
                         HDMIPlayer.setVideoSize(item.width, item.height)
@@ -794,9 +794,6 @@ Page {
                     easingCurve: StockCurve.CubicOut
                     fromY: - videoListScrollLayout.layoutFrame.height
                     toY: 0
-                    onStarted: {
-                      // bpsEventHandler.startVibration();
-                    }
                 },
                 TranslateTransition {
                     id: videoListDisappearAnimation
@@ -814,13 +811,12 @@ Page {
                 }
             ]
             onTouch: {
-                if (upperMenu.opacity == 0 ) {  //&& event.localY < 150 && event.localX < 104
+                if (upperMenu.opacity == 0 ) {  
                     subtitleButtonContainer.setOpacity(1);
                     controlsContainer.setVisible(true);
                     upperMenu.setOpacity(1);
                     volume.setVisible(true);
-                    actionBarVisibility = ChromeVisibility.Overlay
-                    
+                    actionBarVisibility = ChromeVisibility.Overlay;                    
                 }
                 uiControlsShowTimer.start();
             }
@@ -951,6 +947,7 @@ Page {
             }
             upperMenu.setOpacity(1);
             subtitleButtonContainer.setOpacity(1);
+            volume.setVisible(true);
             controlsContainer.setVisible(true);
             if (OrientationSupport.orientation == UIOrientation.Portrait) {
                 subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
