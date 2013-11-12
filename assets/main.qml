@@ -188,8 +188,8 @@ NavigationPane {
         ]
     }
     onPopTransitionEnded: {
-        Application.setMenuEnabled(true)
-        if(mainPage.movieGridObj.secondPage)
-            mainPage.movieGridObj.secondPage.popPage()
+        Application.setMenuEnabled(true);
+        if(mainPage.movieGridObj.videoPlayerPage)
+            mainPage.movieGridObj.videoPlayerPage.popPage();
     }
 }
