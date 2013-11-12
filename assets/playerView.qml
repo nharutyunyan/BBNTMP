@@ -165,7 +165,6 @@ Page {
                     updatedProperties: WindowProperty.Size | WindowProperty.Position | WindowProperty.Visible
 
                     onCreationCompleted: {
-
                         appContainer.setDimensionsFromOrientation(OrientationSupport.orientation);
                         initializeVideoScales();
                         appContainer.startWidth = videoWindow.preferredWidth;
@@ -192,6 +191,17 @@ Page {
                     onBoundToWindowChanged: {
                         console.log("VideoWindow bound to mediaplayer!");
                     }
+
+                    attachedObjects: [
+                        ImplicitAnimationController {
+                            propertyName: "scaleX"
+                            enabled: false
+                        },
+                        ImplicitAnimationController {
+                            propertyName: "scaleY"
+                            enabled: false
+                        }
+                    ]
                 } //videoWindow
                 onTouch: {
                     if (! appContainer.isPinchZoom) {
@@ -419,7 +429,6 @@ Page {
 
                     Container {
                         layout: DockLayout {
-
                         }
                         id: subtitleButtonContainer
                         objectName: subtitleButtonContainer
@@ -512,7 +521,6 @@ Page {
                     preferredHeight: volume.indicator_length
                     leftPadding: 100
                     layout: AbsoluteLayout {
-
                     }
                     ImageView {
                         imageSource: "asset:///images/Player/VolumeInactive.png"
@@ -600,7 +608,6 @@ Page {
                 touchPropagationMode: TouchPropagationMode.PassThrough
                 overlapTouchPolicy: OverlapTouchPolicy.Allow
                 animations: [
-
                     ParallelAnimation {
                         id: fadeInOut                      
                         FadeTransition {
@@ -618,7 +625,6 @@ Page {
                             easingCurve: StockCurve.SineIn
                         }
                     }
-
                 ]
                 onImageSourceChanged: {
                     if (imageSource == "asset:///images/Player/Play.png") {
