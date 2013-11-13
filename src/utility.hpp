@@ -59,7 +59,7 @@ signals:
 
 public slots:
 	void onMetaDataChanged(const QVariantMap& metaData);
-	void setData(QStringList videoFiles);
+	void setData(QString videoFile);
 	void addToQueue(QString videoUrl);
 
 private:

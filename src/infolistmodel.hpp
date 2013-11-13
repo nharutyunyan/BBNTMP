@@ -138,7 +138,7 @@ public slots:
     void onAllMetadataRead();
     void getVideoFiles();
     void fileComplete(QString);
-    void readMetadatas();
+    void readMetadata(QString);
     void checkVideosWaitingThumbnail();
     void markAsDamaged(QString path);
     signals:
@@ -146,11 +146,11 @@ public slots:
         void finished();
         void finishedThumbnailGeneration();
         void notifyObserver(QStringList);
-        void setData(QStringList );
+        void setData(QString);
+        void produce();
         void itemMetaDataAdded();
 
 private:
-    QThread* m_mediaPlayerThread;
     QThread* m_ParalellWorkerThread;
     utility::MetaDataReader* reader;
     ParalellWorker* paralellWorker;
@@ -161,13 +161,11 @@ private:
     static MovieDecoder movieDecoder;
     Observer* observer;
     QList<QVariantList> m_currentSelectionList;
-    QStringList waitingVideosBuffer;
     QSet<QString> addedVideos;
     QVariantList videosWaitingThumbnail;
 
     void prepareToStart();
     void updateListWithDeletedVideos(const QStringList& result);
-    void updateListWithAddedVideos(const QStringList& result);
     QVariantMap writeVideoMetaData(QString);
 };
 

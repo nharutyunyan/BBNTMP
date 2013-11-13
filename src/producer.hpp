@@ -14,7 +14,7 @@ class Producer: public QObject
 	Q_OBJECT
 
 public:
-    Producer(InfoListModel* videoFiles);
+    Producer(QObject* parent = 0);
     void updateVideoList(InfoListModel* videoFiles);
 
 public slots:

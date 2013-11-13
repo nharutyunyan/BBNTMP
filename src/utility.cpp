@@ -66,9 +66,9 @@ MetaDataReader::~MetaDataReader()
 	m_mediaPlayer.reset();
 }
 
-void MetaDataReader::setData(QStringList videoFiles)
+void MetaDataReader::setData(QString videoFile)
 {
-    m_queue.append(videoFiles);
+    m_queue.append(videoFile);
     if(!m_started)
     {
        	m_started = true;
@@ -106,6 +106,7 @@ void MetaDataReader::prepareToRead()
 
 void MetaDataReader::onMetaDataChanged(const QVariantMap& metaData)
 {
+
 	if(metaData.value(bb::multimedia::MetaData::Width).toInt() > 0
 		&& metaData.value(bb::multimedia::MetaData::Height).toInt() > 0
 		&& metaData.value(bb::multimedia::MetaData::Duration).toInt() > 0)

@@ -14,11 +14,10 @@
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
 
-Producer::Producer(InfoListModel* videoFiles)
+Producer::Producer(QObject* parent) : QObject(parent)
 {
     m_thumbPng = "-thumb.png";
     m_filepath = QDir::home().absoluteFilePath("thumbnails/");
-    updateVideoList(videoFiles);
 }
 
 void Producer::updateVideoList(InfoListModel* videoFiles)
@@ -41,9 +40,10 @@ void Producer::produce()
 	if (m_result.isEmpty()) {
 			emit finishedCurrentVideos();
 		} else {
-		    QVariantMap v = m_result.data(m_result.last()).toMap();
-		    m_result.removeAt(m_result.last());
-		    QVariantList indexPath = v["indexPath"].toList();
+
+		QVariantMap v = m_result.data(m_result.last()).toMap();
+		m_result.removeAt(m_result.last());
+		QVariantList indexPath = v["indexPath"].toList();
 
 		QStringList pathElements = v["path"].toString().split('/',
 				QString::SkipEmptyParts, Qt::CaseSensitive);
@@ -67,7 +67,6 @@ void Producer::produce()
 			emit produced("", "");
 			return;
 		}
-		qDebug()<<"!!: "<< finalFileName.toUtf8();
 		emit produced(finalFileName, v["path"].toString());
 	}
 }
