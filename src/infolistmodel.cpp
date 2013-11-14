@@ -504,6 +504,14 @@ int InfoListModel::deleteVideos()
 		QVariantList index = m_currentSelectionList[i];
 		QVariantMap v = data(index).toMap();
 		QFile::remove(v["path"].toString());
+
+		QString subtitleFilePath = v["path"].toString();
+		subtitleFilePath.truncate(subtitleFilePath.lastIndexOf('.',-1,Qt::CaseSensitive));
+		subtitleFilePath.append(".srt");
+		if (QFile::exists(subtitleFilePath)) {
+			QFile::remove(subtitleFilePath);
+		}
+
 		QString tName = v["thumbURL"].toString();
 		QFile::remove(tName.mid(7, tName.length() - 7));
 		removeAt(index);
