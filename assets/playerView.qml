@@ -291,20 +291,6 @@ Page {
                                     appContainer.previousPositionY = event.windowY;
                                 }
                             }
-                        } else {
-                            if (event.touchType == TouchType.Up && ! controlsContainer.visible) {
-                                if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-                                } else {
-                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-                                }
-                                subtitleButtonContainer.setOpacity(1);
-                                controlsContainer.setVisible(true);
-                                upperMenu.setOpacity(1);
-                                volume.setVisible(true);                                
-                                actionBarVisibility = ChromeVisibility.Overlay
-                                uiControlsShowTimer.start();
-                            }
                         }
                     }
                     if (event.touchType == TouchType.Up && appContainer.isPinchZoom) {
@@ -319,6 +305,19 @@ Page {
                                 && ! videoListScrollBar.isVisible && ! appContainer.videoScrollBarIsClosing) {
                                 appContainer.showPlayPauseButton();
                                 actionBarVisibility = ChromeVisibility.Overlay;
+                            } else if (event.y > appContainer.heightOfScreen - pgPlayer.slideAction_BarsHeight 
+                                && !controlsContainer.visible) {
+                                if (OrientationSupport.orientation == UIOrientation.Portrait) {
+                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
+                                } else {
+                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
+                                }
+                                subtitleButtonContainer.setOpacity(1);
+                                controlsContainer.setVisible(true);
+                                upperMenu.setOpacity(1);
+                                volume.setVisible(true);
+                                actionBarVisibility = ChromeVisibility.Overlay
+                                uiControlsShowTimer.start();
                             }
                         }
                     },
