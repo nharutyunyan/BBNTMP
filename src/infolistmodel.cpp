@@ -695,6 +695,23 @@ QVariantList InfoListModel::getFrameVideos()
 	return favoriteVideos;
 }
 
+QVariantList InfoListModel::getFavoriteIndex(QVariantList index)  // It will return favorite index for real video if it has or it will return the real index for favorite video
+{
+	QVariantMap favorite = data(index).toMap();
+	if (favorite["folder"] == "0Favorites") {
+		return index;
+	}
+	QVariantList realIndex;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (v["folder"] == "0Favorites" && v["path"] == favorite["path"]) {
+			realIndex = indexPath;
+			break;
+		}
+	}
+	return realIndex;
+}
+
 QVariantList InfoListModel::getRealIndex(QVariantList index)
 {
 	QVariantMap favorite = data(index).toMap();
@@ -729,8 +746,22 @@ QString InfoListModel::getSelectedVideoThumbnail()
 void InfoListModel::markSelectedAsWatched()
 {
 	QVariantMap map = data(m_selectedIndex).toMap();
-	map["isWatched"] = true;
-	updateItem(m_selectedIndex, map);
+	if (map["isWatched"] == false) {
+		map["isWatched"] = true;
+		updateItem(m_selectedIndex, map);
+
+		QVariantList index;
+		if (map["folder"] == "0Favorites") {
+			index = getRealIndex(m_selectedIndex);
+		} else {
+			index = getFavoriteIndex(m_selectedIndex);
+		}
+		if (m_selectedIndex != index) {
+			map = data(index).toMap();
+			map["isWatched"] = true;
+			updateItem(index, map);
+		}
+	}
 }
 
 void InfoListModel::prepareForPlay(QVariantList indexPath)

@@ -119,6 +119,8 @@ public:
 
     Q_INVOKABLE QVariantList getRealIndex(QVariantList index);
 
+    Q_INVOKABLE QVariantList getFavoriteIndex(QVariantList index);
+
     Q_INVOKABLE void prepareForPlay(QVariantList indexPath);
 
     Q_INVOKABLE bool isPlayable(QVariantList indexPath);
