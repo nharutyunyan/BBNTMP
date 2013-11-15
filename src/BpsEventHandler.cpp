@@ -6,7 +6,6 @@
  */
 
 #include <bps/audiomixer.h>
-#include <bps/vibration.h>
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
 #include <iostream>
@@ -18,12 +17,10 @@ BpsEventHandler::BpsEventHandler(QObject* parent)
 {
     subscribe(navigator_get_domain());
     subscribe(audiomixer_get_domain());
-    subscribe(vibration_get_domain());
     bps_initialize();
     navigator_request_events(0);
     navigator_stop_swipe_start();
     audiomixer_request_events(0);
-    vibration_request_events(0);
 }
 
 BpsEventHandler::~BpsEventHandler()
@@ -103,22 +100,4 @@ void BpsEventHandler::event( bps_event_t *event )
     }
 }
 
-void BpsEventHandler::onVolumeValueChanged(float volumeValue)
-{
-	// The volume slider value has been changed
-	// Synchronize the system volume value with the volume slider value
-	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_DEFAULT, volumeValue);
-}
-
-float BpsEventHandler::getVolume()
-{
-	float oldVolume;
-	audiomixer_get_output_level(AUDIOMIXER_OUTPUT_DEFAULT, &oldVolume);
-
-	return oldVolume;
-}
-void BpsEventHandler::startVibration(int intensity, int duration)
-{
-	vibration_request(intensity,duration);
-}
 

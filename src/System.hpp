@@ -12,6 +12,9 @@ public:
     Q_INVOKABLE bool isQ10();
     Q_INVOKABLE bool isZ10();
     Q_INVOKABLE bool OpenSettings();
+    Q_INVOKABLE float getVolume();
+    Q_INVOKABLE void setVolume(float volumeValue);
+    Q_INVOKABLE void startVibration(int intensity, int duration);
 
 private:
     HardwareInfo* mHardware;

@@ -73,7 +73,7 @@ Container {
 	            onHandleLongPressed: {
 	                slideBar.onSlider = true;
 	                if (slider.toValue > my.minTime) {
-	                    bpsEventHandler.startVibration(20,200);
+	                    system.startVibration(20,200);
 	                    smallStepSlider.smallCurrentValue = slider.value;
 	                    smallStepSlider.visible = true;
 	                    if (slider.value - my.dt < slider.fromValue) {
