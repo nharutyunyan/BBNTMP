@@ -19,6 +19,7 @@ Page {
     property bool isHDMIVideoStopped: HDMIPlayer.stopped
     property bool isPlaying: false
     property int slideAction_BarsHeight: (OrientationSupport.orientation == UIOrientation.Portrait) ? durationSlider.slideBarHeight + Helpers.actionBarPortraitHeight : durationSlider.slideBarHeight + Helpers.actionBarLandscapeHeight
+    property int rateOfChangeVolume: 6
     
     onSlideAction_BarsHeightChanged: {
         pgPlayer.updateSubtitlesPosition();
@@ -291,7 +292,7 @@ Page {
                                             // limit the size of deltaPosition to avoid any large jumps in the volume
                                             if (Math.abs(deltaPosition) < 70) {
                                                 // min and max to bound value between 0 and 100
-                                                appContainer.curVolume = Math.min(Math.max(appContainer.curVolume + deltaPosition / 9, 0), 100);
+                                                appContainer.curVolume = Math.min(Math.max(appContainer.curVolume + deltaPosition / pgPlayer.rateOfChangeVolume, 0), 100);
                                             }
                                             bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
                                             volume.setMuteIcons();
