@@ -23,6 +23,7 @@
 #include <bb/cascades/ScalingMethod>
 #include <bb/device/DisplayInfo>
 
+const int LONG_PRESS_MAX_DEVIATION = 5;
 
 CustomSlider::CustomSlider(Container* parent)
     :CustomControl(parent),
@@ -454,6 +455,8 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
 
 
         if(TouchType::Down == type) {
+        	m_handleTouchDownX = event->windowX();
+        	m_handleTouchMoveX = m_handleTouchDownX;
         	setMediaState(true);
             m_progressBarImageView->setImage(m_progressBarImagePressed);
             m_handle->setImage(m_handleOnImg);
@@ -468,10 +471,10 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
         if(TouchType::Move == type) {
             if(!m_handleLongPressed) {
                 if(!m_timer->isActive()) {
+                	m_handleTouchMoveX = event->windowX();
                 	setImmediateValue(fromPosXToValue(handlePosX));
                     m_timer->start(m_updateInterval);
                 }
-
                 return;
             }
             else {
@@ -601,18 +604,19 @@ void CustomSlider::setUpdateInterval(int interval)
 
 void CustomSlider::onHandleLongPressed(bb::cascades::LongPressEvent* event)
 {
-    m_handleLongPressed = true;
-    m_handleContainer->setVisible(false);
-    setImmediateValue(m_smallSliderInitialValue);
-    emit handleLongPressed(event->x());
+	if (abs(m_handleTouchDownX - m_handleTouchMoveX) <= LONG_PRESS_MAX_DEVIATION) {
+		m_handleLongPressed = true;
+		m_handleContainer->setVisible(false);
+		setImmediateValue(m_smallSliderInitialValue);
+		emit handleLongPressed(event->x());
+	}
 }
 
 void CustomSlider::onHandleContainerLongPressed()
 {
-	 float handleCenter = 53;
-	 m_handleLongPressed = true;
-	 m_handleContainer->setVisible(false);
-	 emit handleLongPressed(handleCenter);
+	m_handleLongPressed = true;
+	m_handleContainer->setVisible(false);
+	emit handleLongPressed(m_rootContainerHeight/2);
 }
 
 float CustomSlider::handleLocalX() const
