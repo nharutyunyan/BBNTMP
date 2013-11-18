@@ -19,6 +19,18 @@ Page {
     property bool isHDMIVideoStopped: HDMIPlayer.stopped
     property bool isPlaying: false
     property int slideAction_BarsHeight: (OrientationSupport.orientation == UIOrientation.Portrait) ? durationSlider.slideBarHeight + Helpers.actionBarPortraitHeight : durationSlider.slideBarHeight + Helpers.actionBarLandscapeHeight
+    
+    onSlideAction_BarsHeightChanged: {
+        pgPlayer.updateSubtitlesPosition();
+    }
+    
+    function updateSubtitlesPosition() {
+        if (controlsContainer.visible) {
+            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - slideAction_BarsHeight;
+        } else {
+            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
+        }
+    }
 
     onIsHDMIVideoPlayingChanged: {
         if(isHDMIVideoPlaying)
@@ -306,12 +318,7 @@ Page {
                                 appContainer.showPlayPauseButton();
                                 actionBarVisibility = ChromeVisibility.Overlay;
                             } else if (event.y > appContainer.heightOfScreen - pgPlayer.slideAction_BarsHeight 
-                                && !controlsContainer.visible) {
-                                if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-                                } else {
-                                    subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-                                }
+                                && !controlsContainer.visible) {                                
                                 subtitleButtonContainer.setOpacity(1);
                                 controlsContainer.setVisible(true);
                                 upperMenu.setOpacity(1);
@@ -705,11 +712,6 @@ Page {
                             controlsContainer.setOpacity(1);
                             subtitleButtonContainer.setOpacity(1);
                             controlsContainer.setVisible(true);
-                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-                            } else {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-                            }
                             uiControlsShowTimer.start();
                             actionBarVisibility = ChromeVisibility.Overlay
                             videoWindow.initializeVideoScales();
@@ -837,7 +839,9 @@ Page {
             }
             horizontalAlignment: HorizontalAlignment.Center
             verticalAlignment: VerticalAlignment.Bottom
-
+            onVisibleChanged: {
+                pgPlayer.updateSubtitlesPosition();
+            }
             Container {
                 id: sliderContainer
                 objectName: sliderContainer
@@ -889,10 +893,6 @@ Page {
                     onBookmarkTouchedChanged: {
                         durationSlider.startBookmarkAnimation();
                         bookmarkTimer.stop();
-                    }
-                    onSlideBarHeightChanged: {
-                        if (controlsContainer.visible == true)
-                            subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight;
                     }
 
                     function getBookmarkPosition() {
@@ -954,11 +954,6 @@ Page {
             subtitleButtonContainer.setOpacity(1);
             volume.setVisible(true);
             controlsContainer.setVisible(true);
-            if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-            } else {
-                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-            }
             uiControlsShowTimer.start();
             fadeInOut.play();
         }
@@ -1142,7 +1137,7 @@ Page {
                             controlsAnimation.play();
                         if (actionBarVisibility == ChromeVisibility.Overlay)
                             actionBarVisibility = ChromeVisibility.Hidden;
-                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
+                        pgPlayer.updateSubtitlesPosition();
                         uiControlsShowTimer.stop();
                         if (volume.visible) 
                         	volumeAnimation.play();
@@ -1171,7 +1166,6 @@ Page {
 
             OrientationHandler {
                 onOrientationAboutToChange: {
-
                     videoListScrollBar.scrollItemToMiddle(infoListModel.getSelectedIndex(), OrientationSupport.orientation == UIOrientation.Portrait);
                     appContainer.setDimensionsFromOrientation(orientation);
                     if (orientation == UIOrientation.Landscape) {
@@ -1184,9 +1178,6 @@ Page {
                         upperMenu.preferredWidth = displayInfo.height;
                     }
                     videoWindow.initializeVideoScales();
-                    if (controlsContainer.visible == false) {
-                        subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding;
-                    }
                 }
             },
 
@@ -1240,12 +1231,7 @@ Page {
                         } else {
                             invalidToast.show();
                         }
-                        if (durationSlider.bookmarkVisible) {
-                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarPortraitHeight;
-                            } else {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - durationSlider.slideBarHeight - Helpers.actionBarLandscapeHeight;
-                            }
+                        if (durationSlider.bookmarkVisible) {                            
                             upperMenu.setOpacity(1);
 	                        subtitleButtonContainer.setOpacity(1);
 	                        controlsContainer.setOpacity(1);
@@ -1253,12 +1239,7 @@ Page {
 	                        volume.setVisible(true);
 	                        uiControlsShowTimer.start();
                             actionBarVisibility = ChromeVisibility.Overlay;
-                        } else {
-                            if (OrientationSupport.orientation == UIOrientation.Portrait) {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
-                            } else {
-                                subtitleContainer.layoutProperties.positionY = videoWindow.preferredHeight - appContainer.subtitleAreaBottomPadding - Helpers.distanceFromSubtitleToBottomOfScreen;
-                            }
+                        } else {                            
                             upperMenu.setOpacity(0);
                             subtitleButtonContainer.setOpacity(0);
                             controlsContainer.setVisible(false);
