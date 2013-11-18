@@ -20,11 +20,7 @@ public:
     explicit BpsEventHandler(QObject* parent = 0);
     virtual ~BpsEventHandler();
 
-
     virtual void event(bps_event_t *event);
-    Q_INVOKABLE void onVolumeValueChanged(float volumeSliderValue);
-    Q_INVOKABLE float getVolume();
-    Q_INVOKABLE void startVibration(int intensity, int duration);
 
 signals:
   	void speakerVolumeChanged(float speakerVolume);

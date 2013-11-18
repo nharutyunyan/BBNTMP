@@ -5,6 +5,7 @@ import nuttyPlayer 1.0
 import bpsEventHandler 1.0
 import nutty.slider 1.0
 import customtimer 1.0
+import system 1.0
 import "helpers.js" as Helpers
 
 Page {
@@ -94,7 +95,7 @@ Page {
         property double coefficientOfZoom: 0
         property bool isPinchZoom
 
-        property double curVolume: bpsEventHandler.getVolume(); // system speaker volume current value
+        property double curVolume: system.getVolume(); // system speaker volume current value
 
         //        property bool videoTitleVisible : false
         property int touchDistanceAgainstMode: 0; // This is used to have 2 different distances between the point tounched
@@ -293,8 +294,8 @@ Page {
                                                 // min and max to bound value between 0 and 100
                                                 appContainer.curVolume = Math.min(Math.max(appContainer.curVolume + deltaPosition / 9, 0), 100);
                                             }
-                                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                                            volume.setMuteIcons();
+                                            system.setVolume(appContainer.curVolume);
+                                            volume.setVolumeIcons();
                                             volume.setVisible(true);
                                             uiControlsShowTimer.start();
                                         }
@@ -500,13 +501,13 @@ Page {
                 property int indicator_count: Helpers.volumeBarIndicatorsCount
                 property int indicators_length: 10
                 property int indicators_space: 8
-                property int currentActiveIndicatorsCount: ((1 - appContainer.curVolume / 100) * volume.indicator_count)
+                property int currentActiveIndicatorsCount: (appContainer.curVolume / 100) * (volume.indicator_count + 1)
 
                 // this function changes the icons on the volume bar when the volume reaches its extremes
-                function setMuteIcons() {
-                    if (volumeActive.layoutProperties.positionY == indicator_count * (indicators_length + indicators_space)) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
+                function setVolumeIcons() {
+                    if (appContainer.curVolume == 0) volumeMute.imageSource = "asset:///images/Player/VolumeMuteActive.png";
                     else volumeMute.imageSource = "asset:///images/Player/VolumeMute.png";
-                    if (volumeActive.layoutProperties.positionY == 0) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
+                    if (appContainer.curVolume == 100) volumeFull.imageSource = "asset:///images/Player/VolumeFullActive.png";
                     else volumeFull.imageSource = "asset:///images/Player/VolumeFull.png";
                 }
 
@@ -518,8 +519,8 @@ Page {
                         {
                             appContainer.volumeFullorMute = true
                             appContainer.curVolume = 100;
-                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                            volume.setMuteIcons();
+                            system.setVolume(appContainer.curVolume);
+                            volume.setVolumeIcons();
                         }
                     }
                 }
@@ -537,8 +538,8 @@ Page {
                         onTouch: {
                             if (event.localY > 0 && event.localY < volume.indicator_length) {
                                 appContainer.curVolume = (1 - event.localY / volume.indicator_length) * 100;
-                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-                                volume.setMuteIcons();
+                                system.setVolume(appContainer.curVolume);
+                                volume.setVolumeIcons();
                             }
                         }
                         touchBehaviors: [
@@ -555,7 +556,7 @@ Page {
                         id: volumeActive
                         layoutProperties: AbsoluteLayoutProperties {
                             positionX: 10
-                            positionY: volume.currentActiveIndicatorsCount * (volume.indicators_length + volume.indicators_space)
+                            positionY: (volume.indicator_count - ((volume.currentActiveIndicatorsCount==0 && appContainer.curVolume!=0 ) ? 1 : volume.currentActiveIndicatorsCount)) * (volume.indicators_length + volume.indicators_space)
                         }
                         overlapTouchPolicy: OverlapTouchPolicy.Allow
                         implicitLayoutAnimationsEnabled: false
@@ -573,14 +574,14 @@ Page {
                         if(event.touchType == TouchType.Down)
                         {
                             if (! volumeMute.active) {
-                                volumeMute.beforeMute = bpsEventHandler.getVolume();
+                                volumeMute.beforeMute = system.getVolume();
                                 appContainer.volumeFullorMute = true;
 	                            appContainer.curVolume = 0;
-	                            bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
-	                            volume.setMuteIcons();
+	                            system.setVolume(appContainer.curVolume);
+	                            volume.setVolumeIcons();
                             } else {
                                 appContainer.curVolume = volumeMute.beforeMute;
-                                bpsEventHandler.onVolumeValueChanged(appContainer.curVolume);
+                                system.setVolume(appContainer.curVolume);
                             }	                            
                         }
                     }
@@ -1031,6 +1032,10 @@ Page {
                 id: settings
             },
 
+            System {
+                id: system
+            },
+
             BpsEventHandler {
                 id: bpsEventHandler
                 property bool locked: false
@@ -1057,8 +1062,8 @@ Page {
                 }
 
                 onSpeakerVolumeChanged: {
-                    appContainer.curVolume = bpsEventHandler.getVolume();
-                    volume.setMuteIcons();
+                    appContainer.curVolume = system.getVolume();
+                    volume.setVolumeIcons();
                     uiControlsShowTimer.start();
                 }
 
@@ -1107,7 +1112,7 @@ Page {
                 onIntervalChanged: {
                     if(interval < 1000)
                     {
-                         appContainer.curVolume = bpsEventHandler.getVolume();
+                         appContainer.curVolume = system.getVolume();
                          if (appContainer.retryCount != 0) {
                              appContainer.playMediaPlayer();
                              --appContainer.retryCount;
@@ -1271,7 +1276,7 @@ Page {
 
         function goBack() {
             infoListModel.setVideoPosition(myPlayer.position);
-            appContainer.curVolume = bpsEventHandler.getVolume();
+            appContainer.curVolume = system.getVolume();
             if(!HDMIScreen.connection || HDMIPlayer.stopped) {
                 if(HDMIPlayer.stopped)
                     HDMIPlayer.stop();
@@ -1329,7 +1334,7 @@ Page {
     function popPage() {
         settings.setValue("inPlayerView", false);
         infoListModel.setVideoPosition(myPlayer.position);
-        appContainer.curVolume = bpsEventHandler.getVolume();
+        appContainer.curVolume = system.getVolume();
         if(HDMIScreen.connection) {
             if(HDMIPlayer.stopped) {
                 HDMIPlayer.stop();

@@ -1,9 +1,15 @@
 
-#include "System.hpp"
+
+#include <bps/audiomixer.h>
+#include <bps/vibration.h>
 #include <bb/system/InvokeManager>
 
+#include "System.hpp"
+
 using namespace bb::device;
-System::System(QObject* parent) : QObject(parent){
+System::System(QObject* parent)
+: QObject(parent)
+{
 	mHardware = new HardwareInfo();
 }
 
@@ -45,7 +51,22 @@ bool System::OpenSettings()
 	return true;
 }
 
-// TODO: need to add Z30
+void System::setVolume(float volumeValue)
+{
+	audiomixer_set_output_level(AUDIOMIXER_OUTPUT_DEFAULT, volumeValue);
+}
+
+float System::getVolume()
+{
+	float oldVolume;
+	audiomixer_get_output_level(AUDIOMIXER_OUTPUT_DEFAULT, &oldVolume);
+	return oldVolume;
+}
+
+void System::startVibration(int intensity, int duration)
+{
+	vibration_request(intensity,duration);
+}
 
 
 
