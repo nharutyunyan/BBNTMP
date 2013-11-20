@@ -24,6 +24,7 @@
 #include <bb/device/DisplayInfo>
 
 const int LONG_PRESS_MAX_DEVIATION = 5;
+const int HANDLE_TOUCH_SPACE_WIDTH = 40;
 
 CustomSlider::CustomSlider(Container* parent)
     :CustomControl(parent),
@@ -364,6 +365,7 @@ void CustomSlider::reset()
 	if (!m_handleLongPressed)
 		setImmediateValue(fromPosXToValue(handlePosX));
 	m_handleTouched = false;
+	m_progressBarTouched = false;
 	if (m_timer->isActive())
 		m_timer->stop();
 	m_handleLongPressed = false;
@@ -449,10 +451,15 @@ void CustomSlider::createHandle()
 
 void CustomSlider::sliderHandleTouched(TouchEvent* event)
 {
+	if (m_progressBarTouched || ( !mediaState() &&
+	   (event->localX() < (m_rootContainerHeight - HANDLE_TOUCH_SPACE_WIDTH)/2  || event->localX() > (m_rootContainerHeight + HANDLE_TOUCH_SPACE_WIDTH)/2) ) )
+	{
+		progressBarTouched(event);
+	}  else
+
     if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
         m_handleTouched = true;
         TouchType::Type type  = event->touchType();
-
 
         if(TouchType::Down == type) {
         	m_handleTouchDownX = event->windowX();
@@ -506,9 +513,17 @@ void CustomSlider::sliderHandleTouched(TouchEvent* event)
 
 void CustomSlider::progressBarTouched(TouchEvent* event)
 {
-    if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
+	if(event->propagationPhase() == PropagationPhase::AtTarget && isEnabled()) {
+		m_progressBarTouched = true;
         TouchType::Type type = event->touchType();
-        float handlePosX = event->localX() - m_rootContainerHeight / 2;
+
+        float handlePosX = event->windowX() - m_rootContainerHeight / 2;
+
+		OrientationSupport *support = OrientationSupport::instance();
+		if (support->orientation() != UIOrientation::Portrait) {
+			bb::device::DisplayInfo display;
+			handlePosX -= (display.pixelSize().height() - m_rootContainerWidth)/2;
+		}
 
         if(TouchType::Down == type) {
         	setMediaState(true);
@@ -534,6 +549,7 @@ void CustomSlider::progressBarTouched(TouchEvent* event)
         else
 
         if(TouchType::Up == type) {
+        	m_progressBarTouched = false;
         	if(m_handleLongPressed){
         		sliderHandleTouched(event);
         		return;
