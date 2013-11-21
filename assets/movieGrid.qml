@@ -19,7 +19,7 @@ ListView {
     }
     horizontalAlignment: HorizontalAlignment.Center
 
-    property Page secondPage
+    property Page videoPlayerPage
     property bool released: true
     property bool isMultiSelecting: false
     property bool displayRemoveMessage: false
@@ -39,21 +39,13 @@ ListView {
     property bool isRemovingFavorites: false
     property variant removingFromFavoritesIndexes
     
-
-    // Expose the menu to the rest of the application to check if it's open
-    contextMenuHandler: ContextMenuHandler {
-        id: myContext
-        objectName: "contextHandlerObj"
-        onVisualStateChanged: {
-            if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden)
-                allowLoadingVideo = true;
-            else
-                allowLoadingVideo = false;
-        }
-    }
     multiSelectAction: MultiSelectActionItem {
     }
 
+	function isInMovieGrid() {
+        return (navigationPane.top == navigationPane.at(0)); 
+    }	    
+	
     function itemType(data, indexPath) {        
         listView.firstFolder = infoListModel.getFirstFolder();
         if(indexPath.length == 1) {
@@ -77,7 +69,7 @@ ListView {
             }
         }
 
-        var page = listView.getSecondPage();
+        var page = listView.getVideoPlayerPage();
         page.currentPath = path;
         page.currentLenght = duration;
         navigationPane.push(page);
@@ -379,6 +371,21 @@ ListView {
             type: "item"
             Container {
                 id: itemRoot
+                contextMenuHandler: ContextMenuHandler {
+                    id: myContext
+                    objectName: "contextHandlerObj"
+                    onPopulating: {
+                        if (!itemRoot.ListItem.view.isInMovieGrid()) {
+                            event.abort();
+                        }
+                    }
+                    onVisualStateChanged: {
+                        if (myContext.visualState == ContextMenuVisualState.Hidden || myContext.visualState == ContextMenuVisualState.AnimatingToHidden) 
+                        	itemRoot.ListItem.view.allowLoadingVideo = true;
+                        else 
+                        	itemRoot.ListItem.view.allowLoadingVideo = false;
+                    }
+                }
                 ThumbnailItem {
                     imageSource: ListItemData.thumbURL
                     movieTitle: " " + ListItemData.title
@@ -529,13 +536,13 @@ ListView {
             if (selected && listView.selected().length != 1) {
                 infoListModel.setSelectedIndex(listView.selected())
                 infoListModel.prepareForPlay(infoListModel.getSelectedIndex());
-                if(secondPage) {
+                if(videoPlayerPage) {
                     HDMIPlayer.stop();
-                    secondPage.startListening = false
-                    secondPage.destroy();
-                    secondPage = null;
+                    videoPlayerPage.startListening = false
+                    videoPlayerPage.destroy();
+                    videoPlayerPage = null;
                 }
-                var page = getSecondPage();
+                var page = getVideoPlayerPage();
                 console.log("pushing detail " + page)
                 //variables for passing selected video path and length to videoScrollList
                 var currentPath = listView.dataModel.data(indexPath).path;
@@ -546,7 +553,6 @@ ListView {
                     nowPlayingBar.playerPage = page;
                 }
                 navigationPane.push(page);
-                settings.setValue("inPlayerView", true);
                 Application.setMenuEnabled(false);
                 clearSelection();
             }
@@ -642,11 +648,11 @@ ListView {
 
     } // onSelectionChanged
 
-    function getSecondPage() {
-        if (! secondPage) {
-            secondPage = playerPageDef.createObject();
+    function getVideoPlayerPage() {
+        if (! videoPlayerPage) {
+            videoPlayerPage = playerPageDef.createObject();
         }
-        return secondPage;
+        return videoPlayerPage;
     }
 
     onCreationCompleted: {
