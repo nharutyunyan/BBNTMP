@@ -164,6 +164,8 @@ private:
 
     float m_touchEventInitX;
     float m_handleInitX;
+    int m_handleTouchDownX;
+    int m_handleTouchMoveX;
 
     bool m_handleTouched;
 
