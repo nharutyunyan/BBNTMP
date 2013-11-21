@@ -51,38 +51,38 @@ InfoListModel::InfoListModel(QObject* parent)
 
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
-    m_producer = new Producer(this);
+    m_producer = new Producer();
 	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(produced(QString, QString)), this,
 			SLOT(consume(QString, QString)));
 
-    m_producerThread  = new QThread();
-	m_producer->moveToThread(m_producerThread);
+	m_ParalellWorkerThread = new QThread();
+
+	m_producer->moveToThread(m_ParalellWorkerThread);
+
 
 	//when producer thread is started, start to produce
-	QObject::connect(m_producerThread, SIGNAL(started()), parent,
+	QObject::connect(this, SIGNAL(produce()), parent,
 					SLOT(loadingIndicatorStart()));
-	QObject::connect(m_producerThread, SIGNAL(started()), m_producer,
+	QObject::connect(this, SIGNAL(produce()), m_producer,
 			SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(finishedCurrentVideos()), this,
 					SLOT(checkVideosWaitingThumbnail()));
 
-	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), m_producerThread,
-			SLOT(quit()));
 	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
 
-	m_mediaPlayerThread = new QThread();
 	observer = new Observer(this);
 	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), observer,
 					SLOT(setNewVideos(QStringList)));
 	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), parent,
 					SLOT(loadingIndicatorStart()));
+
 	reader = new MetaDataReader();
-	reader->moveToThread(m_mediaPlayerThread);
+	reader->moveToThread(m_ParalellWorkerThread);
+	QObject::connect(this, SIGNAL(setData(QString)), reader, SLOT(setData(QString)));
 	QObject::connect(reader, SIGNAL(metadataReady(const QVariantMap& )), this, SLOT(onMetadataReady(const QVariantMap& )));
 	QObject::connect(reader, SIGNAL(allMetaDataRead()), this, SLOT(onAllMetadataRead()));
-	QObject::connect(this, SIGNAL(setData(QStringList )), reader, SLOT(setData(QStringList )));
 	QObject::connect(reader, SIGNAL(videoNotSupported(QString)), this, SLOT(markAsDamaged(QString)));
 
 	prepareToStart();
@@ -91,7 +91,7 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(paralellWorker, SIGNAL(VideoFileListComplete(QStringList)), this,
 			SLOT(onVideoFileListComplete(QStringList)));
 
-	m_ParalellWorkerThread = new QThread();
+
 	paralellWorker->moveToThread(m_ParalellWorkerThread);
 	QObject::connect(m_ParalellWorkerThread, SIGNAL(started()), paralellWorker,
 					SLOT(getVideoFileList()));
@@ -152,7 +152,6 @@ void InfoListModel::getVideoFiles()
 				addedVideos.insert(*i);
 			}
 		}
-
 	}
 	updateListWithDeletedVideos(result);
 	if(!newVideos.isEmpty())
@@ -168,6 +167,9 @@ void InfoListModel::onVideoFileListComplete(QStringList result) {
 	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
 		QVariantMap v = data(indexPath).toMap();
 		set.insert(v["path"].toString());
+		if (v["duration"].toString()=="") {
+			readMetadata(v["path"].toString());
+		}
 	}
 
 	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
@@ -200,9 +202,36 @@ void InfoListModel::clearAddedVideos()
 
 void InfoListModel::fileComplete(QString path)
 {
-	QStringList new_;
-	new_<<(path);
-	updateListWithAddedVideos(new_);
+
+	// Slight improvement to the video exists check that was below,
+	QSet<QString> set;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		set.insert(v["path"].toString());
+	}
+
+	if (!set.contains(path)) {
+		//add new video to json data
+		QVariantMap val;
+		val["path"] = path;
+		val["position"] = "0";
+		//Get the last path component and set it as title. Might be changed in future to get title from metadata
+		QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+		val["title"] = pathElements[pathElements.size()-1];
+		// Add the thumbnail URL to the JSON file
+		val["thumbURL"] = "asset:///images/BlankThumbnail.png";
+		// Add folder
+		val["folder"] = folderFieldName(val["path"].toString());
+		val["isWatched"] = false;
+		insert(val);
+
+		QString VideoDir = path;
+		VideoDir.truncate(VideoDir.lastIndexOf('/',-1,Qt::CaseSensitive));
+		observer->addWatcher(VideoDir);
+
+		readMetadata(path);
+	}
+
 }
 
 void InfoListModel::prepareToStart()
@@ -218,40 +247,6 @@ void InfoListModel::prepareToStart()
 		file.open(QIODevice::ReadWrite | QIODevice::Text);
 	}
 	load();
-}
-
-void InfoListModel::updateListWithAddedVideos(const QStringList& result)
-{
-	// Slight improvement to the video exists check that was below,
-	QSet<QString> set;
-	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-		QVariantMap v = data(indexPath).toMap();
-		set.insert(v["path"].toString());
-	}
-
-	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
-		if (!set.contains(*i)) {
-			//add new video to json data
-			QVariantMap val;
-			val["path"] = *i;
-			val["position"] = "0";
-			//Get the last path component and set it as title. Might be changed in future to get title from metadata
-			QStringList pathElements = i->split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
-			val["title"] = pathElements[pathElements.size()-1];
-			// Add the thumbnail URL to the JSON file
-			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
-			// Add folder
-			val["folder"] = folderFieldName(val["path"].toString());
-			val["isWatched"] = false;
-			insert(val);
-			waitingVideosBuffer<<(*i);
-
-			QString VideoDir = *i;
-			VideoDir.truncate(VideoDir.lastIndexOf('/',-1,Qt::CaseSensitive));
-			observer->addWatcher(VideoDir);
-		}
-	}
-	readMetadatas();
 }
 
 void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
@@ -283,10 +278,9 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 
 InfoListModel::~InfoListModel()
 {
+	delete m_ParalellWorkerThread;
 	delete m_producer;
-	delete m_producerThread;
 	delete observer;
-	delete m_mediaPlayerThread;
 	delete reader;
     qDebug() << "Destroying InfoListModel object:" << this;
 }
@@ -323,17 +317,9 @@ void InfoListModel::saveData()
     }
 }
 
-void InfoListModel::readMetadatas()
+void InfoListModel::readMetadata(QString path)
 {
-	if(!waitingVideosBuffer.empty())
-	{
-		if(!m_mediaPlayerThread->isRunning())
-		{
-			m_mediaPlayerThread->start();
-		}
-		emit setData(waitingVideosBuffer);
-		waitingVideosBuffer.clear();
-	}
+	emit setData(path);
 }
 
 void InfoListModel::onMetadataReady(const QVariantMap& val)
@@ -358,6 +344,7 @@ void InfoListModel::onMetadataReady(const QVariantMap& val)
 	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
 	infoMap["isWatched"] = false;
 	updateItem(indexPath, infoMap);
+	saveData();
 	emit itemMetaDataAdded();
 }
 
@@ -372,10 +359,8 @@ void InfoListModel::markAsDamaged(QString path)
 
 void InfoListModel::onAllMetadataRead()
 {
-    if(!m_producerThread->isRunning()) {
-        m_producer->updateVideoList(this);
-        m_producerThread->start();
-    }
+    m_producer->updateVideoList(this);
+    emit produce();
 }
 
 QVariant InfoListModel::value(QVariantList ix, const QString &fld_name)
@@ -395,7 +380,6 @@ void InfoListModel::setValue(QVariantList ix, const QString& fld_name, const QVa
         updateItem(ix, v);
     }
 }
-
 
 void InfoListModel::setSelectedIndex(QVariantList index)
 {
@@ -689,7 +673,6 @@ QVariantList InfoListModel::getFavorites()
 QVariantList InfoListModel::getFrameVideos()
 {
 	QVariantList favoriteVideos = getFavorites();
-
 	if (favoriteVideos.length() == 0) {
 		int i = 0;
 		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {

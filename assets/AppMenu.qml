@@ -5,9 +5,9 @@ MenuDefinition {
         ActionItem {
             title: qsTr("About")+Retranslate.onLanguageChanged
             onTriggered: {
-                var page = aboutPageDefinition.createObject()
+                var page = aboutPageDefinition.createObject();
                 navigationPane.push(page);
-                Application.setMenuEnabled(false)
+                Application.setMenuEnabled(false);
             }
             imageSource: "asset:///images/appInfo.png"
         },
@@ -21,8 +21,9 @@ MenuDefinition {
         ActionItem {
             title: qsTr("Refresh") + Retranslate.onLanguageChanged
             imageSource: "asset:///images/refresh.png"
+            enabled: !loadingIndicator.running
             onTriggered: {
-                infoListModel.getVideoFiles();                
+            	infoListModel.getVideoFiles();
             }
         }
     ]
