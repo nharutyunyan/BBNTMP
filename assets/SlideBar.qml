@@ -235,7 +235,7 @@ Container {
         // Dummy component for local variables
         ComponentDefinition {
             id: my
-            property int smallStepSliderWidth: 400
+            property int smallStepSliderWidth: 468
             property int dt: 20 * 1000 // delta time in seconds
             property real longPressInitX
             property int minTime: 60 * 1000 // min time to show small steps slider
@@ -253,10 +253,6 @@ Container {
         ImagePaintDefinition {
             id: backgroundImage
             imageSource: "asset:///images/Player/SliderBackground.png"
-        },
-        ImagePaintDefinition {
-            id: zoomImage
-            imageSource: "asset:///images/Player/SliderPrecisionFill.png"
         },
         OrientationHandler {
             onOrientationAboutToChange: {
