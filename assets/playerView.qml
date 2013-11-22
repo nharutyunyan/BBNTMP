@@ -1226,8 +1226,10 @@ Page {
 
                             videoWindow.visible = true;
                             contentContainer.visible = true;
-                            if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl))
+                            if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
+                                pgPlayer.updateSubtitlesPosition();
                                 subtitleButtonContainer.videoHasSubtitles = true;
+                            }
 
                             appContainer.changeVideoPosition = false;
                             if (myPlayer.seekTime(videoPos) != MediaError.None) {
