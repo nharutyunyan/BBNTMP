@@ -131,7 +131,6 @@ private:
     float m_rootContainerHeight;
     float m_rootContainerPositionX;
 
-
     // progress bar
     Container* m_progressBarContainer;
     const float m_progressBarContainerHeight;
@@ -168,6 +167,7 @@ private:
     int m_handleTouchMoveX;
 
     bool m_handleTouched;
+    bool m_progressBarTouched;
 
     QTimer* m_timer;
     bool m_timerEnabled;
