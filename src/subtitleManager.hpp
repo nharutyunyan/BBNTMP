@@ -58,6 +58,7 @@ private:
 	bool load(QString fileName);
 	bool parseTimesLine(const QString&, uint& start, uint& end);
 	void setCurrentText (QString text);
+	QString normalizeLine(QString line);
 
 	QString m_currentText;
 	QVector<SubtitleEntry> m_entries;
