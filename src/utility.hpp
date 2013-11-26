@@ -27,6 +27,7 @@ public:
 	 */
 	static bool getEntryListR(const QString& dir, const QStringList& filters, QStringList& result);
 	static bool getSubFolders(const QString& dir, QStringList& result);
+	static void readFileList(const QString& dir, const QStringList& filters, QStringList& result);
 };
 
 
