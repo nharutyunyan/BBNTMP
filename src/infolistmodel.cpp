@@ -21,13 +21,12 @@ using namespace utility;
 //View model should be simple, and just keep the list for Views
 MovieDecoder InfoListModel::movieDecoder;
 
-
 QStringList const InfoListModel::getVideoFileList() {
 	QStringList filters, result;
 
 	//BB10 presumably supported formats: 3GP, 3GP2, ASF, AVI, F4V, M4V, MKV, MOV, MP4, MPEG4, WMV
-	filters << "*.avi" << "*.mp4" << "*.3gp" << "*.3g2" << "*.asf" << "*.wmv"
-			<< "*.mov" << "*.m4v" << "*.f4v" << "*.mkv"; //these are the formats the don't crash the app.
+	filters << ".avi" << ".mp4" << ".3gp" << ".3g2" << ".asf" << ".wmv"
+			<< ".mov" << ".m4v" << ".f4v" << ".mkv"; //these are the formats the don't crash the app.
 
 	//Phone storage
 	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);

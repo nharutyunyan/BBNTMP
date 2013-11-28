@@ -3,10 +3,14 @@
  * @brief Implementation of utility type classes
  */
 
+#include "utility.hpp"
+
 #include <QDir>
 #include <QVariant>
 
-#include "utility.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
 
 
 namespace utility {
@@ -14,15 +18,8 @@ namespace utility {
 bool FileSystemUtility::getEntryListR(const QString& dir, const QStringList& filters, QStringList& result)
 {
 	QDir currentDir(dir);
-	QDir::setCurrent(dir);
-	QStringList currentFileList = QDir::current().entryList(filters, QDir::Files);
-	if(!currentFileList.isEmpty())
-	{
-	    foreach(QString item, currentFileList)
-		{
-		  result.append(dir + "/" + item);
-		}
-	}
+
+	readFileList(dir, filters, result);
 
 	QStringList currentDirList = currentDir.entryList(QDir::Dirs);
 	foreach(QString subDir, currentDirList)
@@ -53,6 +50,33 @@ bool FileSystemUtility::getSubFolders(const QString& dir, QStringList& result)
 	return !result.isEmpty();
 }
 
+void FileSystemUtility::readFileList(const QString& dir, const QStringList& filters, QStringList& result)
+{
+	DIR* dirp;
+	dirp = opendir(dir.toLocal8Bit().data());
+	if( dirp != NULL )
+	{
+		struct dirent* direntp;
+		for(direntp = readdir( dirp ); direntp != NULL; direntp = readdir( dirp ))
+		{
+			QString fileName = dir + "/" + QString::fromLocal8Bit((char*)direntp->d_name);
+
+			QFileInfo info(fileName);
+			if(info.isFile())
+			{
+				for(int i = 0; i < filters.size(); ++i)
+				{
+					if(fileName.endsWith(filters.at(i), Qt::CaseInsensitive))
+					{
+						result << fileName;
+						break;
+					}
+				}
+			}
+		}
+		closedir( dirp );
+	}
+}
 
 MetaDataReader::MetaDataReader(QObject* parent): QObject(parent), m_started(false), m_retryCount(0)
 {

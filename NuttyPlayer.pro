@@ -22,6 +22,8 @@ simulator {
 		DESTDIR = o-g
 	}
 }
+DEFINES += _FILE_OFFSET_BITS=64
+DEFINES += _LARGEFILE64_SOURCE=1
 
 LIBS += -lmmrndclient -lscreen
 LIBS += -lbbmultimedia
