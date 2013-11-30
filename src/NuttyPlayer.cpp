@@ -203,7 +203,6 @@ void NuttyPlayer::onThumbnail() {
 
 void NuttyPlayer::onAwake() {
 	if (isMinimized) {
-		model->clearAddedVideos();
 		model->getVideoFiles();
 		isMinimized = false;
 	}

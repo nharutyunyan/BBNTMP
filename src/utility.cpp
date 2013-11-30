@@ -15,19 +15,22 @@
 
 namespace utility {
 
-bool FileSystemUtility::getEntryListR(const QString& dir, const QStringList& filters, QStringList& result)
+bool FileSystemUtility::getEntryList(const QString& dir, const QStringList& filters, QStringList& result, bool recoursive)
 {
 	QDir currentDir(dir);
 
 	readFileList(dir, filters, result);
 
-	QStringList currentDirList = currentDir.entryList(QDir::Dirs);
-	foreach(QString subDir, currentDirList)
+	if(recoursive)
 	{
-		if (subDir == "." || subDir == "..")
-			continue;
+		QStringList currentDirList = currentDir.entryList(QDir::Dirs);
+		foreach(QString subDir, currentDirList)
+		{
+			if (subDir == "." || subDir == "..")
+				continue;
 
-		getEntryListR(dir + "/" + subDir, filters, result);
+			getEntryList(dir + "/" + subDir, filters, result, true);
+		}
 	}
 
 	return !result.isEmpty();

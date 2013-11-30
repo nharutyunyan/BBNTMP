@@ -27,7 +27,7 @@ class InfoListModel : public bb::cascades::GroupDataModel
 
 public:
 
-    static QStringList const getVideoFileList();
+    static QStringList const getVideoFileList(const QString& dir = "");
 
     /*
      * Convenience method for loading data from JSON file.
@@ -135,10 +135,10 @@ public:
 
 public slots:
     void consume(QString filename, QString path);
-    void onMetadataReady(const QVariantMap& data);
-    void onVideoFileListComplete(QStringList result);
+    void onMetadataReady(QVariantMap data);
+    void onVideoFileListComplete(QStringList result, QString dir);
     void onAllMetadataRead();
-    void getVideoFiles();
+    void getVideoFiles(QString dir = "");
     void fileComplete(QString);
     void readMetadata(QString);
     void checkVideosWaitingThumbnail();
@@ -147,27 +147,28 @@ public slots:
         void consumed();
         void finished();
         void finishedThumbnailGeneration();
-        void notifyObserver(QStringList);
+        void notifyObserver(const QStringList&);
         void setData(QString);
         void produce();
         void itemMetaDataAdded();
+        void videoFilesListNeeded(QString dir);
 
 private:
     QThread* m_ParalellWorkerThread;
-    utility::MetaDataReader* reader;
-    ParalellWorker* paralellWorker;
+    utility::MetaDataReader* m_reader;
+    ParalellWorker* m_paralellWorker;
     QVariantList m_selectedIndex;
     QString m_file;
     Producer* m_producer;
     QThread* m_producerThread;
-    static MovieDecoder movieDecoder;
-    Observer* observer;
+    static MovieDecoder s_movieDecoder;
+    Observer* m_observer;
     QList<QVariantList> m_currentSelectionList;
-    QSet<QString> addedVideos;
-    QVariantList videosWaitingThumbnail;
+    QSet<QString> m_addedVideos;
+    QVariantList m_videosWaitingThumbnail;
 
     void prepareToStart();
-    void updateListWithDeletedVideos(const QStringList& result);
+    void updateListWithDeletedVideos(const QStringList& result, const QString& dir);
     QVariantMap writeVideoMetaData(QString);
 };
 
