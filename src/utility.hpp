@@ -25,7 +25,7 @@ public:
 	 * @details getEntryListR get the files list in the specified directory using the specified filters.
 	 * for example get all the ".avi" files
 	 */
-	static bool getEntryListR(const QString& dir, const QStringList& filters, QStringList& result);
+	static bool getEntryList(const QString& dir, const QStringList& filters, QStringList& result, bool recoursive = false);
 	static bool getSubFolders(const QString& dir, QStringList& result);
 	static void readFileList(const QString& dir, const QStringList& filters, QStringList& result);
 };
@@ -54,7 +54,7 @@ public:
 	 */
 
 signals:
-	void metadataReady(const QVariantMap&);
+	void metadataReady(QVariantMap);
 	void allMetaDataRead();
 	void videoNotSupported(QString path);
 

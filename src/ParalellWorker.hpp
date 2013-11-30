@@ -19,10 +19,10 @@ public:
 	virtual ~ParalellWorker();
 
 	public slots:
-	void getVideoFileList();
+	void getVideoFileList(QString dir);
 
 	signals:
-	void VideoFileListComplete(QStringList);
+	void VideoFileListComplete(QStringList, QString dir);
 
 };
 

@@ -18,7 +18,7 @@ Observer::Observer(QObject* parent): QObject(parent)
 {
 	watcher = new QFileSystemWatcher();
 	QObject::connect(this, SIGNAL(directoryChanged(const QString&)), this->parent(),
-						SLOT(getVideoFiles()));
+						SLOT(getVideoFiles(QString)));
 	QObject::connect(this, SIGNAL(Complete(QString)), this->parent(),
 						SLOT(fileComplete(QString)));
 }
@@ -72,9 +72,9 @@ void Observer::waitForComplete(const QString& path)
 	}
 }
 
-void Observer::setNewVideos(QStringList newVideos)
+void Observer::setNewVideos(const QStringList& newVideos)
 {
-	for(QStringList::iterator it = newVideos.begin(); it != newVideos.end(); ++it)
+	for(QStringList::const_iterator it = newVideos.begin(); it != newVideos.end(); ++it)
 	{
 		watcher->addPath(*it);
 		m_newVideos[*it] = 0;

@@ -29,7 +29,7 @@ signals:
 	void directoryChanged(const QString&);
 	void Complete(QString);
 public slots:
-	void setNewVideos(QStringList);
+	void setNewVideos(const QStringList&);
 	void waitForComplete(const QString&);
 };
 

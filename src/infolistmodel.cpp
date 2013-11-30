@@ -19,23 +19,30 @@ using namespace utility;
 
 //TODO: Move the data handling (storage/loading) into separate module  - DataManager
 //View model should be simple, and just keep the list for Views
-MovieDecoder InfoListModel::movieDecoder;
+MovieDecoder InfoListModel::s_movieDecoder;
 
-QStringList const InfoListModel::getVideoFileList() {
+QStringList const InfoListModel::getVideoFileList(const QString& dir) {
 	QStringList filters, result;
 
 	//BB10 presumably supported formats: 3GP, 3GP2, ASF, AVI, F4V, M4V, MKV, MOV, MP4, MPEG4, WMV
 	filters << ".avi" << ".mp4" << ".3gp" << ".3g2" << ".asf" << ".wmv"
 			<< ".mov" << ".m4v" << ".f4v" << ".mkv"; //these are the formats the don't crash the app.
 
-	//Phone storage
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/videos", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/camera", filters, result);
-	FileSystemUtility::getEntryListR("/accounts/1000/shared/downloads", filters, result);
+	if(dir != "")
+	{
+		FileSystemUtility::getEntryList(dir, filters, result, false);
+	}
+	else
+	{
+		//Phone storage
+		FileSystemUtility::getEntryList("/accounts/1000/shared/videos", filters, result, true);
+		FileSystemUtility::getEntryList("/accounts/1000/shared/camera", filters, result, true);
+		FileSystemUtility::getEntryList("/accounts/1000/shared/downloads", filters, result, true);
 
-	//SD card storage
-	if(QDir("/accounts/1000/removable/sdcard").exists())
-			FileSystemUtility::getEntryListR("/accounts/1000/removable/sdcard", filters, result);
+		//SD card storage
+		if(QDir("/accounts/1000/removable/sdcard").exists())
+				FileSystemUtility::getEntryList("/accounts/1000/removable/sdcard", filters, result, true);
+	}
 
 	return result;
 }
@@ -71,43 +78,48 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(this, SIGNAL(finishedThumbnailGeneration()), parent,
 				SLOT(onThumbnailsGenerationFinished()));
 
-	observer = new Observer(this);
-	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), observer,
-					SLOT(setNewVideos(QStringList)));
-	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), parent,
+	m_observer = new Observer(this);
+	QObject::connect(this, SIGNAL(notifyObserver(const QStringList&)), m_observer,
+					SLOT(setNewVideos(const QStringList&)));
+	QObject::connect(this, SIGNAL(notifyObserver(const QString&)), parent,
 					SLOT(loadingIndicatorStart()));
 
-	reader = new MetaDataReader();
-	reader->moveToThread(m_ParalellWorkerThread);
-	QObject::connect(this, SIGNAL(setData(QString)), reader, SLOT(setData(QString)));
-	QObject::connect(reader, SIGNAL(metadataReady(const QVariantMap& )), this, SLOT(onMetadataReady(const QVariantMap& )));
-	QObject::connect(reader, SIGNAL(allMetaDataRead()), this, SLOT(onAllMetadataRead()));
-	QObject::connect(reader, SIGNAL(videoNotSupported(QString)), this, SLOT(markAsDamaged(QString)));
+	m_observer->createWatcher();
+
+	m_reader = new MetaDataReader();
+	m_reader->moveToThread(m_ParalellWorkerThread);
+	QObject::connect(this, SIGNAL(setData(QString)), m_reader, SLOT(setData(QString)));
+	QObject::connect(m_reader, SIGNAL(metadataReady(QVariantMap)), this, SLOT(onMetadataReady(QVariantMap)));
+	QObject::connect(m_reader, SIGNAL(allMetaDataRead()), this, SLOT(onAllMetadataRead()));
+	QObject::connect(m_reader, SIGNAL(videoNotSupported(QString)), this, SLOT(markAsDamaged(QString)));
 
 	prepareToStart();
 
-	paralellWorker  = new ParalellWorker();
-	QObject::connect(paralellWorker, SIGNAL(VideoFileListComplete(QStringList)), this,
-			SLOT(onVideoFileListComplete(QStringList)));
+	m_paralellWorker  = new ParalellWorker();
+	Q_ASSERT( QObject::connect(m_paralellWorker, SIGNAL(VideoFileListComplete(QStringList,QString)), this,
+			SLOT(onVideoFileListComplete(QStringList,QString))));
 
 
-	paralellWorker->moveToThread(m_ParalellWorkerThread);
-	QObject::connect(m_ParalellWorkerThread, SIGNAL(started()), paralellWorker,
-					SLOT(getVideoFileList()));
+	m_paralellWorker->moveToThread(m_ParalellWorkerThread);
+	Q_ASSERT( QObject::connect(this, SIGNAL(videoFilesListNeeded(QString)), m_paralellWorker,
+					SLOT(getVideoFileList(QString))));
+
 	m_ParalellWorkerThread->start();
+
+	getVideoFiles();
 
 }
 
 void InfoListModel::checkVideosWaitingThumbnail()
 {
-	if(videosWaitingThumbnail.empty())
+	if(m_videosWaitingThumbnail.empty())
 	{
 		emit finishedThumbnailGeneration();
 	}
 	else
 	{
-		insertList(videosWaitingThumbnail);
-		videosWaitingThumbnail.clear();
+		insertList(m_videosWaitingThumbnail);
+		m_videosWaitingThumbnail.clear();
 		saveData();
 		m_producer->updateVideoList(this);
 		emit consumed();
@@ -130,36 +142,14 @@ void InfoListModel::consume(QString filename, QString path)
 	emit consumed();
 }
 
-void InfoListModel::getVideoFiles()
+void InfoListModel::getVideoFiles(QString dir)
 {
-	QStringList result, newVideos;
-	result = getVideoFileList();
-	QSet<QString> set;
-
-	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-		QVariantMap v = data(indexPath).toMap();
-		set.insert(v["path"].toString());
-	}
-
-	for (QStringList::const_iterator i = result.begin(); i != result.end(); ++i) {
-		bool videoExist = set.contains(*i);
-		if(!videoExist)
-		{
-			if(!addedVideos.contains(*i))
-			{
-				newVideos.push_back(*i);
-				addedVideos.insert(*i);
-			}
-		}
-	}
-	updateListWithDeletedVideos(result);
-	if(!newVideos.isEmpty())
-	{
-		emit notifyObserver(newVideos);
-	}
+	emit videoFilesListNeeded(dir);
 }
 
-void InfoListModel::onVideoFileListComplete(QStringList result) {
+void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
+{
+
 	QStringList newVideos;
 	QSet<QString> set;
 
@@ -167,6 +157,8 @@ void InfoListModel::onVideoFileListComplete(QStringList result) {
 		QVariantMap v = data(indexPath).toMap();
 		set.insert(v["path"].toString());
 		if (v["duration"].toString()=="") {
+
+			qDebug() << "readMetadata - " << v["path"].toString();
 			readMetadata(v["path"].toString());
 		}
 	}
@@ -175,14 +167,14 @@ void InfoListModel::onVideoFileListComplete(QStringList result) {
 		bool videoExist = set.contains(*i);
 		if(!videoExist)
 		{
-			if(!addedVideos.contains(*i))
+			if(!m_addedVideos.contains(*i))
 			{
 				newVideos.push_back(*i);
-				addedVideos.insert(*i);
+				m_addedVideos.insert(*i);
 			}
 		}
 	}
-	updateListWithDeletedVideos(result);
+	updateListWithDeletedVideos(result, dir);
 
 	if(!newVideos.isEmpty())
 	{
@@ -190,13 +182,11 @@ void InfoListModel::onVideoFileListComplete(QStringList result) {
 	} else {
 		onAllMetadataRead();
 	}
-
-	observer->createWatcher();
 }
 
 void InfoListModel::clearAddedVideos()
 {
-	addedVideos.clear();
+	m_addedVideos.clear();
 }
 
 void InfoListModel::fileComplete(QString path)
@@ -226,7 +216,7 @@ void InfoListModel::fileComplete(QString path)
 
 		QString VideoDir = path;
 		VideoDir.truncate(VideoDir.lastIndexOf('/',-1,Qt::CaseSensitive));
-		observer->addWatcher(VideoDir);
+		m_observer->addWatcher(VideoDir);
 
 		readMetadata(path);
 	}
@@ -248,7 +238,7 @@ void InfoListModel::prepareToStart()
 	load();
 }
 
-void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
+void InfoListModel::updateListWithDeletedVideos(const QStringList& result, const QString& scanDir)
  {
 	QDir dir;
 	QString thumbnailDir = dir.homePath() + "/thumbnails/";
@@ -258,11 +248,39 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 
 	QList<QVariantList> value;
 
+	QStringList filesToRemove;
+
+	for(QSet<QString>::const_iterator it = m_addedVideos.begin(); it != m_addedVideos.end(); ++it)
+	{
+		QFileInfo fileInfo(*it);
+		if((scanDir == "" || scanDir == fileInfo.path()) && !result.contains(*it))
+			filesToRemove << *it;
+	}
+
+	QVariantList indexPath;
+
+	for(QVariantList beforeIndexPath = last(); !beforeIndexPath.isEmpty() && !filesToRemove.isEmpty(); )
+	{
+		indexPath = beforeIndexPath;
+		beforeIndexPath = before(indexPath);
+
+		QVariantMap v (data(indexPath).toMap());
+		QString path = v["path"].toString();
+		if(filesToRemove.contains(path))
+		{
+			m_addedVideos.remove(path);
+			removeAt(indexPath);
+			QString thumbnailName = v["thumbURL"].toString();
+			dir.remove(thumbnailName.mid(7, thumbnailName.length() - 7));
+			//filesToRemove.removeOne(path);
+		}
+	}
+/*
 	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
 		QVariantMap v (data(indexPath).toMap());
 		if (!result_set.contains(v["path"].toString())) {
 			// if the video does not exist any more remote its thumbnail as well
-			addedVideos.remove(v["path"].toString());
+			m_addedVideos.remove(v["path"].toString());
 			value.push_back(indexPath);
 		}
 	}
@@ -273,14 +291,15 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result)
 		removeAt(value.last());
 		value.pop_back();
 	}
+	*/
 }
 
 InfoListModel::~InfoListModel()
 {
 	delete m_ParalellWorkerThread;
 	delete m_producer;
-	delete observer;
-	delete reader;
+	delete m_observer;
+	delete m_reader;
     qDebug() << "Destroying InfoListModel object:" << this;
 }
 
@@ -289,13 +308,20 @@ void InfoListModel::load()
     clear();
     bb::data::JsonDataAccess jda;
     QVariantList vList = jda.load(m_file).toList();
-    insertList(vList);
     if (jda.hasError()) {
         bb::data::DataAccessError error = jda.error();
         qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
     }
     else {
         qDebug() << m_file << "JSON data loaded OK!";
+    }
+
+    insertList(vList);
+
+    m_addedVideos.clear();
+    for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
+    {
+    	m_addedVideos.insert(data(indexPath).toMap()["path"].toString());
     }
 }
 
@@ -321,7 +347,7 @@ void InfoListModel::readMetadata(QString path)
 	emit setData(path);
 }
 
-void InfoListModel::onMetadataReady(const QVariantMap& val)
+void InfoListModel::onMetadataReady(QVariantMap val)
 {
 	//Update the appropriate video info entry
 	QString path = val[bb::multimedia::MetaData::Uri].toString();
@@ -757,7 +783,7 @@ void InfoListModel::markSelectedAsWatched()
 void InfoListModel::prepareForPlay(QVariantList indexPath)
 {
 	if(!isPlayable(indexPath)) {
-		reader->addToQueue(data(indexPath).toMap()["path"].toString());
+		m_reader->addToQueue(data(indexPath).toMap()["path"].toString());
 	}
 }
 

@@ -17,8 +17,8 @@ ParalellWorker::ParalellWorker(QObject *parent) : QObject(parent) {
 ParalellWorker::~ParalellWorker() {
 }
 
-void ParalellWorker::getVideoFileList() {
-	QStringList  result = InfoListModel::getVideoFileList();
-	emit VideoFileListComplete(result);
+void ParalellWorker::getVideoFileList(QString dir) {
+	QStringList  result = InfoListModel::getVideoFileList(dir);
+	emit VideoFileListComplete(result, dir);
 }
 
