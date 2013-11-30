@@ -15,18 +15,18 @@ class VideoParser
 {
 public:
 	VideoParser();
-	unsigned long long int getVideoSize(QString);
+	_int64 getVideoSize(QString);
 
 private:
 	QString ASF_Header_Object_GUID;
 	QString ASF_File_Properties_Object_GUID_FIRST_COMPONENT;
 	QString MKV_EBML_ID;
 	QString MKV_FIRST_SEGMENT_ID;
-	unsigned int getMkvSize(QString);
-	unsigned int getAviSize(QString);
-	unsigned int getQuickTimeFileSize(QString);
+	_int64 getMkvSize(QString);
+	_int64 getAviSize(QString);
+	_int64 getQuickTimeFileSize(QString);
 	unsigned int charToint(char*);
-	unsigned long long int getAsf_WmvSize(QString);
+	_int64 getAsf_WmvSize(QString);
 	QString getVideoHeaderGUID(QFile*);
 	QString getVideoFormat(QString);
 };

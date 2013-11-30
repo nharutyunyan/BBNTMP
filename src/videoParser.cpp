@@ -22,7 +22,7 @@ VideoParser::VideoParser()
 	MKV_FIRST_SEGMENT_ID = "18538067";
 }
 
-unsigned long long int VideoParser::getVideoSize(QString path)
+_int64 VideoParser::getVideoSize(QString path)
  {
 	 QString format = getVideoFormat(path);
 	 if( format == "avi")
@@ -104,7 +104,7 @@ unsigned long long int VideoParser::getVideoSize(QString path)
  	 return result;
   }
 
- unsigned int VideoParser::getMkvSize(QString path)
+ _int64 VideoParser::getMkvSize(QString path)
  {
 	 char* data = new char[4];
 	 unsigned int seekPosition = EBML_HEADER_SIZE;
@@ -123,10 +123,10 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 		 return charToint(data) + seekPosition;
 	 }
 
-	 return 0;
+	 return -1;
  }
 
- unsigned int VideoParser::getAviSize(QString path)
+ _int64 VideoParser::getAviSize(QString path)
  {
 	 unsigned int size;
 
@@ -138,7 +138,7 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 	 return size;
  }
 
- unsigned int VideoParser::getQuickTimeFileSize(QString path)
+ _int64 VideoParser::getQuickTimeFileSize(QString path)
  {
 	 unsigned int currentAtomSize;
 	 char* atomName = new char[4];
@@ -169,7 +169,7 @@ unsigned long long int VideoParser::getVideoSize(QString path)
 	 return currentAtomSize;
 }
 
- unsigned long long int VideoParser::getAsf_WmvSize(QString path)
+ _int64 VideoParser::getAsf_WmvSize(QString path)
 {
 	unsigned long long int size = 0;
 

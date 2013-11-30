@@ -21,6 +21,9 @@ Observer::Observer(QObject* parent): QObject(parent)
 						SLOT(getVideoFiles(QString)));
 	QObject::connect(this, SIGNAL(Complete(QString)), this->parent(),
 						SLOT(fileComplete(QString)));
+	QObject::connect(&m_waitTimer, SIGNAL(timeout()), this, SLOT(waitTimerTimeout()));
+
+	m_waitTimer.setInterval(2000); //check each 2 seconds
 }
 
 void Observer::createWatcher()
@@ -55,19 +58,31 @@ void Observer::waitForComplete(const QString& path)
 	{
 		QFile videoFile(path);
 		VideoParser parser;
-		if(m_newVideos[path] == 0)
+		if(m_newVideos[path].size == 0)
 		{
 			if(videoFile.size() == 0)
 				return;
-			if(parser.getVideoSize(path) == 0)
+
+			if(parser.getVideoSize(path) <= 0)
+			{
+				if(!m_waitTimer.isActive())
+					m_waitTimer.start();
+
+				m_newVideos[path].size = -1;
+				m_newVideos[path].timer.start();
 				return;
-			m_newVideos[path] = parser.getVideoSize(path);
+			}
+
+			m_newVideos[path].size = parser.getVideoSize(path);
 		}
-		if(videoFile.size() / m_newVideos[path] > 0.9)
+
+		if(m_newVideos[path].size == -1)
 		{
-			emit Complete(path);
-			watcher->removePath(path);
-			m_newVideos.erase(path);
+			m_newVideos[path].timer.start();
+		}
+		else if(videoFile.size() / m_newVideos[path].size > 0.9)
+		{
+			fileComplete(path);
 		}
 	}
 }
@@ -77,8 +92,29 @@ void Observer::setNewVideos(const QStringList& newVideos)
 	for(QStringList::const_iterator it = newVideos.begin(); it != newVideos.end(); ++it)
 	{
 		watcher->addPath(*it);
-		m_newVideos[*it] = 0;
+		m_newVideos[*it].size = 0;
 		waitForComplete(*it);
 	}
 }
 
+void Observer::waitTimerTimeout()
+{
+	for(QMap<QString, NewFileData>::iterator it = m_newVideos.begin(); it != m_newVideos.end(); ++it)
+	{
+		if(it.value().size == -1 && it.value().timer.hasExpired(5000)) // wait 5 seconds
+		{
+			fileComplete(it.key());
+			waitTimerTimeout();
+			return;
+		}
+	}
+}
+
+void Observer::fileComplete( const QString& path)
+{
+	emit Complete(path);
+	watcher->removePath(path);
+	m_newVideos.remove(path);
+	if(m_newVideos.empty() && m_waitTimer.isActive())
+		m_waitTimer.stop();
+}
