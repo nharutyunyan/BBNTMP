@@ -96,13 +96,12 @@ InfoListModel::InfoListModel(QObject* parent)
 	prepareToStart();
 
 	m_paralellWorker  = new ParalellWorker();
-	Q_ASSERT( QObject::connect(m_paralellWorker, SIGNAL(VideoFileListComplete(QStringList,QString)), this,
-			SLOT(onVideoFileListComplete(QStringList,QString))));
-
+	QObject::connect(m_paralellWorker, SIGNAL(VideoFileListComplete(QStringList,QString)), this,
+			SLOT(onVideoFileListComplete(QStringList,QString)));
 
 	m_paralellWorker->moveToThread(m_ParalellWorkerThread);
-	Q_ASSERT( QObject::connect(this, SIGNAL(videoFilesListNeeded(QString)), m_paralellWorker,
-					SLOT(getVideoFileList(QString))));
+	QObject::connect(this, SIGNAL(videoFilesListNeeded(QString)), m_paralellWorker,
+					SLOT(getVideoFileList(QString)));
 
 	m_ParalellWorkerThread->start();
 
