@@ -10,6 +10,7 @@ device {
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/System.cpp) \
@@ -32,6 +33,7 @@ device {
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/System.hpp) \
@@ -57,6 +59,7 @@ device {
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/System.cpp) \
@@ -79,6 +82,7 @@ device {
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/System.hpp) \
@@ -106,6 +110,7 @@ simulator {
                  $$quote($$BASEDIR/src/HDMIScreen.cpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.cpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.cpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.cpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.cpp) \
                  $$quote($$BASEDIR/src/Settings.cpp) \
                  $$quote($$BASEDIR/src/System.cpp) \
@@ -128,6 +133,7 @@ simulator {
                  $$quote($$BASEDIR/src/HDMIScreen.hpp) \
                  $$quote($$BASEDIR/src/HDMIVideoPlayer.hpp) \
                  $$quote($$BASEDIR/src/NuttyPlayer.hpp) \
+                 $$quote($$BASEDIR/src/ParalellWorker.hpp) \
                  $$quote($$BASEDIR/src/RegistrationHandler.hpp) \
                  $$quote($$BASEDIR/src/Settings.hpp) \
                  $$quote($$BASEDIR/src/System.hpp) \
