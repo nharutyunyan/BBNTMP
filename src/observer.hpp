@@ -34,8 +34,11 @@ private:
 
 	struct NewFileData
 	{
-		_int64 size;
+		NewFileData() : size(0), onWaitTimer(false) {}
+
 		QElapsedTimer timer;
+		_int64 size;
+		bool onWaitTimer;
 	};
 
 	QMap<QString, NewFileData> m_newVideos;
@@ -46,6 +49,7 @@ signals:
 public slots:
 	void setNewVideos(const QStringList&);
 	void waitForComplete(const QString&);
+	void putOnWaitTimer(NewFileData& fileData);
 	void waitTimerTimeout();
 
 };

@@ -54,35 +54,32 @@ void Observer::addWatcher(const QString& path)
 
 void Observer::waitForComplete(const QString& path)
 {
-	if(m_newVideos.find(path) != m_newVideos.end())
+	QMap<QString, NewFileData>::iterator fileDataIterator = m_newVideos.find(path);
+	if( fileDataIterator != m_newVideos.end())
 	{
 		QFile videoFile(path);
 		VideoParser parser;
-		if(m_newVideos[path].size == 0)
+		if(fileDataIterator.value().size == 0)
 		{
 			if(videoFile.size() == 0)
 				return;
 
-			if(parser.getVideoSize(path) <= 0)
-			{
-				if(!m_waitTimer.isActive())
-					m_waitTimer.start();
+			fileDataIterator.value().size = parser.getVideoSize(path);
 
-				m_newVideos[path].size = -1;
-				m_newVideos[path].timer.start();
+			if(fileDataIterator.value().size <= 0)
+			{
+				putOnWaitTimer(fileDataIterator.value());
 				return;
 			}
-
-			m_newVideos[path].size = parser.getVideoSize(path);
 		}
 
-		if(m_newVideos[path].size == -1)
+		if(fileDataIterator.value().onWaitTimer)
 		{
-			m_newVideos[path].timer.start();
+			fileDataIterator.value().timer.start();
 		}
-		else if(videoFile.size() / m_newVideos[path].size > 0.9)
+		else if(fileDataIterator.value().size > 0 && videoFile.size() / fileDataIterator.value().size > 0.9)
 		{
-			fileComplete(path);
+			putOnWaitTimer(fileDataIterator.value());
 		}
 	}
 }
@@ -97,11 +94,19 @@ void Observer::setNewVideos(const QStringList& newVideos)
 	}
 }
 
+void Observer::putOnWaitTimer(NewFileData& fileData)
+{
+	if(!m_waitTimer.isActive())
+		m_waitTimer.start();
+
+	fileData.onWaitTimer = true;
+	fileData.timer.start();
+}
 void Observer::waitTimerTimeout()
 {
 	for(QMap<QString, NewFileData>::iterator it = m_newVideos.begin(); it != m_newVideos.end(); ++it)
 	{
-		if(it.value().size == -1 && it.value().timer.hasExpired(5000)) // wait 5 seconds
+		if(it.value().onWaitTimer && it.value().timer.hasExpired(5000)) // wait 5 seconds
 		{
 			fileComplete(it.key());
 			waitTimerTimeout();
