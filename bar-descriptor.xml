@@ -74,6 +74,8 @@
        <image>SplashScreenPortrait.png</image>
        <image>SplashScreenLandscape.png</image>
        <image>SplashScreenQ10.png</image>
+       <image>SplashScreenPortraitZ30.png</image>
+       <image>SplashScreenLandscapeZ30.png</image>
     </splashScreens>
     <configuration id="com.qnx.qcc.toolChain.1536335078" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
@@ -115,6 +117,9 @@
     <asset path="assets/images/SplashScreenPortrait.png">SplashScreenPortrait.png</asset>
     <asset path="assets/images/SplashScreenLandscape.png">SplashScreenLandscape.png</asset>
     <asset path="assets/images/SplashScreenQ10.png">SplashScreenQ10.png</asset>
+    <asset path="assets/images">images</asset>
+    <asset path="assets/images/SplashScreenPortraitZ30.png">SplashScreenPortraitZ30.png</asset>
+    <asset path="assets/images/SplashScreenLandscapeZ30.png">SplashScreenLandscapeZ30.png</asset>
     
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>

@@ -144,8 +144,6 @@ NavigationPane {
                     }
                     preferredWidth: loadingIndicator.indicatorSize
                     preferredHeight: loadingIndicator.indicatorSize 
-                    scaleX: 1.2
-                    scaleY: 1.2                    
                 }
             }
         } // global container
