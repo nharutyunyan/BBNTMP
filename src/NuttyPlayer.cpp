@@ -177,7 +177,7 @@ void NuttyPlayer::passScreenDimensionsToQml(bb::cascades::QmlDocument *qml){
 
 void NuttyPlayer::onThumbnail() {
     Settings settings;
-    QmlDocument *qmlCover;
+    QmlDocument *qmlCover = NULL;
     bool isEnabled = false;
     isMinimized = true;
 
@@ -191,7 +191,7 @@ void NuttyPlayer::onThumbnail() {
 			isEnabled = true;
     	}
     }
-	if (isEnabled && !qmlCover->hasErrors() ) {
+	if (isEnabled && qmlCover != NULL && !qmlCover->hasErrors() ) {
 		passScreenDimensionsToQml(qmlCover);
 		qmlCover->setContextProperty("infoListModel", model);
         Container *coverContainer = qmlCover->createRootObject<Container>();
