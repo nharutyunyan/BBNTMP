@@ -23,7 +23,7 @@ Observer::Observer(QObject* parent): QObject(parent)
 						SLOT(fileComplete(QString)));
 	QObject::connect(&m_waitTimer, SIGNAL(timeout()), this, SLOT(waitTimerTimeout()));
 
-	m_waitTimer.setInterval(2000); //check each 2 seconds
+	m_waitTimer.setInterval(s_waitTimerTickTimerout); //check each 2 seconds
 }
 
 void Observer::createWatcher()
@@ -57,10 +57,11 @@ void Observer::waitForComplete(const QString& path)
 	QMap<QString, NewFileData>::iterator fileDataIterator = m_newVideos.find(path);
 	if( fileDataIterator != m_newVideos.end())
 	{
-		QFile videoFile(path);
+		QFileInfo videoFile(path);
 		VideoParser parser;
 		if(fileDataIterator.value().size == 0)
 		{
+
 			if(videoFile.size() == 0)
 				return;
 
@@ -77,9 +78,12 @@ void Observer::waitForComplete(const QString& path)
 		{
 			fileDataIterator.value().timer.start();
 		}
-		else if(fileDataIterator.value().size > 0 && videoFile.size() / fileDataIterator.value().size > 0.9)
+		else if(fileDataIterator.value().size > 0 && videoFile.size() / fileDataIterator.value().size > s_fileCompletnessTreshold)
 		{
-			putOnWaitTimer(fileDataIterator.value());
+			if(abs(videoFile.lastModified().secsTo(QDateTime::currentDateTime())) < s_newFileTimeInterval )
+				putOnWaitTimer(fileDataIterator.value());
+			else
+				fileComplete(path);
 		}
 	}
 }
@@ -106,7 +110,7 @@ void Observer::waitTimerTimeout()
 {
 	for(QMap<QString, NewFileData>::iterator it = m_newVideos.begin(); it != m_newVideos.end(); ++it)
 	{
-		if(it.value().onWaitTimer && it.value().timer.hasExpired(5000)) // wait 5 seconds
+		if(it.value().onWaitTimer && it.value().timer.hasExpired(s_timerWaitTimeout)) // wait 5 seconds
 		{
 			fileComplete(it.key());
 			waitTimerTimeout();

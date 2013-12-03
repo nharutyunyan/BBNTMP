@@ -27,8 +27,21 @@ public:
 	Observer(QObject* parent);
 	void createWatcher();
 	void addWatcher(const QString& path);
+
+public slots:
+	void setNewVideos(const QStringList&);
+	void waitForComplete(const QString&);
+
 private:
 	void fileComplete( const QString& path);
+
+signals:
+	void directoryChanged(const QString&);
+	void Complete(QString);
+
+private slots:
+	void waitTimerTimeout();
+
 private:
 	QFileSystemWatcher* watcher;
 
@@ -43,15 +56,14 @@ private:
 
 	QMap<QString, NewFileData> m_newVideos;
 	QTimer m_waitTimer;
-signals:
-	void directoryChanged(const QString&);
-	void Complete(QString);
-public slots:
-	void setNewVideos(const QStringList&);
-	void waitForComplete(const QString&);
-	void putOnWaitTimer(NewFileData& fileData);
-	void waitTimerTimeout();
 
+	static const int s_newFileTimeInterval = 60*20; 		// 20 mins;
+	static const float s_fileCompletnessTreshold  = 0.9; 	// 90% completeness should be enough.
+	static const int s_waitTimerTickTimerout = 2000; 		// every 2 seconds
+	static const int s_timerWaitTimeout = 5000; 			// 5 seconds
+
+private:
+	void putOnWaitTimer(NewFileData& fileData);
 };
 
 
