@@ -410,7 +410,7 @@ void HDMIVideoPlayer::stop() {
 }
 
 void HDMIVideoPlayer::detroyWindow() {
-    if (mmr_context_destroy(m_mmrContext) != 0) {
+    if (m_mmrContext != 0 && mmr_context_destroy(m_mmrContext) != 0) {
         qDebug() << "mmr_context_destroy Failed";
     }
 
@@ -430,11 +430,11 @@ void HDMIVideoPlayer::detroyWindow() {
     unsubscribe(screen_get_domain());
     bps_shutdown();
 
-    if (screen_destroy_window(m_screenWindow) != 0) {
+    if (m_screenWindow != NULL && screen_destroy_window(m_screenWindow) != 0) {
         qDebug() << "screen_destroy_window Failed";
     }
 
-    if (screen_destroy_context(m_screenContext) != 0) {
+    if (m_screenContext != NULL && screen_destroy_context(m_screenContext) != 0) {
         qDebug() << "screen_destroy_context Failed";
     }
 
