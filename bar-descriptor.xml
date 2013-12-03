@@ -65,18 +65,17 @@
     </initialWindow>
     
     <!--  The category where the application appears. Either core.games or core.media. -->
-    <category>core.games</category>
     <icon>
        <image>114x114.png</image>
        <image>94x94.png</image>
     </icon>
     <splashScreens>
        <image></image>
-       <image>SplashScreenPortrait.png</image>
-       <image>SplashScreenLandscape.png</image>
-       <image>SplashScreenQ10.png</image>
-       <image>SplashScreenPortraitZ30.png</image>
-       <image>SplashScreenLandscapeZ30.png</image>
+       <image>assets/images/SplashScreenQ10.png</image>
+       <image>assets/images/SplashScreenPortraitZ30.png</image>
+       <image>assets/images/SplashScreenPortrait.png</image>
+       <image>assets/images/SplashScreenLandscape.png</image>
+       <image>assets/images/SplashScreenLandscapeZ30.png</image>
     </splashScreens>
     <configuration id="com.qnx.qcc.toolChain.1536335078" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
@@ -114,12 +113,6 @@
         <include name="*.qm"/>
     </asset>
 
-    <asset path="assets/images/SplashScreenPortrait.png">SplashScreenPortrait.png</asset>
-    <asset path="assets/images/SplashScreenLandscape.png">SplashScreenLandscape.png</asset>
-    <asset path="assets/images/SplashScreenQ10.png">SplashScreenQ10.png</asset>
-    <asset path="assets/images">images</asset>
-    <asset path="assets/images/SplashScreenPortraitZ30.png">SplashScreenPortraitZ30.png</asset>
-    <asset path="assets/images/SplashScreenLandscapeZ30.png">SplashScreenLandscapeZ30.png</asset>
     <asset path="114x114.png">114x114.png</asset>
     <asset path="94x94.png">94x94.png</asset>
 
