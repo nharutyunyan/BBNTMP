@@ -51,6 +51,7 @@ QStringList const InfoListModel::getVideoFileList(const QString& dir) {
 InfoListModel::InfoListModel(QObject* parent)
 : m_selectedIndex(QVariantList())
 , m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
+, m_retryAttempts(0)
 {
     setSortingKeys(QStringList() << "folder" << "title");
     setGrouping(ItemGrouping::ByFullValue);
@@ -58,7 +59,7 @@ InfoListModel::InfoListModel(QObject* parent)
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
     m_producer = new Producer();
-	QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
+	//QObject::connect(this, SIGNAL(consumed()), m_producer, SLOT(produce()));
 	QObject::connect(m_producer, SIGNAL(produced(QString, QString)), this,
 			SLOT(consume(QString, QString)));
 
@@ -68,10 +69,10 @@ InfoListModel::InfoListModel(QObject* parent)
 
 
 	//when producer thread is started, start to produce
-	QObject::connect(this, SIGNAL(produce()), parent,
+	QObject::connect(this, SIGNAL(produce(QString)), parent,
 					SLOT(loadingIndicatorStart()));
-	QObject::connect(this, SIGNAL(produce()), m_producer,
-			SLOT(produce()));
+	QObject::connect(this, SIGNAL(produce(QString)), m_producer,
+			SLOT(produce(QString)));
 	QObject::connect(m_producer, SIGNAL(finishedCurrentVideos()), this,
 					SLOT(checkVideosWaitingThumbnail()));
 
@@ -79,9 +80,9 @@ InfoListModel::InfoListModel(QObject* parent)
 				SLOT(onThumbnailsGenerationFinished()));
 
 	m_observer = new Observer(this);
-	QObject::connect(this, SIGNAL(notifyObserver(const QStringList&)), m_observer,
+	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), m_observer,
 					SLOT(setNewVideos(const QStringList&)));
-	QObject::connect(this, SIGNAL(notifyObserver(const QString&)), parent,
+	QObject::connect(this, SIGNAL(notifyObserver(QStringList)), parent,
 					SLOT(loadingIndicatorStart()));
 
 	m_observer->createWatcher();
@@ -93,8 +94,6 @@ InfoListModel::InfoListModel(QObject* parent)
 	QObject::connect(m_reader, SIGNAL(allMetaDataRead()), this, SLOT(onAllMetadataRead()));
 	QObject::connect(m_reader, SIGNAL(videoNotSupported(QString)), this, SLOT(markAsDamaged(QString)));
 
-	prepareToStart();
-
 	m_paralellWorker  = new ParalellWorker();
 	QObject::connect(m_paralellWorker, SIGNAL(VideoFileListComplete(QStringList,QString)), this,
 			SLOT(onVideoFileListComplete(QStringList,QString)));
@@ -105,40 +104,40 @@ InfoListModel::InfoListModel(QObject* parent)
 
 	m_ParalellWorkerThread->start();
 
+	prepareToStart();
+
 	getVideoFiles();
 
 }
 
-void InfoListModel::checkVideosWaitingThumbnail()
-{
-	if(m_videosWaitingThumbnail.empty())
-	{
-		emit finishedThumbnailGeneration();
-	}
-	else
-	{
-		insertList(m_videosWaitingThumbnail);
-		m_videosWaitingThumbnail.clear();
-		saveData();
-		m_producer->updateVideoList(this);
-		emit consumed();
-	}
-}
-
 void InfoListModel::consume(QString filename, QString path)
 {
-	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-		QVariantMap v = data(indexPath).toMap();
-		if (v["path"].toString() == path) {
-			// add generated thumbnail to list model
-			setValue(indexPath, "thumbURL", "file://" + filename);
-			//when finished processing emit a consumed signal
-			emit consumed();
-			saveData();
-			return;
+	m_videosWaitingThumbnail.remove(path);
+
+	if(filename != "")
+	{
+		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap v = data(indexPath).toMap();
+			if (v["path"].toString() == path) {
+				// add generated thumbnail to list model
+				setValue(indexPath, "thumbURL", "file://" + filename);
+				saveData();
+			}
 		}
 	}
-	emit consumed();
+	else
+		m_videosFailedThumbnail.insert(path);
+
+	if(m_videosWaitingThumbnail.size() == 0)
+	{
+		if(m_videosFailedThumbnail.size() > 0 && m_retryAttempts < 2)
+		{
+			updateVideoList();
+			++m_retryAttempts;
+		}
+		else
+			emit finishedThumbnailGeneration();
+	}
 }
 
 void InfoListModel::getVideoFiles(QString dir)
@@ -148,7 +147,6 @@ void InfoListModel::getVideoFiles(QString dir)
 
 void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
 {
-
 	QStringList newVideos;
 	QSet<QString> set;
 
@@ -179,7 +177,7 @@ void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
 	{
 		emit notifyObserver(newVideos);
 	} else {
-		onAllMetadataRead();
+		//onAllMetadataRead();
 	}
 }
 
@@ -274,23 +272,6 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result, const
 			//filesToRemove.removeOne(path);
 		}
 	}
-/*
-	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-		QVariantMap v (data(indexPath).toMap());
-		if (!result_set.contains(v["path"].toString())) {
-			// if the video does not exist any more remote its thumbnail as well
-			m_addedVideos.remove(v["path"].toString());
-			value.push_back(indexPath);
-		}
-	}
-
-	while(!value.isEmpty()) {
-		QString tName = data(value.last()).toMap()["thumbURL"].toString();
-		dir.remove(tName.mid(7, tName.length() - 7));
-		removeAt(value.last());
-		value.pop_back();
-	}
-	*/
 }
 
 InfoListModel::~InfoListModel()
@@ -309,10 +290,10 @@ void InfoListModel::load()
     QVariantList vList = jda.load(m_file).toList();
     if (jda.hasError()) {
         bb::data::DataAccessError error = jda.error();
-        qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
+        //qDebug() << m_file << "JSON loading error: " << error.errorType() << ": " << error.errorMessage();
     }
     else {
-        qDebug() << m_file << "JSON data loaded OK!";
+        //qDebug() << m_file << "JSON data loaded OK!";
     }
 
     insertList(vList);
@@ -322,6 +303,7 @@ void InfoListModel::load()
     {
     	m_addedVideos.insert(data(indexPath).toMap()["path"].toString());
     }
+    updateVideoList();
 }
 
 void InfoListModel::saveData()
@@ -383,8 +365,24 @@ void InfoListModel::markAsDamaged(QString path)
 
 void InfoListModel::onAllMetadataRead()
 {
-    m_producer->updateVideoList(this);
-    emit produce();
+	m_retryAttempts = 0;
+    updateVideoList();
+}
+
+void InfoListModel::updateVideoList()
+{
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
+	{
+		QVariantMap v = data(indexPath).toMap();
+		if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png" &&
+				!m_videosWaitingThumbnail.contains(v["path"].toString()))
+		{
+		    v["indexPath"] = indexPath;
+			//m_result.insert(v);
+		    m_videosWaitingThumbnail.insert(v["path"].toString());
+		    emit produce(v["path"].toString());
+		}
+	}
 }
 
 QVariant InfoListModel::value(QVariantList ix, const QString &fld_name)
