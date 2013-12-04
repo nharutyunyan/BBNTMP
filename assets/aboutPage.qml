@@ -24,7 +24,8 @@ Page {
                     spaceQuota: 2.5
                 }
                 Label {
-                    text: qsTr("Nutty Player is a video player application that supports a wide range of formats. Offers custom movie library filters, Subtitles, Captions, Touch Screen navigation and an intuitive user interface.") + Retranslate.onLanguageChanged
+                    text: qsTr("Nutty Player is a video player application that supports a wide range of formats. Offers subtitles, captions, intuitive user interface, touch screen navigation, play over HDMI and Miracast.")
+                    + Retranslate.onLanguageChanged
                     multiline: true
                     textStyle.color: Color.Black
                 }
