@@ -12,20 +12,21 @@
 #include <cfloat>
 #include <iostream>
 #include <sys/stat.h>
+#include <QDebug>
 
 using namespace std;
 
-static const int SEEK_PERCENTAGE = 20;
+static const float SEEK_PERCENTAGE = 0.2;
 
 MovieDecoder VideoThumbnailer::movieDecoder;
 
-void VideoThumbnailer::generateThumbnail(const QString& videoFile, const string& outputFile, AVFormatContext* pAvContext)
+bool VideoThumbnailer::generateThumbnail(const QString& videoFile, const string& outputFile, int duration, AVFormatContext* pAvContext)
 {
     PngWriter pngWriter (outputFile);
-    generateThumbnail(videoFile, pngWriter, outputFile, pAvContext);
+    return generateThumbnail(videoFile, pngWriter, outputFile, duration, pAvContext);
 }
 
-void VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
+bool VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, int duration, AVFormatContext* pAvContext)
 {
 	Q_UNUSED(outputFile);
 
@@ -36,21 +37,21 @@ void VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pn
     }
     catch (exception& e)
     {
-    	// don't try to generate thumbnail if this is not a valid video file!
-    	throw(e);
-    	return;
+    	return false;
     }
     movieDecoder.decodeVideoFrame();
 
     try
     {
     	// Seek to 20% on the video
-        int secondToSeekTo = movieDecoder.getDuration(videoFile) * SEEK_PERCENTAGE / 100;
+        int secondToSeekTo = duration * SEEK_PERCENTAGE;
+        if (secondToSeekTo == 0)
+        	qDebug()<<"!!videoFile: "<<videoFile;
         movieDecoder.seek(secondToSeekTo);
     }
     catch (exception& e)
     {
-        std::cerr << e.what() << ", will use first frame" << std::endl;
+        qDebug() << e.what() << ", will use first frame";
         //seeking failed, try the first frame again
         movieDecoder.destroy();
         movieDecoder.initialize(videoFile);
@@ -68,4 +69,6 @@ void VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pn
     }
 
     pngWriter.writeFrame(&(rowPointers.front()), videoFrame.width, videoFrame.height);
+
+    return true;
 }

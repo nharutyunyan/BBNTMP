@@ -19,10 +19,10 @@ public:
     VideoThumbnailer(){}
     ~VideoThumbnailer(){}
 
-    void generateThumbnail(const QString& videoFile, const std::string& outputFile,AVFormatContext* pAvContext = 0);
+    bool generateThumbnail(const QString& videoFile, const std::string& outputFile, int duration, AVFormatContext* pAvContext = 0);
 
 private:
-    void generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext = NULL);
+    bool generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, int duration, AVFormatContext* pAvContext = NULL);
     static MovieDecoder movieDecoder;
 };
 

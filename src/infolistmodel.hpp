@@ -141,15 +141,15 @@ public slots:
     void getVideoFiles(QString dir = "");
     void fileComplete(QString);
     void readMetadata(QString);
-    void checkVideosWaitingThumbnail();
+   // void checkVideosWaitingThumbnail();
     void markAsDamaged(QString path);
     signals:
         void consumed();
         void finished();
         void finishedThumbnailGeneration();
-        void notifyObserver(const QStringList&);
+        void notifyObserver(QStringList);
         void setData(QString);
-        void produce();
+        void produce(QString path,int duration);
         void itemMetaDataAdded();
         void videoFilesListNeeded(QString dir);
 
@@ -165,11 +165,14 @@ private:
     Observer* m_observer;
     QList<QVariantList> m_currentSelectionList;
     QSet<QString> m_addedVideos;
-    QVariantList m_videosWaitingThumbnail;
+    QSet<QString> m_videosWaitingThumbnail;
+    QSet<QString> m_videosFailedThumbnail;
+    int m_retryAttempts;
 
     void prepareToStart();
     void updateListWithDeletedVideos(const QStringList& result, const QString& dir);
     QVariantMap writeVideoMetaData(QString);
+    void updateVideoList();
 };
 
 

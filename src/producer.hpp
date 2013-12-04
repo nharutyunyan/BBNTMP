@@ -15,10 +15,10 @@ class Producer: public QObject
 
 public:
     Producer(QObject* parent = 0);
-    void updateVideoList(InfoListModel* videoFiles);
 
 public slots:
-    void produce();
+    void produce(QString path, int duration);
+
 signals:
     void produced(QString data, QString index);
     void finishedCurrentVideos();

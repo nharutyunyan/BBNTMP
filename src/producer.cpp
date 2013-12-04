@@ -20,53 +20,39 @@ Producer::Producer(QObject* parent) : QObject(parent)
     m_filepath = QDir::home().absoluteFilePath("thumbnails/");
 }
 
-void Producer::updateVideoList(InfoListModel* videoFiles)
+void Producer::produce(QString path, int duration)
 {
-    m_result.clear();
+	QStringList pathElements = path.split('/',
+			QString::SkipEmptyParts, Qt::CaseSensitive);
+	// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
+	QString finalFileName = m_filepath
+			+ pathElements[pathElements.size() - 1] + "-" + QString(QCryptographicHash::hash(path.toUtf8(), QCryptographicHash::Md5).toHex()) + m_thumbPng;
 
-	for (QVariantList indexPath = videoFiles->first(); !indexPath.isEmpty(); indexPath = videoFiles->after(indexPath))
+	//create thumbnail
+	bool succssed = false;
+	try {
+		VideoThumbnailer videoThumbnailer;
+		succssed = videoThumbnailer.generateThumbnail(path, finalFileName.toUtf8().constData(), duration);
+	// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
+	} catch (exception& e) {
+		qDebug() << "Error: " << e.what() << ", path = " << path;
+		emit produced("", path);
+		succssed = false;
+		return;
+	} catch (...) {
+		qDebug() << "General error, path = " << path;
+		emit produced("", path);
+		succssed = false;
+		return;
+	}
+
+	//try one more time
+	if(!succssed)
+		emit produced("", path);
+	else
 	{
-		QVariantMap v = videoFiles->data(indexPath).toMap();
-		if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png") {
-		    v["indexPath"] = indexPath;
-			m_result.insert(v);
-		}
+		qDebug() << "Successfully generated, path = " << path;
+		emit produced(finalFileName, path);
 	}
-}
 
-void Producer::produce()
-{
-	//if no more data, emit a finished signal
-	if (m_result.isEmpty()) {
-			emit finishedCurrentVideos();
-		} else {
-
-		QVariantMap v = m_result.data(m_result.last()).toMap();
-		m_result.removeAt(m_result.last());
-		QVariantList indexPath = v["indexPath"].toList();
-
-		QStringList pathElements = v["path"].toString().split('/',
-				QString::SkipEmptyParts, Qt::CaseSensitive);
-		// Each thumbnail should have <videoFileNameWithExtention>-thumb.png format
-		QString finalFileName = m_filepath
-				+ pathElements[pathElements.size() - 1] + "-" + QString(QCryptographicHash::hash(v["path"].toByteArray(), QCryptographicHash::Md5).toHex()) + m_thumbPng;
-
-		//create thumbnail
-		try {
-			VideoThumbnailer videoThumbnailer;
-			videoThumbnailer.generateThumbnail(
-			        v["path"].toString(),
-					finalFileName.toUtf8().constData());
-		// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
-		} catch (exception& e) {
-			std::cerr << "Error: " << e.what() << endl;
-			emit produced("", "");
-			return;
-		} catch (...) {
-			std::cerr << "General error" << endl;
-			emit produced("", "");
-			return;
-		}
-		emit produced(finalFileName, v["path"].toString());
-	}
 }
