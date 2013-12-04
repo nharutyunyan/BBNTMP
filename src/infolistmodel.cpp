@@ -69,10 +69,10 @@ InfoListModel::InfoListModel(QObject* parent)
 
 
 	//when producer thread is started, start to produce
-	QObject::connect(this, SIGNAL(produce(QString)), parent,
+	QObject::connect(this, SIGNAL(produce(QString,int)), parent,
 					SLOT(loadingIndicatorStart()));
-	QObject::connect(this, SIGNAL(produce(QString)), m_producer,
-			SLOT(produce(QString)));
+	QObject::connect(this, SIGNAL(produce(QString,int)), m_producer,
+			SLOT(produce(QString,int)));
 	QObject::connect(m_producer, SIGNAL(finishedCurrentVideos()), this,
 					SLOT(checkVideosWaitingThumbnail()));
 
@@ -380,7 +380,7 @@ void InfoListModel::updateVideoList()
 		    v["indexPath"] = indexPath;
 			//m_result.insert(v);
 		    m_videosWaitingThumbnail.insert(v["path"].toString());
-		    emit produce(v["path"].toString());
+		    emit produce(v["path"].toString(), v["duration"].toString().toULongLong()/1000);
 		}
 	}
 }

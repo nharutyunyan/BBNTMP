@@ -17,7 +17,7 @@ public:
     Producer(QObject* parent = 0);
 
 public slots:
-    void produce(QString path);
+    void produce(QString path, int duration);
 
 signals:
     void produced(QString data, QString index);

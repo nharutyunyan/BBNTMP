@@ -149,7 +149,7 @@ public slots:
         void finishedThumbnailGeneration();
         void notifyObserver(QStringList);
         void setData(QString);
-        void produce(QString path);
+        void produce(QString path,int duration);
         void itemMetaDataAdded();
         void videoFilesListNeeded(QString dir);
 

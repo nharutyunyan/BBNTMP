@@ -20,7 +20,7 @@ Producer::Producer(QObject* parent) : QObject(parent)
     m_filepath = QDir::home().absoluteFilePath("thumbnails/");
 }
 
-void Producer::produce(QString path)
+void Producer::produce(QString path, int duration)
 {
 	QStringList pathElements = path.split('/',
 			QString::SkipEmptyParts, Qt::CaseSensitive);
@@ -32,7 +32,7 @@ void Producer::produce(QString path)
 	bool succssed = false;
 	try {
 		VideoThumbnailer videoThumbnailer;
-		succssed = videoThumbnailer.generateThumbnail(path, finalFileName.toUtf8().constData());
+		succssed = videoThumbnailer.generateThumbnail(path, finalFileName.toUtf8().constData(), duration);
 	// Indicate to infolistmodel that no thumbnail has been generated, thus don't try to save to json
 	} catch (exception& e) {
 		qDebug() << "Error: " << e.what() << ", path = " << path;

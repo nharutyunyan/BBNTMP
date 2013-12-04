@@ -20,13 +20,13 @@ static const float SEEK_PERCENTAGE = 0.2;
 
 MovieDecoder VideoThumbnailer::movieDecoder;
 
-bool VideoThumbnailer::generateThumbnail(const QString& videoFile, const string& outputFile, AVFormatContext* pAvContext)
+bool VideoThumbnailer::generateThumbnail(const QString& videoFile, const string& outputFile, int duration, AVFormatContext* pAvContext)
 {
     PngWriter pngWriter (outputFile);
-    return generateThumbnail(videoFile, pngWriter, outputFile, pAvContext);
+    return generateThumbnail(videoFile, pngWriter, outputFile, duration, pAvContext);
 }
 
-bool VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, AVFormatContext* pAvContext)
+bool VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pngWriter, const std::string& outputFile, int duration, AVFormatContext* pAvContext)
 {
 	Q_UNUSED(outputFile);
 
@@ -44,7 +44,9 @@ bool VideoThumbnailer::generateThumbnail(const QString& videoFile, PngWriter& pn
     try
     {
     	// Seek to 20% on the video
-        int secondToSeekTo = movieDecoder.getDuration(videoFile) * SEEK_PERCENTAGE;
+        int secondToSeekTo = duration * SEEK_PERCENTAGE;
+        if (secondToSeekTo == 0)
+        	qDebug()<<"!!videoFile: "<<videoFile;
         movieDecoder.seek(secondToSeekTo);
     }
     catch (exception& e)
