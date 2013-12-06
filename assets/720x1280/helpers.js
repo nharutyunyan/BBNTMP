@@ -40,6 +40,12 @@ var timeAreasHorizontalPaddingInPortrait = 40;
 var timeAreasHorizontalPaddingInLandscape = 35;
 var timeAreasVerticalPaddingInPortrait = 0;
 var timeAreasVerticalPaddingInLandscape = 0;
+var bookmarkPaddingYInPortrait = 20;
+var bookmarkPaddingYInLandscape = 15;
+var bookmarkAnimationForwardYPortrait = 50;
+var bookmarkAnimationBackYPortrait = 12;
+var bookmarkAnimationForwardYLandscape = 35;
+var bookmarkAnimationBackYLandscape = 12;
 var videoListScrollBar_thumbHeight = 380;
 var videoListScrollBar_thumbWidth = 380;
 
