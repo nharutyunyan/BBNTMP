@@ -50,6 +50,4 @@ var bookmarkAnimationForwardYPortrait = 50;
 var bookmarkAnimationBackYPortrait = 12;
 var bookmarkAnimationForwardYLandscape = 35;
 var bookmarkAnimationBackYLandscape = 12;
-var videoListScrollBar_thumbHeight = 380;
-var videoListScrollBar_thumbWidth = 380;
 

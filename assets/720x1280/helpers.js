@@ -34,5 +34,3 @@ var volumeIndicatorLength = 231;
 var volumeBarIndicatorsCount = 13;
 var actionBarPortraitHeight = 115;
 var actionBarLandscapeHeight = 93;
-var videoListScrollBar_thumbHeight = 380;
-var videoListScrollBar_thumbWidth = 380;
