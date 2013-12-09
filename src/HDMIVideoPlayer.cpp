@@ -457,8 +457,10 @@ void HDMIVideoPlayer::pause(bool pause) {
 
 void HDMIVideoPlayer::seekToValue(QString value)
 {
-    value.truncate(value.indexOf('.'));
-    mmr_seek(m_mmrContext, value.toAscii().data());
+	if(value.indexOf('.') >= 0) {
+			value.truncate(value.indexOf('.'));
+	}
+    int seek_res = mmr_seek(m_mmrContext, value.toAscii().data());
     m_position = value.toInt();
     emit positionChanged();
 }
