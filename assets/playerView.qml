@@ -1012,10 +1012,15 @@ Page {
                 // Investigate how the metadata can be retrieved without playing the video.
                 onMetaDataChanged: {
                     console.log("player onMetaDataChanged");
-                    console.log("--------------------------------bit_rate=" + myPlayer.metaData.bit_rate);
-                    console.log("-----------------------------------genre=" + myPlayer.metaData.genre);
-                    console.log("-----------------------------sample_rate=" + myPlayer.metaData.sample_rate);
-                    console.log("-----------------------------------title=" + myPlayer.metaData.title);
+                    if(!infoListModel.isPlayable(infoListModel.getSelectedIndex()) && myPlayer.metaData.duration != undefined) {
+                        myPlayer.stop();
+                        var item = infoListModel.data(infoListModel.getSelectedIndex());
+                        item.duration = myPlayer.metaData.duration;
+                        item.height = myPlayer.metaData.height;
+                        item.width = myPlayer.metaData.width;
+                        infoListModel.updateItem(infoListModel.getSelectedIndex(), item);
+                        initTimer.start();
+                    }
                 }
 
                 onMediaStateChanged: {
@@ -1223,7 +1228,6 @@ Page {
                                 durationSlider.bookmarkVisible = true;
                                 bookmarkTimer.start();
                             }
-
                             videoWindow.visible = true;
                             contentContainer.visible = true;
                             if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
