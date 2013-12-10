@@ -787,5 +787,5 @@ void InfoListModel::prepareForPlay(QVariantList indexPath)
 bool InfoListModel::isPlayable(QVariantList indexPath)
 {
     QVariantMap map = data(indexPath).toMap();
-    return map["duration"].toBool() || (map["duration"] == "0");
+    return map["duration"] != "-1";
 }
