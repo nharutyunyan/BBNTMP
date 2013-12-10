@@ -170,6 +170,14 @@ ListView {
             return  Helpers.favoriteIconAdd;
         return  Helpers.favoriteIconRemove; 
     }
+    
+    function getDisplayWidth() {
+        return displayInfo.width;
+    }
+    
+    function getDisplayHeight() {
+        return displayInfo.height;
+    }
 
     multiSelectHandler {
         actions: [
@@ -265,7 +273,7 @@ ListView {
                     topPadding: 10
 	                layout: DockLayout {
 	                }
-	                leftPadding: checkOrientation.orientation == UIOrientation.Portrait ? 0 : 256
+                    leftPadding: checkOrientation.orientation == UIOrientation.Portrait ? 0 : (activeFrame.ListItem.view.getDisplayWidth() - activeFrame.ListItem.view.getDisplayHeight())/2
                     Container {
                         layout: DockLayout {
                         }
@@ -276,8 +284,8 @@ ListView {
 	                        implicitLayoutAnimationsEnabled: false
 	                        imageSource: activeFrame.ListItem.view.favorites[activeFrame.ListItem.view.currentFrame]['thumbURL']
 	                        scalingMethod: ScalingMethod.AspectFill
-	                        preferredWidth: activeFrame.ListItem.view.isQ10 ? 720 : 768 // 16x
-	                        preferredHeight: activeFrame.ListItem.view.isQ10 ? 405 : 432 // 9x
+                            preferredWidth: activeFrame.ListItem.view.getDisplayHeight()          // 16x
+                            preferredHeight: (activeFrame.ListItem.view.getDisplayHeight()*9)/16  // 9x
 	                        gestureHandlers: [
 	                            TapHandler {
 	                                onTapped: {
@@ -307,7 +315,7 @@ ListView {
 	                    background: titleBackground.imagePaint
 	
 	                    preferredHeight: 70
-	                    preferredWidth: activeFrame.ListItem.view.isQ10 ? 720 : 768
+                        preferredWidth: activeFrame.ListItem.view.getDisplayHeight()
 	                    rightPadding: 10  
 	                    leftPadding: 10   
 	
