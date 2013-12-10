@@ -201,7 +201,6 @@ Page {
                     }
                     onVisibleChanged: {
                         console.log("foreignwindow visible = " + visible);
-                        console.log("maxHeight ==" + maxHeight)
                     }
                     onBoundToWindowChanged: {
                         console.log("VideoWindow bound to mediaplayer!");
@@ -663,7 +662,7 @@ Page {
                 isVisible: false
 
                 onVideoSelected: {
-                    infoListModel.setVideoPosition(myPlayer.position);
+                    infoListModel.setVideoPosition(durationSlider.value);
                     durationSlider.bookmarkVisible = false;
                     bookmarkTimer.stop();
 
@@ -683,7 +682,7 @@ Page {
                         durationSlider.resetValue();
                         durationSlider.setEnabled(true)
                     } else {
-                        infoListModel.setVideoPosition(myPlayer.position);
+                        infoListModel.setVideoPosition(durationSlider.value);
                         pgPlayer.currentPath = item.path;
                         myPlayer.setSourceUrl(item.path);
                         pgPlayer.currentLenght = item.duration;
@@ -1223,11 +1222,6 @@ Page {
                         myPlayer.setSourceUrl(infoListModel.getSelectedVideoPath());
                         myPlayer.prepare();
                         if (appContainer.playMediaPlayer() == MediaError.None) {
-                            var videoPos = 0;
-                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
-                                durationSlider.bookmarkVisible = true;
-                                bookmarkTimer.start();
-                            }
                             videoWindow.visible = true;
                             contentContainer.visible = true;
                             if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
@@ -1236,7 +1230,7 @@ Page {
                             }
 
                             appContainer.changeVideoPosition = false;
-                            if (myPlayer.seekTime(videoPos) != MediaError.None) {
+                            if (myPlayer.seekTime(0) != MediaError.None) {
                                 console.log("seekTime ERROR");
                             }
                             appContainer.changeVideoPosition = true;
@@ -1260,6 +1254,10 @@ Page {
                         }
                         videoWindow.initializeVideoScales();
                     }
+                    if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
+                        durationSlider.bookmarkVisible = true;
+                        bookmarkTimer.start();
+                    }
                     currentLenght = infoListModel.getVideoDuration();
                     infoListModel.markSelectedAsWatched();
                 }
@@ -1282,7 +1280,7 @@ Page {
         }
 
         function goBack() {
-            infoListModel.setVideoPosition(myPlayer.position);
+            infoListModel.setVideoPosition(durationSlider.value);
             appContainer.curVolume = system.getVolume();
             if(!HDMIScreen.connection || HDMIPlayer.stopped) {
                 if(HDMIPlayer.stopped)
@@ -1340,7 +1338,7 @@ Page {
     ]
     function popPage() {
         settings.setValue("inPlayerView", false);
-        infoListModel.setVideoPosition(myPlayer.position);
+        infoListModel.setVideoPosition(durationSlider.value);
         appContainer.curVolume = system.getVolume();
         if(HDMIScreen.connection) {
             if(HDMIPlayer.stopped) {
