@@ -14,6 +14,12 @@ Container {
         id: videoListView
         property  alias currentPath: videoList.currentPath
         dataModel: infoListModel
+        
+        property int thumbnailsDistance: 20
+        property int thumbnailsCount_PortraitMode: 3
+        property int thumbnailsCount_LandscapeMode: 5
+        
+        property int scrollBar_thumbSize: (OrientationSupport.orientation == UIOrientation.Portrait) ? (appContainer.widthOfScreen - (thumbnailsCount_PortraitMode-1)*thumbnailsDistance)/thumbnailsCount_PortraitMode  : (appContainer.widthOfScreen - (thumbnailsCount_LandscapeMode-1)*thumbnailsDistance)/thumbnailsCount_LandscapeMode  
 
         layout: StackListLayout {
             orientation: LayoutOrientation.LeftToRight
@@ -47,8 +53,8 @@ Container {
                             movieTitle: ListItemData.title
                             movieLength: ListItemData.duration
                             isVideoBarItem: true
-                            height: Helpers.videoListScrollBar_thumbHeight
-                            width: Helpers.videoListScrollBar_thumbWidth
+                            height: listItemtDef.ListItem.view.scrollBar_thumbSize
+                            width: listItemtDef.ListItem.view.scrollBar_thumbSize
                         }
                         bottomPadding: 10
                     }
