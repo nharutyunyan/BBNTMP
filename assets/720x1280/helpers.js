@@ -36,3 +36,10 @@ var volumeBarScaleX = 0.9;
 var volumeBarScaleY = 0.9;
 var actionBarPortraitHeight = 115;
 var actionBarLandscapeHeight = 93;
+var timeAreasHorizontalPaddingInPortrait = 40;
+var timeAreasHorizontalPaddingInLandscape = 35;
+var timeAreasVerticalPaddingInPortrait = 0;
+var timeAreasVerticalPaddingInLandscape = 0;
+var videoListScrollBar_thumbHeight = 380;
+var videoListScrollBar_thumbWidth = 380;
+
