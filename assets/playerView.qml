@@ -665,6 +665,13 @@ Page {
                     infoListModel.setVideoPosition(durationSlider.value);
                     durationSlider.bookmarkVisible = false;
                     bookmarkTimer.stop();
+                    infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
+                    durationSlider.resetValue();
+                    durationSlider.setEnabled(true)
+                    videoTitle.text = item.title;
+                    pgPlayer.currentPath = item.path;
+                    durationSlider.toValue = item.duration;
+                    pgPlayer.currentLenght = item.duration;
 
                     if (HDMIScreen.connection) {
                         console.log("2nd screen connected");
@@ -676,24 +683,12 @@ Page {
                         volume.setVisible(true);
                         // Starting listen with delay because HDMIPlayer emiting 1 stopped at the start
                         startListenForStopped.start();
-                        infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                        pgPlayer.currentPath = item.path;
-                        durationSlider.toValue = item.duration;
-                        durationSlider.resetValue();
-                        durationSlider.setEnabled(true)
                     } else {
-                        infoListModel.setVideoPosition(durationSlider.value);
-                        pgPlayer.currentPath = item.path;
                         myPlayer.setSourceUrl(item.path);
-                        pgPlayer.currentLenght = item.duration;
                         if (appContainer.playMediaPlayer() == MediaError.None) {
                             appContainer.retryCount = 5;
                             videoWindow.visible = true;
                             contentContainer.visible = true;
-                            durationSlider.toValue = item.duration;
-                            videoTitle.text = item.title;
-                            durationSlider.resetValue();
-                            durationSlider.setEnabled(true)
                             if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
                                 subtitleButtonContainer.videoHasSubtitles = true;
                                 subtitleButtonContainer.initializeStates();
@@ -701,13 +696,6 @@ Page {
                                 console.log("Force to disable");
                                 subtitleButtonContainer.videoHasSubtitles = false;
                                 subtitleAreaContainer.setOpacity(0);
-                            }
-                            infoListModel.setSelectedIndex(infoListModel.getVideoPosition(item.path));
-                            if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
-                                durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
-                                durationSlider.progressBarPositionX  = durationSlider.getProgressBarPosition();
-                                durationSlider.bookmarkVisible = true;
-                                bookmarkTimer.start();
                             }
                             upperMenu.setOpacity(1);
                             controlsContainer.setOpacity(1);
@@ -718,13 +706,18 @@ Page {
                             videoWindow.initializeVideoScales();
                             myPlayer.seekTime(0);
                             myPlayer.valueChangedBySeek = false;
-                            videoListDisappearAnimation.play();
                         } else {
                             invalidToast.show();
                         }
-                    }                    
+                    }
                     infoListModel.markSelectedAsWatched();
                     videoListDisappearAnimation.play();
+                    if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
+                        durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
+                        durationSlider.progressBarPositionX  = durationSlider.getProgressBarPosition();
+                        durationSlider.bookmarkVisible = true;
+                        bookmarkTimer.start();
+                    }
                 }
                 attachedObjects: [
                     LayoutUpdateHandler {
@@ -1237,7 +1230,7 @@ Page {
                         } else {
                             invalidToast.show();
                         }
-                        if (durationSlider.bookmarkVisible) {                            
+                        if (durationSlider.bookmarkVisible) {
                             upperMenu.setOpacity(1);
 	                        subtitleButtonContainer.setOpacity(1);
 	                        controlsContainer.setOpacity(1);
@@ -1245,7 +1238,7 @@ Page {
 	                        volume.setVisible(true);
 	                        uiControlsShowTimer.start();
                             actionBarVisibility = ChromeVisibility.Overlay;
-                        } else {                            
+                        } else {
                             upperMenu.setOpacity(0);
                             subtitleButtonContainer.setOpacity(0);
                             controlsContainer.setVisible(false);
