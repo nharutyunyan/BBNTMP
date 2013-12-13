@@ -718,6 +718,9 @@ Page {
                         durationSlider.bookmarkVisible = true;
                         bookmarkTimer.start();
                     }
+                    if (loadingIndicator.running) {
+                        loadingIndicator.stop();
+                    }
                 }
                 attachedObjects: [
                     LayoutUpdateHandler {
@@ -913,6 +916,44 @@ Page {
                 }
             ]
         } //controlsContainer
+        
+        Container {    
+            id: loadingIndicatorContainer    
+            visible: loadingIndicator.running   
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Center
+            ActivityIndicator {
+                id: loadingIndicator        
+                property int indicatorSize: 200            
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center
+                preferredHeight: loadingIndicator.indicatorSize
+                preferredWidth: loadingIndicator.indicatorSize
+            }
+            Label {
+                id: loadingText 
+                visible: loadingIndicator.running
+                text: "Loading video from remote source"
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center  
+                textStyle.fontSize: FontSize.Small       
+            }
+            Button {
+                id: loadingButton
+                text: "Cencel"     
+                visible: loadingIndicator.running   
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center 
+                onTouch: {
+                    if (event.touchType == TouchType.Up) {
+                        myPlayer.destroy();
+                        pgPlayer.destroy();		                           
+                        if(navigationPane.top == navigationPane.at(1))
+                            navigationPane.pop();                               
+                    }      
+                } 
+            }
+        }
 
         function playMediaPlayer() {
             if (bpsEventHandler.locked)
@@ -1253,11 +1294,17 @@ Page {
                     }
                     currentLenght = infoListModel.getVideoDuration();
                     infoListModel.markSelectedAsWatched();
-                }
+                    if (loadingIndicator.running) {
+                    	loadingIndicator.stop();
+                    }
+                }                
             }
         ] // Attached objects.
 
         onCreationCompleted: {
+            if (!infoListModel.isLocal(infoListModel.getSelectedVideoPath())) {
+                loadingIndicator.start();
+            }
             settings.setValue("inPlayerView", true);
             Application.thumbnail.connect(onThumbnail);
             infoListModel.itemMetaDataAdded.connect(onItemMetaDataAdded);            

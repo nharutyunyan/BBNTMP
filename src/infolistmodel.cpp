@@ -47,7 +47,6 @@ QStringList const InfoListModel::getVideoFileList(const QString& dir) {
 	return result;
 }
 
-
 InfoListModel::InfoListModel(QObject* parent)
 : m_selectedIndex(QVariantList())
 , m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
@@ -100,7 +99,7 @@ InfoListModel::InfoListModel(QObject* parent)
 
 	m_paralellWorker->moveToThread(m_ParalellWorkerThread);
 	QObject::connect(this, SIGNAL(videoFilesListNeeded(QString)), m_paralellWorker,
-					SLOT(getVideoFileList(QString)));
+			SLOT(getVideoFileList(QString)));
 
 	m_ParalellWorkerThread->start();
 
@@ -181,6 +180,38 @@ void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
 	}
 }
 
+int InfoListModel::addRemoteVideos(QStringList newVideos)
+{
+	QSet<QString> existingVideos;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+			QVariantMap v = data(indexPath).toMap();
+			existingVideos.insert(v["path"].toString());
+	}
+
+	QStringList results;
+	for (int i=0; i< newVideos.length(); ++i) {
+		if (!existingVideos.contains(newVideos[i])) {
+			results.append(newVideos[i]);
+			QVariantMap val;
+			val["path"] = newVideos[i];
+			val["position"] = "0";
+			//Get the last path component and set it as title. Might be changed in future to get title from metadata
+			QStringList pathElements = newVideos[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+			val["title"] = pathElements[pathElements.size()-1];
+			// Add the thumbnail URL to the JSON file
+			val["thumbURL"] = "asset:///images/BlankThumbnail.png";
+			// Add folder
+			val["folder"] = folderFieldName(val["path"].toString());
+			val["isWatched"] = false;
+			insert(val);
+			readMetadata(newVideos[i]);
+		}
+	}
+	saveData();
+
+	return results.count();
+}
+
 int InfoListModel::addNewVideosManually(QStringList newVideos)
 {
 	QSet<QString> existingVideos;
@@ -190,25 +221,29 @@ int InfoListModel::addNewVideosManually(QStringList newVideos)
 	}
 
 	QStringList results;
+	QStringList remoteResults;
 
 
 	for (int i=0; i< newVideos.length(); ++i) {
-		qDebug()<<"!!addNewVideosManually: "<<newVideos[i];
 		QStringList pathElements = newVideos[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-		if (!existingVideos.contains(newVideos[i]) && ((pathElements[2] == "removable" && pathElements[3] == "sdcard") ||
-													   (pathElements[2] == "shared" && (pathElements[3] == "videos" ||
-															                            pathElements[3] == "downloads" ||
-															                            pathElements[3] == "camera")))) {
-			results.append(newVideos[i]);
+		if (!existingVideos.contains(newVideos[i])) {
+			if (isLocal(newVideos[i])) {
+				results.append(newVideos[i]);
+			} else {
+				remoteResults.append(newVideos[i]);
+			}
 		}
 	}
 
 	if (results.count()>0) {
 		emit notifyObserver(results);
 	}
+	if (remoteResults.count()>0) {
+		addRemoteVideos(remoteResults);
+	}
 
-	return results.count();
+	return results.count() + remoteResults.count();
 }
 
 void InfoListModel::clearAddedVideos()
@@ -286,7 +321,7 @@ void InfoListModel::updateListWithDeletedVideos(const QStringList& result, const
 
 	QVariantList indexPath;
 
-	for(QVariantList beforeIndexPath = last(); !beforeIndexPath.isEmpty() && !filesToRemove.isEmpty(); )
+	for(QVariantList beforeIndexPath = last(); !beforeIndexPath.isEmpty() && !filesToRemove.isEmpty();)
 	{
 		indexPath = beforeIndexPath;
 		beforeIndexPath = before(indexPath);
@@ -404,8 +439,10 @@ void InfoListModel::updateVideoList()
 	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath))
 	{
 		QVariantMap v = data(indexPath).toMap();
-		if(v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png" &&
-				!m_videosWaitingThumbnail.contains(v["path"].toString()))
+
+		if( v["thumbURL"].value<QString>() == "asset:///images/BlankThumbnail.png" &&
+				!m_videosWaitingThumbnail.contains(v["path"].toString()) &&
+					isLocal(v["path"].toString()) )
 		{
 		    v["indexPath"] = indexPath;
 			//m_result.insert(v);
@@ -832,4 +869,13 @@ QVariantList InfoListModel::getIndex(QString path)
 		}
 	}
 	return QVariantList();
+}
+
+bool InfoListModel::isLocal(QString path)
+{
+	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+    return ( (pathElements[2] == "removable" && pathElements[3] == "sdcard") ||
+			 (pathElements[2] == "shared" && (pathElements[3] == "videos" ||
+											  pathElements[3] == "downloads" ||
+											  pathElements[3] == "camera")) );
 }
