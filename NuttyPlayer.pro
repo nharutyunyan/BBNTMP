@@ -36,6 +36,7 @@ LIBS += -lbbsystem
 LIBS += -lbbplatformbbm -lbbsystem
 LIBS += -lstrm
 LIBS += -lbbsystem
+LIBS += -lbbcascadespickers
 
 INCLUDEPATH += ../src
 INCLUDEPATH += ../ffmpeg/include

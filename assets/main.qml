@@ -182,6 +182,10 @@ NavigationPane {
             },
             Settings {
                 id: settings
+            },
+            SystemToast {
+                id: addedVideosToast
+                position: SystemUiPosition.MiddleCenter
             }
         ]
     }

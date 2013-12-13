@@ -181,6 +181,36 @@ void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
 	}
 }
 
+int InfoListModel::addNewVideosManually(QStringList newVideos)
+{
+	QSet<QString> existingVideos;
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		existingVideos.insert(v["path"].toString());
+	}
+
+	QStringList results;
+
+
+	for (int i=0; i< newVideos.length(); ++i) {
+		qDebug()<<"!!addNewVideosManually: "<<newVideos[i];
+		QStringList pathElements = newVideos[i].split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
+
+		if (!existingVideos.contains(newVideos[i]) && ((pathElements[2] == "removable" && pathElements[3] == "sdcard") ||
+													   (pathElements[2] == "shared" && (pathElements[3] == "videos" ||
+															                            pathElements[3] == "downloads" ||
+															                            pathElements[3] == "camera")))) {
+			results.append(newVideos[i]);
+		}
+	}
+
+	if (results.count()>0) {
+		emit notifyObserver(results);
+	}
+
+	return results.count();
+}
+
 void InfoListModel::clearAddedVideos()
 {
 	m_addedVideos.clear();
@@ -538,7 +568,9 @@ QString InfoListModel::folderFieldName(QString path)
 {
 	QStringList pathElements = path.split('/', QString::SkipEmptyParts, Qt::CaseSensitive);
 
-	if (pathElements[2] == "shared") {
+	if (pathElements[2] == "removable" && pathElements[3] == "sdcard") {
+		return QString("4Media Card");
+	} else if (pathElements[2] == "shared") {
 		QString fName = pathElements[pathElements.length()-2];
 		if(pathElements[3] == "videos")
 			return QString("1Videos");
@@ -546,9 +578,8 @@ QString InfoListModel::folderFieldName(QString path)
 			return QString("2Downloads");
 		if(pathElements[3] == "camera")
 			return QString("3Camera");
-		return QString("4Other");
-	} else if (pathElements[2] == "removable" && pathElements[3] == "sdcard") {
-		return QString("5Media Card");
+		return QString("5" + pathElements[3]);
+
 		/*
 		QString folders = "";
 		if(pathElements[4] == "videos") {
@@ -570,6 +601,8 @@ QString InfoListModel::folderFieldName(QString path)
 		}
 		return folders;
 		*/
+	} else {
+		return QString("6Other");
 	}
 	return QString();
 }
@@ -788,4 +821,15 @@ bool InfoListModel::isPlayable(QVariantList indexPath)
 {
     QVariantMap map = data(indexPath).toMap();
     return map["duration"] != "-1";
+}
+
+QVariantList InfoListModel::getIndex(QString path)
+{
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (v["path"] == path) {
+			return indexPath;
+		}
+	}
+	return QVariantList();
 }

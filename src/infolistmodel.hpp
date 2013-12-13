@@ -127,6 +127,9 @@ public:
 
     Q_INVOKABLE QString getVideoDuration();
 
+    Q_INVOKABLE int addNewVideosManually(QStringList newVideos);
+
+    Q_INVOKABLE QVariantList getIndex(QString path);
 
 public:
     InfoListModel(QObject* parent = 0);
