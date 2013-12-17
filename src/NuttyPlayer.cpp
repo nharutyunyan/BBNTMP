@@ -4,6 +4,7 @@
 #include "Settings.hpp"
 #include "BbmAppShare.hpp"
 #include "ApplicationInfo.hpp"
+#include "SubtitleArrayDataModel.h"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
@@ -37,19 +38,21 @@ thumbnailsGenerationFinished(false),
 isMinimized(false),
 invokedVideo("")
 {
-	QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
-			SLOT(onSplashscreenMinimalIntervalElapsed()));
-	QTimer::singleShot(SPLASHSCREEN_INTERVAL_MAX, this,
-			SLOT(onSplashscreenMaximalIntervalElapsed()));
+	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
+	            SLOT(onSplashscreenMinimalIntervalElapsed()));
+	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MAX, this,
+	            SLOT(onSplashscreenMaximalIntervalElapsed()));
+    // create scene document from main.qml asset
+    // set parent to created document to ensure it exists for the whole application lifetime
+    QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
 
-	// create scene document from main.qml asset
-	// set parent to created document to ensure it exists for the whole application lifetime
-	QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
+    qmlRegisterType<SubtitleArrayDataModel>("nuttyPlayer", 1, 0, "SubtitleArrayDataModel");
+
+    model = new InfoListModel(this);
+    qml->setContextProperty("infoListModel", model);
 
 	qml->setContextProperty("application", app);
 	qml->setContextProperty("nuttyplayer", this);
-	model = new InfoListModel(this);
-	qml->setContextProperty("infoListModel", model);
 
 	passScreenDimensionsToQml(qml);
 

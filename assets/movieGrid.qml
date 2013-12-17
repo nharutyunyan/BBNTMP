@@ -178,6 +178,12 @@ ListView {
         return displayInfo.height;
     }
 
+    function openSubtitlesPage(moviePath) {
+        var subtitlesPage = subtitlesPageDef.createObject();
+        subtitlesPage.setFilePath(moviePath);
+        navigationPane.push(subtitlesPage);
+    }
+
     multiSelectHandler {
         actions: [
             // Add the actions that should appear on the context menu
@@ -474,6 +480,14 @@ ListView {
                                     itemRoot.ListItem.view.updateFavorites();
                                 }
                             },
+                            ActionItem {
+                                id: subtitleDownloadOption
+                                title: qsTr("Download subtitle")
+                                imageSource: "asset:///images/GridView/downloadSubtitleAction.png"
+                                onTriggered: {
+                                    itemRoot.ListItem.view.openSubtitlesPage(ListItemData.path);
+                                }
+                            },
                             //                            ActionItem {
                             //                                title: itemRoot.ListItem.view.displayHideMessage ? "Move to original folder" : "Move to hidden"
                             //                                id: individualHiddenOption
@@ -719,6 +733,10 @@ ListView {
         ComponentDefinition {
             id: playerPageDef
             source: "playerView.qml"
+        },
+        ComponentDefinition {
+            id: subtitlesPageDef
+            source: "SubtitlesPage.qml"
         },
         MediaPlayer {
             id: videoListScrollBar
