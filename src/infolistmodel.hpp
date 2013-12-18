@@ -139,6 +139,8 @@ public:
 
     Q_INVOKABLE void addVideo(QString path);
 
+    Q_INVOKABLE void checkSubtitle(QString path = "");
+
 public:
     InfoListModel(QObject* parent = 0);
     virtual ~InfoListModel();
