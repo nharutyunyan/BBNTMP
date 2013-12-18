@@ -170,7 +170,9 @@ void InfoListModel::onVideoFileListComplete(QStringList result, QString dir)
 			}
 		}
 	}
+
 	updateListWithDeletedVideos(result, dir);
+	checkSubtitle();
 
 	if(!newVideos.isEmpty())
 	{
@@ -274,6 +276,7 @@ void InfoListModel::fileComplete(QString path)
 		// Add folder
 		val["folder"] = folderFieldName(val["path"].toString());
 		val["isWatched"] = false;
+		val["haveSubtitle"] = false;
 		insert(val);
 
 		QString VideoDir = path;
@@ -414,6 +417,16 @@ void InfoListModel::onMetadataReady(QVariantMap val)
 	infoMap["width"] = val.value(bb::multimedia::MetaData::Width).toString();
 	infoMap["height"] = val.value(bb::multimedia::MetaData::Height).toString();
 	infoMap["isWatched"] = false;
+
+	QString subtitlePath = path;
+	subtitlePath.truncate(subtitlePath.lastIndexOf('.',-1,Qt::CaseSensitive));
+	subtitlePath.append(".srt");
+	if (QFile::exists(subtitlePath)) {
+		infoMap["haveSubtitle"] = true;
+	} else {
+		infoMap["haveSubtitle"] = false;
+	}
+
 	updateItem(indexPath, infoMap);
 	saveData();
 	emit itemMetaDataAdded();
@@ -879,3 +892,22 @@ bool InfoListModel::isLocal(QString path)
 											  pathElements[3] == "downloads" ||
 											  pathElements[3] == "camera")) );
 }
+
+void InfoListModel::checkSubtitle(QString path)
+{
+	for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
+		QVariantMap v = data(indexPath).toMap();
+		if (path == "" || v["path"].toString() == path) {
+			QString subtitlePath = v["path"].toString();
+			subtitlePath.truncate(subtitlePath.lastIndexOf('.',-1,Qt::CaseSensitive));
+			subtitlePath.append(".srt");
+			if (QFile::exists(subtitlePath) != v["haveSubtitle"].toBool()) {
+				v["haveSubtitle"] = QFile::exists(subtitlePath);
+				updateItem(indexPath,v);
+			}
+			if (v["path"].toString() == path)
+				return;
+		}
+	}
+}
+
