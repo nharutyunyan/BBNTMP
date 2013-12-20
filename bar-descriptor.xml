@@ -64,6 +64,20 @@
         <transparent>false</transparent>
     </initialWindow>
     
+		
+    <!-- Invoke filters -->
+	<invoke-target id="com.example.NuttyPlayer">
+	  <invoke-target-type>application</invoke-target-type>
+	  <filter>
+	    <action>bb.action.VIEW</action>
+	    <action>bb.action.OPEN</action>
+	    <mime-type>*</mime-type>
+	    <property var="uris" value="file://"/>
+	    <property var="exts" value="avi,mp4,3gp,3g2,asf,wmv,mov,m4v,f4v,mkv"/>
+	  </filter>
+	</invoke-target>
+
+    
     <!--  The category where the application appears. Either core.games or core.media. -->
     <icon>
        <image>114x114.png</image>
@@ -125,5 +139,6 @@
     <permission>bbm_connect</permission>
     <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
     <cascadesTheme>dark</cascadesTheme>
+    <category>core.media</category>
 
 </qnx>

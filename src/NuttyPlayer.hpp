@@ -2,6 +2,8 @@
 #define NuttyPlayer_HPP_
 
 #include <QObject>
+#include <bb/system/InvokeManager>
+#include <bb/system/InvokeRequest>
 
 #include "infolistmodel.hpp"
 
@@ -26,6 +28,8 @@ public:
     virtual ~NuttyPlayer() {}
     void passScreenDimensionsToQml(bb::cascades::QmlDocument *qml);
 
+    Q_INVOKABLE QString getInvokedVideo();
+
 public slots:
     void onSplashscreenMinimalIntervalElapsed();
     void onSplashscreenMaximalIntervalElapsed();
@@ -35,6 +39,10 @@ public slots:
     void onVideoUpdateNotification();
     void loadingIndicatorStart();
     void loadingIndicatorStop();
+    void onInvoke(const bb::system::InvokeRequest&);
+    signals:
+    	void invoked();
+
 
 private:
     bb::cascades::AbstractPane *root;
@@ -42,6 +50,7 @@ private:
     bool thumbnailsGenerationFinished;
     bool isMinimized;
     InfoListModel* model;
+    QString invokedVideo;
 };
 
 #endif /* NuttyPlayer_HPP_ */

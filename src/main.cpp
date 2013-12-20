@@ -11,6 +11,8 @@
 #include <iostream>
 #include <QVariantList>
 #include <bb/system/phone/Phone>
+#include <bb/system/InvokeManager>
+#include <bb/system/InvokeRequest>
 
 #include "BpsEventHandler.hpp"
 #include "exceptions.hpp"
@@ -24,6 +26,7 @@
 #include "System.hpp"
 
 using namespace bb::cascades;
+using namespace bb::system;
 using namespace utility;
 using namespace exceptions;
 
@@ -35,23 +38,23 @@ using namespace exceptions;
 void myMessageOutput(QtMsgType type, const char* msg)
 {
     //Lets keep this commented, since it affects the performance.
-    fprintf(stdout, "%s\n", msg);
-    fflush(stdout);
+	 QString input(msg);
+	 if (input.contains("!!"))
+	 {
+	  fprintf(stdout, "%s\n", msg);
+	  fflush(stdout);
+	 }
 }
 */
-
-
 
 Q_DECL_EXPORT int main(int argc, char **argv)
 {
     Application app(argc, argv);
-
 /*
 	#ifndef QT_NO_DEBUG
 		qInstallMsgHandler(myMessageOutput);
 	#endif
 */
-
     QmlDocument *qmlSplash = QmlDocument::create("asset:///animatedSplash.qml");
     Application::instance()->setScene(qmlSplash->createRootObject<AbstractPane>());
 
@@ -73,10 +76,15 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     }
 
   	// Create and load the QML file, using build patterns.
-    new NuttyPlayer(&app);
+    NuttyPlayer *nuttyPlayer = new NuttyPlayer(&app);
+    InvokeManager invokeManager;
+    QObject::connect(&invokeManager, SIGNAL(invoked(const bb::system::InvokeRequest&)),
+    				 nuttyPlayer, SLOT(onInvoke(const bb::system::InvokeRequest&)));
+
     app.setAutoExit(false);
 
     return Application::exec();
 }
+
 
 

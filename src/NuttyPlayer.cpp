@@ -14,6 +14,7 @@
 #include <bb/cascades/SceneCover>
 
 using namespace bb::cascades;
+using namespace bb::system;
 
 const int SPLASHSCREEN_INTERVAL_MIN = 1000;
 const int SPLASHSCREEN_INTERVAL_MAX = 3000;
@@ -33,29 +34,27 @@ NuttyPlayer::NuttyPlayer(bb::cascades::Application *app)
 root(NULL),
 splashScreenMinimalIntervalElapsed(false),
 thumbnailsGenerationFinished(false),
-isMinimized(false)
+isMinimized(false),
+invokedVideo("")
 {
+	QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
+			SLOT(onSplashscreenMinimalIntervalElapsed()));
+	QTimer::singleShot(SPLASHSCREEN_INTERVAL_MAX, this,
+			SLOT(onSplashscreenMaximalIntervalElapsed()));
 
-	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MIN, this,
-	            SLOT(onSplashscreenMinimalIntervalElapsed()));
-	 QTimer::singleShot(SPLASHSCREEN_INTERVAL_MAX, this,
-	            SLOT(onSplashscreenMaximalIntervalElapsed()));
-    // create scene document from main.qml asset
-    // set parent to created document to ensure it exists for the whole application lifetime
-    QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
+	// create scene document from main.qml asset
+	// set parent to created document to ensure it exists for the whole application lifetime
+	QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
 
-    qml->setContextProperty("application", app);
-    qml->setContextProperty("nuttyplayer", this);
+	qml->setContextProperty("application", app);
+	qml->setContextProperty("nuttyplayer", this);
+	model = new InfoListModel(this);
+	qml->setContextProperty("infoListModel", model);
 
-    model = new InfoListModel(this);
-    qml->setContextProperty("infoListModel", model);
-
-    passScreenDimensionsToQml(qml);
-
+	passScreenDimensionsToQml(qml);
 
 	HDMIScreen* hdmi = new HDMIScreen(app);
 	qml->setContextProperty("HDMIScreen", hdmi);
-
 	HDMIVideoPlayer* hdmiPlayer = new HDMIVideoPlayer(app);
 	qml->setContextProperty("HDMIPlayer", hdmiPlayer);
 
@@ -64,27 +63,40 @@ isMinimized(false)
 	bool result = connect (hdmi, SIGNAL(connectionChanged(bool)) , hdmiPlayer, SLOT(onConnectionChanged(bool)));
 	Q_ASSERT(result);
 
-    // create root object for the UI
-    root = qml->createRootObject<AbstractPane>();
-    qml->setContextProperty("_appShare", new BbmAppShare(this, UUID));
-    qml->setContextProperty("infoListModel", model);
+	// create root object for the UI
+	root = qml->createRootObject<AbstractPane>();
+	qml->setContextProperty("_appShare", new BbmAppShare(this, UUID));
+	qml->setContextProperty("infoListModel", model);
 
-    passAppVersion(qml);
+	passAppVersion(qml);
 
 	// Check for videos on the phone in the model
 	onVideoUpdateNotification();
 
-
-
-    connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
-    connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
-
+	connect(Application::instance(), SIGNAL(thumbnail()), this, SLOT(onThumbnail()));
+	connect(Application::instance(), SIGNAL(awake()), this, SLOT(onAwake()));
 
 	connect(model, SIGNAL(itemsChanged(bb::cascades::DataModelChangeType::Type, QSharedPointer< bb::cascades::DataModel::IndexMapper)),
-		  this, SLOT(onVideoUpdateNotification()));
+	  this, SLOT(onVideoUpdateNotification()));
 	connect(model, SIGNAL(itemAdded(QVariantList)), this, SLOT(onVideoUpdateNotification()));
 	connect(model, SIGNAL(itemRemoved(QVariantList)), this, SLOT(onVideoUpdateNotification()));
 }
+
+void NuttyPlayer::onInvoke(const bb::system::InvokeRequest& invoke)
+{
+    InvokeManager invokeManager;
+    if (invokeManager.startupMode() == ApplicationStartupMode::InvokeApplication && invokedVideo == "") {
+    	invokedVideo = invoke.uri().toLocalFile();
+    } else {
+    	invokedVideo = invoke.uri().toLocalFile();
+        emit invoked();
+    }
+}
+
+QString NuttyPlayer::getInvokedVideo() {
+	return invokedVideo;
+}
+
 
 void NuttyPlayer::loadingIndicatorStart()
 {

@@ -15,7 +15,6 @@ ListView {
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
         spacingAfterHeader: 5
         verticalCellSpacing: 5
-
     }
     horizontalAlignment: HorizontalAlignment.Center
 
@@ -527,6 +526,7 @@ ListView {
         select(indexPath);
 
     }
+
     onSelectionChanged: {
         if (selected) { 
             var allSelected = listView.selectionList();
@@ -663,11 +663,20 @@ ListView {
         return videoPlayerPage;
     }
 
-    onCreationCompleted: {
-        updateFrame.start();
-    }
-
-    attachedObjects: [
+    onCreationCompleted: {   	
+        updateFrame.start();  
+        checkInvoke.start();                  
+    }    
+    
+    function onInvoked() {
+        var path = nuttyplayer.getInvokedVideo();
+        if ( path != "" ) {
+            var index = infoListModel.getIndex(path);
+            listView.select(index,true);
+        } 
+    }  
+       
+   attachedObjects: [
         OrientationHandler {
             id: orientationHandler
             onOrientationAboutToChange: {
@@ -726,6 +735,14 @@ ListView {
             interval: 4000
             onTimeout: {
                 listView.checkForUpdateFrame = ! listView.checkForUpdateFrame;
+            }
+        },
+        QTimer{
+            id: checkInvoke
+            singleShot: true
+            interval: 3000
+            onTimeout: {
+                listView.onInvoked();
             }
         }
     ]
