@@ -97,11 +97,9 @@ Container {
         horizontalAlignment: HorizontalAlignment.Right        
         topPadding: 20
         rightPadding: 20
-        Label {
-            text: "Sub"           
+        ImageView{
+            imageSource: "asset:///images/GridView/subtitleAvailible.png"
             opacity: haveSubtitle ? 1 : 0
-            textStyle.color: Color.Green
-            textStyle.fontSize: FontSize.XSmall
         }
     }
 
