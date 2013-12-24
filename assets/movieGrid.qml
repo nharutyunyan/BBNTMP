@@ -399,6 +399,7 @@ ListView {
                     isVideoBarItem: false
                     isWatched: ListItemData.isWatched
                     haveSubtitle: ListItemData.haveSubtitle
+                    isRemote: parseInt(ListItemData.folder.toString().substring(0, 1)) == 5 ? true: false // because remote video's folder starts with 5
                 }
                 opacity: 0.0
 
