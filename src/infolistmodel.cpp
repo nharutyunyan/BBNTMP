@@ -946,3 +946,8 @@ void InfoListModel::updateJson()
         QFile::remove(QDir::home().absoluteFilePath(filename));
     }
 }
+
+void InfoListModel::addVideo(QString path)
+{
+	fileComplete(path);
+}
