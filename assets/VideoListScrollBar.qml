@@ -21,6 +21,7 @@ Container {
         
         property int scrollBar_thumbSize: (OrientationSupport.orientation == UIOrientation.Portrait) ? (appContainer.widthOfScreen - (thumbnailsCount_PortraitMode-1)*thumbnailsDistance)/thumbnailsCount_PortraitMode  : (appContainer.widthOfScreen - (thumbnailsCount_LandscapeMode-1)*thumbnailsDistance)/thumbnailsCount_LandscapeMode  
 
+		property variant selectedItem 
         layout: StackListLayout {
             orientation: LayoutOrientation.LeftToRight
             headerMode: ListHeaderMode.Standard
@@ -79,11 +80,27 @@ Container {
             }
         ]
         onTriggered: {
-            videoSelected(dataModel.data(indexPath));
+            if (infoListModel.isLocal(dataModel.data(indexPath).path)) {
+                videoSelected(dataModel.data(indexPath));
+            } else {               
+                videoListView.selectedItem = dataModel.data(indexPath);
+                startRemoteVideo.start();   
+                loadingIndicator.start();              
+            }                      
         }
         onCreationCompleted: {
             videoListView.scrollToPosition(0, ScrollAnimation.None);
         }
+        attachedObjects: [
+            QTimer {
+                id: startRemoteVideo
+                singleShot: true
+                interval: 1
+                onTimeout: {
+                    videoSelected(videoListView.selectedItem);
+                }
+            }
+        ]
     }
     function scrollItemToMiddle(index, isOrientationLandscape) {
         index = infoListModel.getRealIndex(index);

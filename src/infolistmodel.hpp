@@ -129,7 +129,11 @@ public:
 
     Q_INVOKABLE int addNewVideosManually(QStringList newVideos);
 
+    Q_INVOKABLE int addRemoteVideos(QStringList newVideos);
+
     Q_INVOKABLE QVariantList getIndex(QString path);
+
+    Q_INVOKABLE bool isLocal(QString path);
 
 public:
     InfoListModel(QObject* parent = 0);
@@ -140,6 +144,7 @@ public slots:
     void consume(QString filename, QString path);
     void onMetadataReady(QVariantMap data);
     void onVideoFileListComplete(QStringList result, QString dir);
+
     void onAllMetadataRead();
     void getVideoFiles(QString dir = "");
     void fileComplete(QString);
