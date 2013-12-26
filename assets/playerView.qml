@@ -893,11 +893,11 @@ Page {
                     }
 
                     function getBookmarkPosition() {
-                        return OrientationSupport.orientation == UIOrientation.Landscape ? timeAreaWidth + sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * timeAreaWidth - sliderHandleWidth) - 30 : sliderHandleWidth / 2 + (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - sliderHandleWidth) - 30
+                        return OrientationSupport.orientation == UIOrientation.Landscape ? timeAreaWidth + (displayInfo.width - height - timeAreaWidth * 2) * (infoListModel.getVideoPosition() / pgPlayer.currentLenght) + 24: (displayInfo.height - height) * (infoListModel.getVideoPosition() / pgPlayer.currentLenght) + 24;
                     }
-                    
+
                     function getProgressBarPosition() {
-                        return OrientationSupport.orientation == UIOrientation.Landscape ? (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - 2 * timeAreaWidth - sliderHandleWidth) : (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - sliderHandleWidth) 
+                        return OrientationSupport.orientation == UIOrientation.Landscape ? (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.width - height - timeAreaWidth * 2) + 10: (infoListModel.getVideoPosition() / pgPlayer.currentLenght) * (displayInfo.height - height) + 10;
                     }
 
                 } //durationSlider
