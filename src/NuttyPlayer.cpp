@@ -3,6 +3,7 @@
 #include "HDMIVideoPlayer.hpp"
 #include "Settings.hpp"
 #include "BbmAppShare.hpp"
+#include "ApplicationInfo.hpp"
 
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/Application>
@@ -18,31 +19,9 @@ const int SPLASHSCREEN_INTERVAL_MIN = 1000;
 const int SPLASHSCREEN_INTERVAL_MAX = 3000;
 
 const QString UUID = "8929e8d9-8ab0-43d7-8945-83e702a1dec0";
-const QString APP_VERSION_KEY = "Application-Version:";
 
 void passAppVersion(QmlDocument *qml) {
-    QString version;
-
-    // Get the version of the app
-    // The version in the MANIFEST.MF file is the one that the app was signed with.
-    // The version in bar-descriptor.xml is not accurate when build from command line
-    QString path = QDir::home().absoluteFilePath("") + "/../app/META-INF/MANIFEST.MF";
-    QFile textfile(path);
-    if (textfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream stream(&textfile);
-        QString line;
-        do {
-            line = stream.readLine();
-            if (line.startsWith(APP_VERSION_KEY)) {
-                version = line.remove(APP_VERSION_KEY, Qt::CaseSensitive);
-                break;
-            }
-        } while (!line.isNull());
-    }
-
-    if (version.isEmpty()) {
-        version = "Unknown"; // Should not happen so no need to localise
-    }
+    QString version = ApplicationInfo::getApplicationVersion();
 
     QDeclarativePropertyMap* appProperties = new QDeclarativePropertyMap;
     appProperties->insert("version", QVariant(version));

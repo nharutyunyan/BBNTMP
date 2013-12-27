@@ -186,6 +186,7 @@ private:
     void updateListWithDeletedVideos(const QStringList& result, const QString& dir);
     QVariantMap writeVideoMetaData(QString);
     void updateVideoList();
+    void updateJson();
 };
 
 

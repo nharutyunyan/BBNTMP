@@ -11,6 +11,7 @@
 #include <QVariantList>
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
+#include "ApplicationInfo.hpp"
 
 #include <bb/data/JsonDataAccess>
 
@@ -52,12 +53,13 @@ QStringList const InfoListModel::getVideoFileList(const QString& dir) {
 
 InfoListModel::InfoListModel(QObject* parent)
 : m_selectedIndex(QVariantList())
-, m_file(QDir::home().absoluteFilePath("videoInfoList.json"))
+, m_file(QDir::home().absoluteFilePath(ApplicationInfo::getValidJsonName()))
 , m_retryAttempts(0)
 {
     setSortingKeys(QStringList() << "folder" << "title");
     setGrouping(ItemGrouping::ByFullValue);
 
+    updateJson();
     qDebug() << "Creating InfoListModel object:" << this;
     setParent(parent);
     m_producer = new Producer();
@@ -913,3 +915,34 @@ void InfoListModel::checkSubtitle(QString path)
 	}
 }
 
+void InfoListModel::updateJson()
+{
+    QString filename = ApplicationInfo::getJsonName();
+
+    QString version = ApplicationInfo::getApplicationVersion();
+
+    if(filename != ApplicationInfo::getValidJsonName()) {
+        if(filename == "")
+            return;
+        bb::data::JsonDataAccess jda;
+        QVariantList vList = jda.load(QDir::home().absoluteFilePath(filename)).toList();
+        QVariantList newList;
+        while(!vList.isEmpty()) {
+            QVariantMap map = vList.first().value<QVariantMap>();
+            vList.pop_front();
+            // make check
+            if(!map["folder"].isValid()) {
+                map["folder"] = folderFieldName(map["path"].toString());
+            }
+            if(!map["isWatched"].isValid()) {
+                 map["isWatched"] = false;
+            }
+            if(!map["haveSubtitle"].isValid()) {
+                map["haveSubtitle"] = false;
+            }
+            newList.push_back(QVariant(map));
+        }
+        jda.save(QVariant(newList), m_file);
+        QFile::remove(QDir::home().absoluteFilePath(filename));
+    }
+}
