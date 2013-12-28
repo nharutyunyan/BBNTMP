@@ -41,7 +41,6 @@ Container {
 	            preferredWidth: width
 	            maxHeight: height
 	            maxWidth: width
-	            leftPadding: 2
 	        }
 
             Container {
