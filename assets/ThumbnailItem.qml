@@ -14,6 +14,8 @@ Container {
     property alias movieTitle: title.text
     property variant movieLength: ""
     property bool isWatched: true
+    property bool haveSubtitle: false
+    
 
     property int height: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
     property int width: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
@@ -88,6 +90,18 @@ Container {
             opacity: isWatched ? 0 : 1
             scaleX: 0.8
             scaleY: 0.8 
+        }
+    }
+    
+    Container {
+        horizontalAlignment: HorizontalAlignment.Right        
+        topPadding: 20
+        rightPadding: 20
+        Label {
+            text: "Sub"           
+            opacity: haveSubtitle ? 1 : 0
+            textStyle.color: Color.Green
+            textStyle.fontSize: FontSize.XSmall
         }
     }
 

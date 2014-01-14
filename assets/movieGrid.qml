@@ -400,6 +400,7 @@ ListView {
                     movieLength: ListItemData.duration
                     isVideoBarItem: false
                     isWatched: ListItemData.isWatched
+                    haveSubtitle: ListItemData.haveSubtitle
                 }
                 opacity: 0.0
 

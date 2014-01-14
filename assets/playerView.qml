@@ -711,6 +711,7 @@ Page {
                         }
                     }
                     infoListModel.markSelectedAsWatched();
+                    infoListModel.checkSubtitle(item.path);
                     videoListDisappearAnimation.play();
                     if (infoListModel.getVideoPosition() > appContainer.bookmarkMinTime && infoListModel.getVideoPosition() < appContainer.bookmarkMaxTime) {
                         durationSlider.bookmarkPositionX = durationSlider.getBookmarkPosition();
@@ -1261,6 +1262,8 @@ Page {
                             if (subtitleManager.setSubtitleForVideo(myPlayer.sourceUrl)) {
                                 pgPlayer.updateSubtitlesPosition();
                                 subtitleButtonContainer.videoHasSubtitles = true;
+                            } else {
+                                subtitleButtonContainer.videoHasSubtitles = false;
                             }
 
                             appContainer.changeVideoPosition = false;
@@ -1297,6 +1300,7 @@ Page {
                     if (loadingIndicator.running) {
                     	loadingIndicator.stop();
                     }
+                    infoListModel.checkSubtitle(infoListModel.getSelectedVideoPath());
                 }                
             }
         ] // Attached objects.
