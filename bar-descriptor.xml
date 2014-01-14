@@ -79,27 +79,15 @@
     </splashScreens>
     <configuration id="com.qnx.qcc.toolChain.1536335078" name="Device-Debug">
        <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavcodec.so.54">lib/libavcodec.so.54</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavformat.so.54">lib/libavformat.so.54</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavutil.so.51">lib/libavutil.so.51</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libswscale.so.2">lib/libswscale.so.2</asset>
        <asset path="arm/o.le-v7-g/NuttyPlayer" entry="true" type="Qnx/Elf">NuttyPlayer</asset>
     </configuration>
     <configuration id="com.qnx.qcc.toolChain.1261453208" name="Device-Release">
        <entryPointType>Qnx/Cascades</entryPointType>
        <platformArchitecture>armle-v7</platformArchitecture>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavcodec.so.54">lib/libavcodec.so.54</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavformat.so.54">lib/libavformat.so.54</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libavutil.so.51">lib/libavutil.so.51</asset>
-       <asset path="ffmpeg/lib/lgpl/armle-v7/libswscale.so.2">lib/libswscale.so.2</asset>
-       <!-- <asset path="libx264/lib/armle-v7/libx264.so.125">lib/libx264.so.125</asset>-->
-       <asset path="arm/o.le-v7/NuttyPlayer.so" entry="true" type="Qnx/Elf">NuttyPlayer.so</asset> 
+       <asset path="arm/o.le-v7/NuttyPlayer.so" entry="true" type="Qnx/Elf">NuttyPlayer.so</asset>
     </configuration>
     <configuration id="com.qnx.qcc.toolChain.297178804" name="Simulator-Debug">
        <platformArchitecture>x86</platformArchitecture>
-       <asset path="ffmpeg/lib/lgpl/x86/libavcodec.a">lib/libavcodec.a</asset>
-       <asset path="ffmpeg/lib/lgpl/x86/libavformat.a">lib/libavformat.a</asset>
-       <asset path="ffmpeg/lib/lgpl/x86/libavutil.a">lib/libavutil.a</asset>
        <!-- <asset path="libx264/lib/x86/libx264.a">lib/libx264.a</asset>-->
        <asset path="x86/o-g/NuttyPlayer" entry="true" type="Qnx/Elf">NuttyPlayer</asset>
     </configuration>
