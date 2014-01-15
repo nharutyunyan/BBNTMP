@@ -260,12 +260,11 @@ ListView {
                     id: frameContainer
                     property bool checkForUpdateFrame: activeFrame.ListItem.view.checkForUpdateFrame
                     onCheckForUpdateFrameChanged: {
-                        if (activeFrame.visible) {
+                        if (frameContainer.visible) {
                             activeFrame.ListItem.view.updateFavorites();
-                            if (activeFrame.ListItem.view.currentFrame >= activeFrame.ListItem.view.favorites.length - 1) {
+                            activeFrame.ListItem.view.currentFrame = activeFrame.ListItem.view.currentFrame + 1;
+                            if (activeFrame.ListItem.view.currentFrame > activeFrame.ListItem.view.favorites.length - 1) {
                                 activeFrame.ListItem.view.currentFrame = 0;
-                            } else {
-                                activeFrame.ListItem.view.currentFrame = activeFrame.ListItem.view.currentFrame + 1;
                             }
                         }
                     }
