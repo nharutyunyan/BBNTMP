@@ -29,7 +29,7 @@ MenuDefinition {
         },
         ActionItem {
             title: qsTr("Browse") + Retranslate.onLanguageChanged
-            //imageSource: "asset:///images/"  
+            imageSource: "asset:///images/GridView/browse.png"
             onTriggered: {
                filePicker.open();              
             }
