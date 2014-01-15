@@ -61,7 +61,6 @@ Container {
 	        verticalAlignment: VerticalAlignment.Bottom
 	        horizontalAlignment: HorizontalAlignment.Center
 	        property int positionOfX
-	
 	        CustomSlider {
 	            id: slider
 	            objectName: "slider"
@@ -69,7 +68,6 @@ Container {
 	            verticalAlignment: VerticalAlignment.Bottom
 	            fromValue: slideBar.fromValue
 	            toValue: slideBar.toValue	
-
 	            onHandleLongPressed: {
 	                slideBar.onSlider = true;
 	                if (slider.toValue > my.minTime) {
@@ -175,7 +173,6 @@ Container {
 	        gestureHandlers: [
 	            TapHandler {
 	                onTapped: {
-	                    console.log("bookmark touched =====")
 	                    slideBar.bookmarkTouched = ! slideBar.bookmarkTouched
 	                }
 	            }
