@@ -38,11 +38,13 @@ LIBS += -lstrm
 LIBS += -lbbsystem
 LIBS += -lbbcascadespickers
 
-INCLUDEPATH += ../src
+INCLUDEPATH += ../src ../src/libmaia
 INCLUDEPATH += ../ffmpeg/include
 
-SOURCES += ../src/*.cpp
-HEADERS += ../src/*.hpp ../src/*.h
+SOURCES += ../src/*.cpp ../src/libmaia/*.cpp
+HEADERS += ../src/*.hpp ../src/*.h ../src/libmaia/*.h
+
+QT += network xml
  
 TRANSLATIONS += \
     $${TARGET}_en_GB.ts \
