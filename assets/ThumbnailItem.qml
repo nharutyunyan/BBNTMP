@@ -15,7 +15,7 @@ Container {
     property variant movieLength: ""
     property bool isWatched: true
     property bool haveSubtitle: false
-    
+    property bool isRemote: false
 
     property int height: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
     property int width: orientationHandler.orientation == UIOrientation.Portrait ? 380 : 320
@@ -100,6 +100,16 @@ Container {
         ImageView{
             imageSource: "asset:///images/GridView/subtitleAvailible.png"
             opacity: haveSubtitle ? 1 : 0
+        }
+    }
+    Container {
+        verticalAlignment: VerticalAlignment.Bottom
+        leftPadding: 20
+        bottomPadding: 80
+        ImageView {
+            id: cloudImage
+            imageSource: "asset:///images/GridView/cloud_icon.png"
+            opacity: isRemote ? 1 : 0
         }
     }
 
