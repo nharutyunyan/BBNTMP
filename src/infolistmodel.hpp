@@ -142,6 +142,9 @@ public:
     virtual ~InfoListModel();
     void clearAddedVideos();
 
+    static const int MAX_FAVORITE_NUMBER;
+    static const int MIN_FAVORITE_NUMBER;
+
 public slots:
     void consume(QString filename, QString path);
     void onMetadataReady(QVariantMap data);

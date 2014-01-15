@@ -17,6 +17,9 @@
 using namespace bb::cascades;
 using namespace utility;
 
+const int InfoListModel::MAX_FAVORITE_NUMBER = 10;
+const int InfoListModel::MIN_FAVORITE_NUMBER = 2;
+
 //TODO: Move the data handling (storage/loading) into separate module  - DataManager
 //View model should be simple, and just keep the list for Views
 MovieDecoder InfoListModel::s_movieDecoder;
@@ -778,12 +781,11 @@ QVariantList InfoListModel::getFavorites()
 QVariantList InfoListModel::getFrameVideos()
 {
 	QVariantList favoriteVideos = getFavorites();
-	if (favoriteVideos.length() == 0) {
-		int i = 0;
+	if (favoriteVideos.length() < MIN_FAVORITE_NUMBER) {
 		for (QVariantList indexPath = first(); !indexPath.isEmpty(); indexPath = after(indexPath)) {
-			favoriteVideos.push_back(data(indexPath).toMap());
-			i++;
-			if (i>=10) {
+			if(!favoriteVideos.contains(data(indexPath)))
+			    favoriteVideos.push_back(data(indexPath).toMap());
+			if (favoriteVideos.length() >= MAX_FAVORITE_NUMBER) {
 				break;
 			}
 		}
