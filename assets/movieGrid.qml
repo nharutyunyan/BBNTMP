@@ -15,7 +15,6 @@ ListView {
         columnCount: orientationHandler.orientation == UIOrientation.Portrait ? 2 : 4
         spacingAfterHeader: 5
         verticalCellSpacing: 5
-
     }
     horizontalAlignment: HorizontalAlignment.Center
 
@@ -527,8 +526,9 @@ ListView {
         select(indexPath);
 
     }
+
     onSelectionChanged: {
-        if (selected) { 
+        if (selected) {
             var allSelected = listView.selectionList();
             for (var i = listView.selectionList().length - 1; i >= 0; i --) {
                 if (allSelected[i].length == 1) {
@@ -561,7 +561,6 @@ ListView {
                     nowPlayingBar.playerPage = page;
                 }
                 navigationPane.push(page);
-                Application.setMenuEnabled(false);
                 clearSelection();
             }
         }
@@ -664,10 +663,25 @@ ListView {
     }
 
     onCreationCompleted: {
-        updateFrame.start();
+        updateFrame.start();  
+        checkInvoke.start();                  
+    }
+    
+    function onInvoked() {
+        listView.clearSelection();
+        if(nuttyplayer.getInvokedVideo() == "")
+            return;
+        if(settings.value("inPlayerView").toString() == "true") {
+            console.log("in playerview == " + settings.value("inPlayerView").toString());
+            navigationPane.pop();
+            videoPlayerPage.destroy();
+            videoPlayerPage = null;
+            settings.setValue("inPlayerView", false);
+        }
+        openVideoTimer.start();
     }
 
-    attachedObjects: [
+   attachedObjects: [
         OrientationHandler {
             id: orientationHandler
             onOrientationAboutToChange: {
@@ -688,6 +702,9 @@ ListView {
                 }
                 offsetList(orientationHandler.orientation != UIOrientation.Portrait);
             }
+        },
+        Settings {
+            id: settings
         },
         ListScrollStateHandler {
             id: scrollStateHandler
@@ -726,6 +743,33 @@ ListView {
             interval: 4000
             onTimeout: {
                 listView.checkForUpdateFrame = ! listView.checkForUpdateFrame;
+            }
+        },
+        QTimer {
+            id: checkInvoke
+            singleShot: true
+            interval: 800
+            onTimeout: {
+                listView.onInvoked();
+            }
+        },
+        QTimer {
+            id: openVideoTimer
+            singleShot: true
+            interval: 500
+            onTimeout: {
+                var path = nuttyplayer.getInvokedVideo();
+                if(settings.value("inPlayerView")) {
+                    settings.setValue("inPlayerView", false);
+                }
+                if ( path != "" ) {
+                    var index = infoListModel.getIndex(path);
+                    if(index == "") {
+                        infoListModel.addVideo(path);
+                        index = infoListModel.getIndex(path);
+                    }
+                    listView.select(index,true);
+                }
             }
         }
     ]

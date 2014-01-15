@@ -164,6 +164,7 @@ NavigationPane {
             // Once this object is created, attach the signal to a Javascript function.
             application.manualExit.connect(onManualExit);
             settings.setValue("inPlayerView", false);
+            nuttyplayer.invoked.connect(mainPage.movieGridObj.onInvoked);
         }
         function onManualExit() {
             infoListModel.setVideoPosition(mainPage.currentMoviePosition);
