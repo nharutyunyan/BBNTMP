@@ -36,6 +36,7 @@ private:
 
 signals:
     void subtitleListReceived(const QVariant&);
+    void subtitleDownloadFinished(const QString&);
 
 private slots:
     void serverInfoReply(QVariant& data, QNetworkReply* reply);

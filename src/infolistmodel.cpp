@@ -12,6 +12,7 @@
 #include "videothumbnailer.hpp"
 #include "producer.hpp"
 #include "ApplicationInfo.hpp"
+#include "SubtitleDownloadManager.h"
 
 #include <bb/data/JsonDataAccess>
 
@@ -105,6 +106,10 @@ InfoListModel::InfoListModel(QObject* parent)
 	m_paralellWorker->moveToThread(m_ParalellWorkerThread);
 	QObject::connect(this, SIGNAL(videoFilesListNeeded(QString)), m_paralellWorker,
 			SLOT(getVideoFileList(QString)));
+
+    bool res = QObject::connect(SubtitleDownloadManager::getInstance(), SIGNAL(subtitleDownloadFinished(const QString&)),
+                                this, SLOT(checkSubtitle(QString)));
+    Q_ASSERT(res);
 
 	m_ParalellWorkerThread->start();
 

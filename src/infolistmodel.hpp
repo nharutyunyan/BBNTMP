@@ -135,9 +135,9 @@ public:
 
     Q_INVOKABLE bool isLocal(QString path);
 
-    Q_INVOKABLE void checkSubtitle(QString path = "");
-
     Q_INVOKABLE void addVideo(QString path);
+
+    Q_SLOT void checkSubtitle(QString path = "");
 
 public:
     InfoListModel(QObject* parent = 0);

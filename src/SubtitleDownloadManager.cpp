@@ -199,6 +199,7 @@ void SubtitleDownloadManager::downloadSubtitleReply(QVariant& data, QNetworkRepl
         byteArray = gzipDecompress(byteArray);
         QString result = QString::fromUtf8(byteArray.data(), byteArray.size());
         out << result;
+        emit subtitleDownloadFinished(m_replyPtrMap.value(reply));
     }
 
     file.close();
